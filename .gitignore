@@ -1,0 +1,11 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+/dist*
+dist.zip
+pnpm-debug
+auto-*.d.ts
+.idea
+.history
+.qoder/rules/*

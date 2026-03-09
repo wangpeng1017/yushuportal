@@ -1,0 +1,120 @@
+:root {
+  /* Vben Admin 风格 - 登录页背景 */
+  --login-bg-color: #0960bd;
+
+  --left-menu-max-width: 200px;
+
+  --left-menu-min-width: 64px;
+
+  /* 侧边栏 - 深青色 */
+  --left-menu-bg-color: #003D56;
+
+  --left-menu-bg-light-color: #00334A;
+
+  /* 菜单选中背景色 - 更深的青色 */
+  --left-menu-bg-active-color: #005670;
+
+  --left-menu-text-color: rgba(255, 255, 255, 0.75);
+
+  --left-menu-text-active-color: #ffffff;
+
+  /* 折叠菜单背景色 */
+  --left-menu-collapse-bg-active-color: #00405C;
+  /* left menu end */
+
+  /* logo start */
+  --logo-height: 48px;
+
+  --logo-title-text-color: #ffffff;
+  /* logo end */
+
+  /* header start */
+  /* 顶部导航 - Vben 纯白 */
+  --top-header-bg-color: '#ffffff';
+
+  --top-header-text-color: 'rgba(0, 0, 0, 0.85)';
+
+  /* hover 颜色 - Vben 浅灰 */
+  --top-header-hover-color: #f5f5f5;
+
+  --top-tool-height: var(--logo-height);
+
+  --top-tool-p-x: 0;
+
+  --tags-view-height: 34px;
+  /* header start */
+
+  /* tab menu start */
+  --tab-menu-max-width: 80px;
+
+  --tab-menu-min-width: 30px;
+
+  --tab-menu-collapse-height: 36px;
+  /* tab menu end */
+
+  /* --app-content-padding: 16px; */
+    --app-content-padding: 10px;
+
+  /* 内容区背景 - Vben 浅灰 */
+  --app-content-bg-color: #f0f2f5;
+
+  --app-footer-height: 48px;
+
+  --transition-time-02: 0.2s;
+  
+  /* 主题色 - 青色系 */
+  --primary-color: #0097BA;
+  --primary-color-hover: #00B4D8;
+  --primary-color-active: #007B9A;
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --danger-color: #ff4d4f;
+  --info-color: #909399;
+  
+  /* Vben 边框色 */
+  --border-color: #e5e7eb;
+  --border-color-light: #f0f0f0;
+  
+  /* Vben 文本色 */
+  --text-color-primary: rgba(0, 0, 0, 0.85);
+  --text-color-regular: rgba(0, 0, 0, 0.65);
+  --text-color-secondary: rgba(0, 0, 0, 0.45);
+  --text-color-placeholder: rgba(0, 0, 0, 0.25);
+  
+  /* Vben 阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  --shadow-base: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Vben 圆角 */
+  --border-radius-small: 2px;
+  --border-radius-base: 4px;
+  --border-radius-large: 8px;
+}
+
+.dark {
+  --app-content-bg-color: #141414;
+  --primary-color: #1677ff;
+  --primary-color-hover: #3d8fff;
+  --border-color: #303030;
+  --border-color-light: #262626;
+  --text-color-primary: rgba(255, 255, 255, 0.85);
+  --text-color-regular: rgba(255, 255, 255, 0.65);
+  --text-color-secondary: rgba(255, 255, 255, 0.45);
+  --text-color-placeholder: rgba(255, 255, 255, 0.25);
+}
+
+html,
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+:after,
+:before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}

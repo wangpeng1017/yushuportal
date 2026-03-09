@@ -1,0 +1,514 @@
+/* Vben Admin 风格主题样式 */
+
+/* 卡片样式 - Vben 简洁风 */
+.el-card {
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--shadow-base);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+  
+  .el-card__header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 20px;
+    background-color: #fafafa;
+  }
+  
+  .el-card__body {
+    padding: 20px;
+  }
+}
+
+/* 按钮样式 - Vben 扫平风格 */
+.el-button {
+  border-radius: var(--border-radius-small);
+  font-weight: 400;
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  
+  &--primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    
+    &:hover {
+      background-color: var(--primary-color-hover);
+      border-color: var(--primary-color-hover);
+    }
+    
+    &:active {
+      background-color: var(--primary-color-active);
+      border-color: var(--primary-color-active);
+    }
+  }
+  
+  &--default {
+    &:hover {
+      color: var(--primary-color-hover);
+      border-color: var(--primary-color-hover);
+    }
+  }
+}
+
+/* 表格样式 - Vben 简洁明了 */
+.el-table {
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--border-color);
+  
+  th.el-table__cell {
+    background-color: #fafafa;
+    color: var(--text-color-primary);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .el-table__body tr:hover > td {
+    background-color: #fafafa;
+  }
+  
+  .el-table__row {
+    &:hover {
+      background-color: #fafafa;
+    }
+  }
+  
+  td.el-table__cell {
+    border-bottom: 1px solid var(--border-color-light);
+  }
+}
+
+/* 输入框 - Vben 简洁边框 */
+.el-input {
+  .el-input__wrapper {
+    border-radius: var(--border-radius-small);
+    box-shadow: 0 0 0 1px var(--border-color) inset;
+    transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+    
+    &:hover {
+      box-shadow: 0 0 0 1px var(--primary-color) inset;
+    }
+    
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--primary-color) inset;
+    }
+  }
+}
+
+/* 选择器 */
+.el-select {
+  .el-input__wrapper {
+    border-radius: var(--border-radius-small);
+  }
+}
+
+/* 标签页 - Vben 扫平风格 */
+.el-tabs {
+  .el-tabs__item {
+    color: var(--text-color-regular);
+    font-weight: 400;
+    transition: all 0.2s;
+    
+    &.is-active {
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+    
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+  
+  .el-tabs__active-bar {
+    background-color: var(--primary-color);
+  }
+}
+
+/* 菜单项 - 定制风格 */
+.el-menu {
+  border-right: none;
+  
+  .el-menu-item,
+  .el-sub-menu__title {
+    color: var(--left-menu-text-color);
+    transition: all 0.2s;
+    
+    &:hover {
+      background-color: var(--left-menu-bg-light-color);
+      color: var(--left-menu-text-active-color);
+    }
+  }
+  
+  .el-menu-item.is-active {
+    background-color: var(--left-menu-bg-active-color) !important;
+    color: var(--left-menu-text-active-color) !important;
+    position: relative;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background-color: #0097BA;
+      border-radius: 0 2px 2px 0;
+    }
+  }
+}
+
+/* 面包屑 - Vben 简洁风 */
+.el-breadcrumb {
+  .el-breadcrumb__item {
+    .el-breadcrumb__inner {
+      color: var(--text-color-regular);
+      font-weight: 400;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: var(--primary-color);
+      }
+    }
+    
+    &:last-child .el-breadcrumb__inner {
+      color: var(--text-color-primary);
+    }
+  }
+}
+
+/* 对话框 - Vben 简洁风格 */
+.el-dialog {
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--shadow-lg);
+  
+  .el-dialog__header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 20px;
+    margin: 0;
+  }
+  
+  .el-dialog__body {
+    padding: 20px;
+  }
+  
+  .el-dialog__footer {
+    border-top: 1px solid var(--border-color);
+    padding: 12px 20px;
+  }
+}
+
+/* 消息提示 - Vben 风格 */
+.el-message {
+  border-radius: var(--border-radius-small);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  
+  &.el-message--success {
+    background-color: #f6ffed;
+    border-color: #b7eb8f;
+    
+    .el-message__icon {
+      color: var(--success-color);
+    }
+  }
+  
+  &.el-message--warning {
+    background-color: #fffbe6;
+    border-color: #ffe58f;
+    
+    .el-message__icon {
+      color: var(--warning-color);
+    }
+  }
+  
+  &.el-message--error {
+    background-color: #fff2f0;
+    border-color: #ffccc7;
+    
+    .el-message__icon {
+      color: var(--danger-color);
+    }
+  }
+  
+  &.el-message--info {
+    background-color: #f0f2f5;
+    border-color: #d9d9d9;
+    
+    .el-message__icon {
+      color: var(--info-color);
+    }
+  }
+}
+
+/* 下拉菜单 - Vben 简洁风 */
+.el-dropdown-menu {
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  padding: 4px 0;
+  
+  .el-dropdown-menu__item {
+    padding: 8px 16px;
+    color: var(--text-color-primary);
+    transition: all 0.2s;
+    
+    &:hover {
+      background-color: #f5f5f5;
+      color: var(--primary-color);
+    }
+    
+    &:not(:last-child) {
+      border-bottom: none;
+    }
+  }
+}
+
+/* 分页器 - Vben 扫平风 */
+.el-pagination {
+  .el-pager li {
+    border-radius: var(--border-radius-small);
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    color: var(--text-color-primary);
+    transition: all 0.2s;
+    
+    &.is-active {
+      background-color: var(--primary-color);
+      color: #fff;
+    }
+    
+    &:hover:not(.is-active) {
+      color: var(--primary-color);
+    }
+  }
+  
+  .btn-prev,
+  .btn-next {
+    border-radius: var(--border-radius-small);
+    color: var(--text-color-regular);
+    
+    &:hover:not(:disabled) {
+      color: var(--primary-color);
+    }
+  }
+}
+
+/* 加载动画 */
+.el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.8);
+  
+  .el-loading-spinner {
+    .circular {
+      stroke: var(--primary-color);
+    }
+    
+    .el-loading-text {
+      color: var(--primary-color);
+    }
+  }
+}
+
+/* 标签 - Vben 简洁风 */
+.el-tag {
+  border-radius: var(--border-radius-small);
+  border: 1px solid;
+  padding: 0 8px;
+  height: 24px;
+  line-height: 22px;
+  
+  &.el-tag--primary {
+    background-color: #e6f4ff;
+    border-color: #91caff;
+    color: var(--primary-color);
+  }
+  
+  &.el-tag--success {
+    background-color: #f6ffed;
+    border-color: #b7eb8f;
+    color: var(--success-color);
+  }
+  
+  &.el-tag--warning {
+    background-color: #fffbe6;
+    border-color: #ffe58f;
+    color: var(--warning-color);
+  }
+  
+  &.el-tag--danger {
+    background-color: #fff2f0;
+    border-color: #ffccc7;
+    color: var(--danger-color);
+  }
+  
+  &.el-tag--info {
+    background-color: #f5f5f5;
+    border-color: #d9d9d9;
+    color: var(--info-color);
+  }
+}
+
+/* 步骤条 */
+.el-steps {
+  .el-step__head.is-finish {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .el-step__title.is-finish {
+    color: var(--primary-color);
+  }
+  
+  .el-step__head.is-process {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .el-step__title.is-process {
+    color: var(--text-color-primary);
+    font-weight: 500;
+  }
+}
+
+/* 开关 */
+.el-switch {
+  &.is-checked .el-switch__core {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+}
+
+/* 滑块 */
+.el-slider {
+  .el-slider__button {
+    border-color: var(--primary-color);
+  }
+  
+  .el-slider__bar {
+    background-color: var(--primary-color);
+  }
+}
+
+/* 进度条 */
+.el-progress {
+  .el-progress__text {
+    color: var(--text-color-primary);
+  }
+  
+  .el-progress-bar__inner {
+    background-color: var(--primary-color);
+  }
+}
+
+/* 时间线 */
+.el-timeline-item {
+  .el-timeline-item__node {
+    background-color: var(--border-color);
+    
+    &--primary {
+      background-color: var(--primary-color);
+    }
+  }
+}
+
+/* 树形控件 */
+.el-tree {
+  .el-tree-node__content {
+    transition: all 0.2s;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+  
+  .el-tree-node.is-current > .el-tree-node__content {
+    background-color: #e6f4ff;
+    color: var(--primary-color);
+  }
+}
+
+/* 抽屉 */
+.el-drawer {
+  .el-drawer__header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 16px 20px;
+    margin-bottom: 0;
+  }
+  
+  .el-drawer__body {
+    padding: 20px;
+  }
+}
+
+/* 通知 */
+.el-notification {
+  border-radius: var(--border-radius-base);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  padding: 16px 20px;
+}
+
+/* Popover */
+.el-popover {
+  border-radius: var(--border-radius-base);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+/* Tooltip */
+.el-tooltip__popper {
+  border-radius: var(--border-radius-small);
+}
+
+/* 暗黑模式适配 */
+.dark {
+  .el-card {
+    background-color: #1f1f1f;
+    border-color: var(--border-color);
+    
+    .el-card__header {
+      background-color: #141414;
+      border-bottom-color: var(--border-color);
+    }
+  }
+  
+  .el-table {
+    th.el-table__cell {
+      background-color: #1f1f1f;
+      color: var(--text-color-primary);
+    }
+    
+    .el-table__body tr:hover > td {
+      background-color: #262626;
+    }
+  }
+  
+  .el-input .el-input__wrapper {
+    background-color: #141414;
+    
+    &:hover,
+    &.is-focus {
+      box-shadow: 0 0 0 1px var(--primary-color) inset;
+    }
+  }
+  
+  .el-button--default {
+    background-color: transparent;
+    border-color: var(--border-color);
+    color: var(--text-color-primary);
+    
+    &:hover {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+  }
+  
+  .el-dropdown-menu {
+    background-color: #1f1f1f;
+    
+    .el-dropdown-menu__item:hover {
+      background-color: #262626;
+    }
+  }
+}
