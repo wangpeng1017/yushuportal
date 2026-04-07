@@ -17,7 +17,7 @@
   </el-row>
 </template>
 <script lang="ts" setup>
-import logoImg from '@/assets/imgs/logoB.svg'
+import logoImg from '@/assets/imgs/logoW.svg'
 
 import LoginFormTitle from './LoginFormTitle.vue'
 import { LoginStateEnum, useLoginState } from './useLogin'

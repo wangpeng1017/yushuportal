@@ -1,6 +1,6 @@
 export default {
   hello: {
-    info: '你好，海克斯康，祝你开心每一天！'
+    info: '你好，慧新全智，祝你开心每一天！'
   },
   common: {
     inputText: '请输入',

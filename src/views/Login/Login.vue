@@ -9,7 +9,7 @@
       <div class="flex items-center justify-between px-30px py-10px">
         <!-- 左侧 logo -->
         <div class="flex items-center text-white">
-          <img alt="" class="h-40px" style="width: 160px;" src="@/assets/imgs/logoB.svg" />
+          <img alt="" class="h-40px" style="width: 160px;" src="@/assets/imgs/logoW.svg" />
         </div>
         <!-- 右侧主题、语言选择 -->
         <div class="flex items-center space-x-10px">

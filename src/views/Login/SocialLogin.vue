@@ -9,7 +9,7 @@
       >
         <!-- 左上角的 logo + 系统标题 -->
         <div class="relative flex items-center text-white">
-          <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/logoB.svg" />
+          <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/logoW.svg" />
           <span class="text-20px font-bold">{{ underlineToHump(appStore.getTitle) }}</span>
         </div>
         <!-- 左边的背景图 + 欢迎语 -->
@@ -32,7 +32,7 @@
           class="flex items-center justify-between text-white at-2xl:justify-end at-xl:justify-end"
         >
           <div class="flex items-center at-2xl:hidden at-xl:hidden">
-            <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/logoB.svg" />
+            <img alt="" class="mr-10px h-48px w-48px" src="@/assets/imgs/logoW.svg" />
             <span class="text-20px font-bold">{{ underlineToHump(appStore.getTitle) }}</span>
           </div>
           <div class="flex items-center justify-end space-x-10px h-48px">
@@ -203,7 +203,7 @@ const loginData = reactive({
     rememberMe: false
   }
   // loginForm: {
-  //   tenantName: '海克斯康',
+  //   tenantName: '慧新全智',
   //   username: 'admin',
   //   password: 'admin123',
   //   captchaVerification: '',

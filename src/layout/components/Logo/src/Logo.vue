@@ -69,7 +69,7 @@ watch(
       <img
         :style="{ width: layout === 'classic' ? '100px' : 'calc(var(--logo-height) - 10px)' }"
         class="mb-10px"
-        src="@/assets/imgs/logoB.svg"
+        src="@/assets/imgs/logoW.svg"
       />
       <div
         v-if="show"

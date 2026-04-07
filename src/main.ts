@@ -44,6 +44,25 @@ import VueDOMPurifyHTML from 'vue-dompurify-html' // 解决v-html 的安全隐�
 
 import print from 'vue3-print-nb' // 打印插件
 
+import VxeUIBase, { VxeUI } from 'vxe-pc-ui'
+import 'vxe-pc-ui/lib/style.css'
+import VxeUITable from 'vxe-table'
+import 'vxe-table/lib/style.css'
+import VxeUIPluginRenderElement from '@vxe-ui/plugin-render-element'
+import '@vxe-ui/plugin-render-element/dist/style.css'
+
+import { ElInput, ElInputNumber, ElSelect, ElCascader, ElDatePicker, ElTimeSelect } from 'element-plus'
+  // ...
+VxeUIPluginRenderElement.component(ElInput)
+VxeUIPluginRenderElement.component(ElInputNumber)
+VxeUIPluginRenderElement.component(ElSelect)
+VxeUIPluginRenderElement.component(ElCascader)
+VxeUIPluginRenderElement.component(ElDatePicker)
+VxeUIPluginRenderElement.component(ElTimeSelect)
+// ...
+
+VxeUI.use(VxeUIPluginRenderElement)
+
 // 创建实例
 const setupAll = async () => {
   const app = createApp(App)
@@ -70,6 +89,10 @@ const setupAll = async () => {
 
   // 打印
   app.use(print)
+
+  app.use(VxeUIBase)
+  
+  app.use(VxeUITable)
 
   app.mount('#app')
 }
