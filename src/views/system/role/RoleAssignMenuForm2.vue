@@ -107,7 +107,7 @@ const open = async (row: RoleApi.RoleVO) => {
     // 加载应用列表
     const apps = await AppApi.getAppList({
       status: 0,
-      deleted: false
+      deleted: false,
     } as any)
     appList.value = apps || []
     
