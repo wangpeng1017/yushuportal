@@ -1,78 +1,84 @@
 <template>
   <div
     :class="prefixCls"
-    class="relative h-[100%] lt-md:px-10px lt-sm:px-10px lt-xl:px-10px lt-xl:px-10px"
-    style="background-color: #00405C;"
+    class="relative h-[100%] flex items-center justify-center login-gradient-bg"
   >
-    <!-- 顶部导航栏 -->
-    <div class="login-header">
-      <div class="flex items-center justify-between px-30px py-10px">
-        <!-- 左侧 logo -->
-        <div class="flex items-center text-white">
-          <img alt="" class="h-40px" style="width: 160px;" src="@/assets/imgs/logoW.svg" />
-        </div>
-        <!-- 右侧主题、语言选择 -->
-        <div class="flex items-center space-x-10px">
-          &nbsp;
-          <!-- <ThemeSwitch />
-          <LocaleDropdown /> -->
-        </div>
-      </div>
-    </div>
-    
-    <div class="relative mx-auto h-full flex pt-70px">
-      <div
-        :class="`${prefixCls}__left flex-1 relative p-30px lt-xl:hidden overflow-x-hidden overflow-y-auto flex flex-col`"
-      >
-        <!-- 中间区域（留空） -->
-        <div class="flex-1"></div>
-        <!-- 左下角的 banner -->
-        <div class="relative">
-          <img alt="" class="w-full max-w-600px" src="@/assets/imgs/logo_banner.png" />
-        </div>
-      </div>
-      <div
-        class="relative flex-1 p-30px lt-sm:p-10px overflow-x-hidden overflow-y-auto"
-      >
-        <!-- 右边的登录界面 -->
-        <Transition appear enter-active-class="animate__animated animate__bounceInRight">
-          <div
-            class="m-auto h-[calc(100%-60px)] w-[100%] flex items-center at-2xl:max-w-500px at-lg:max-w-500px at-md:max-w-500px at-xl:max-w-500px"
-          >
-            <!-- 账号登录 -->
-            <LoginForm class="m-auto h-auto p-40px login-form-container" style="background-color: rgba(0, 64, 92, 0.3); border-radius: 8px;" />
-            <!-- 手机登录 -->
-            <MobileForm class="m-auto h-auto p-40px login-form-container" style="background-color: rgba(0, 64, 92, 0.3); border-radius: 8px;" />
-            <!-- 二维码登录 -->
-            <QrCodeForm class="m-auto h-auto p-40px login-form-container" style="background-color: rgba(0, 64, 92, 0.3); border-radius: 8px;" />
-            <!-- 注册 -->
-            <RegisterForm class="m-auto h-auto p-40px login-form-container" style="background-color: rgba(0, 64, 92, 0.3); border-radius: 8px;" />
-            <!-- 三方登录 -->
-            <SSOLoginVue class="m-auto h-auto p-40px login-form-container" style="background-color: rgba(0, 64, 92, 0.3); border-radius: 8px;" />
-            <!-- 忘记密码 -->
-            <ForgetPasswordForm class="m-auto h-auto p-40px login-form-container" style="background-color: rgba(0, 64, 92, 0.3); border-radius: 8px;" />
-          </div>
-        </Transition>
-      </div>
+    <!-- 加载状态显示 -->
+    <div class="loading-container">
+      <el-icon class="loading-icon" size="48"><Loading /></el-icon>
+      <p class="loading-text">{{ loadingText }}</p>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { underlineToHump } from '@/utils'
-
 import { useDesign } from '@/hooks/web/useDesign'
-import { useAppStore } from '@/store/modules/app'
-import { ThemeSwitch } from '@/layout/components/ThemeSwitch'
-import { LocaleDropdown } from '@/layout/components/LocaleDropdown'
-
-import { LoginForm, MobileForm, QrCodeForm, RegisterForm, SSOLoginVue, ForgetPasswordForm } from './components'
+import { Loading } from '@element-plus/icons-vue'
+import * as authUtil from '@/utils/auth'
+import * as LoginApi from '@/api/login'
 
 defineOptions({ name: 'Login' })
 
-const { t } = useI18n()
-const appStore = useAppStore()
 const { getPrefixCls } = useDesign()
 const prefixCls = getPrefixCls('login')
+const { currentRoute } = useRouter()
+const loadingText = ref('正在跳转登录...')
+
+// SSO登录方法
+const ssoLogin = async () => {
+  const redirect: string = `${window.location.origin}/login?redirect=/index`
+  localStorage.setItem('redirect_uri', redirect)
+  window.location.href = `${import.meta.env.VITE_IIMAKE_SSO_URL}?client_id=${import.meta.env.VITE_IIMAKE_CLIENT_ID}&response_type=code&auto_approve=false&scope=%7B%22user.read%22%3Atrue%7D&redirect_uri=${encodeURIComponent(redirect)}`
+}
+
+// Code登录方法
+const codeLogin = async () => {
+  const queryParams = currentRoute.value.query
+  const code = queryParams.code
+  if (code) {
+    loadingText.value = '正在登录...'
+    const redirect_uri = localStorage.getItem('redirect_uri') || window.location.origin + window.location.pathname
+    const loginResult = await LoginApi.codeLogin({ code: code, url: redirect_uri?.replaceAll('#', '%23') })
+    if (loginResult && loginResult.username) {
+      let auth: any = {}
+      auth.accessToken = loginResult.access_token
+      auth.refreshToken = loginResult.refresh_token
+      auth.tokenType = loginResult.token_type
+      auth.expiresIn = loginResult.expires_in
+      authUtil.setOauth2Token(auth)
+      authUtil.setTenantId(1)
+      try {
+        const loginForm = {
+          username: loginResult.username
+        }
+        const res = await LoginApi.loginByUsername(loginForm)
+        if (!res) {
+          return
+        }
+        authUtil.setToken(res)
+        const redirect = queryParams.redirect as string || '/'
+        window.location.href = redirect
+      } catch (error) {
+        console.log(error)
+        loadingText.value = '登录失败，正在跳转...'
+        setTimeout(() => {
+          ssoLogin()
+        }, 1500)
+      }
+    } else {
+      loadingText.value = '登录失败，正在跳转...'
+      setTimeout(() => {
+        ssoLogin()
+      }, 1500)
+    }
+  } else {
+    // 没有code参数，执行SSO登录
+    ssoLogin()
+  }
+}
+
+onMounted(() => {
+  codeLogin()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -80,78 +86,41 @@ $prefix-cls: #{$namespace}-login;
 
 .#{$prefix-cls} {
   overflow: auto;
-  background-color: #00405C;
-
-  &__left {
-    // 移除原背景图
-  }
 }
 
-// 顶部导航栏样式
-.login-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background-color: rgba(0, 64, 92, 0.3);
-  backdrop-filter: blur(10px);
+// 渐变背景 - 从 #00405C 到稍浅的蓝色
+.login-gradient-bg {
+  background: linear-gradient(135deg, #00405C 0%, #1A5A70 50%, #367484 100%);
 }
 
-// 登录表单样式
-:deep(.login-form) {
-  // 表单文字颜色为白色
+// 加载容器样式
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   color: white;
-  
-  // 标签文字为白色
-  .el-form-item__label {
-    color: white !important;
-  }
-  
-  // 复选框文字为白色
-  .el-checkbox__label {
-    color: white !important;
-  }
-  
-  // 链接文字为白色
-  .el-link {
-    color: white !important;
-  }
-  
-  // 输入框样式
-  .el-input__wrapper {
-    background-color: white;
-  }
-  
-  // 输入框内文字为黑色
-  .el-input__inner {
-    color: black !important;
-  }
 }
 
-// 登录框容器背景样式
-.login-form-container {
-  background-color: rgba(0, 64, 92, 0.3) !important;
-  border-radius: 8px !important;
-  backdrop-filter: blur(10px);
+// 加载图标动画
+.loading-icon {
+  animation: rotate 2s linear infinite;
+  color: white;
+}
+
+// 加载文字样式
+.loading-text {
+  margin-top: 16px;
+  font-size: 14px;
+  color: white;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
-
-<!-- <style lang="scss">
-.dark .login-form {
-  .el-divider__text {
-    background-color: var(--login-bg-color);
-  }
-
-  .el-card {
-    background-color: var(--login-bg-color);
-  }
-}
-
-// 登录框容器全局样式
-.login-form-container {
-  background-color: rgba(0, 64, 92, 0.3) !important;
-  border-radius: 8px !important;
-  backdrop-filter: blur(10px);
-}
-</style> -->

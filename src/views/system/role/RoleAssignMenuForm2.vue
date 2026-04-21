@@ -189,10 +189,10 @@ const saveCurrentApp = async () => {
       menuIds: currentCheckedKeys.value
     }
     
-    if (data.menuIds.length === 0) {
-      message.warning('请至少选择一个菜单')
-      return
-    }
+    // if (data.menuIds.length === 0) {
+    //   message.warning('请至少选择一个菜单')
+    //   return
+    // }
     
     await PermissionApi.assignRoleAppMenu(data)
     message.success('保存成功')
