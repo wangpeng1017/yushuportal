@@ -8,6 +8,7 @@ import { usePageLoading } from '@/hooks/web/usePageLoading'
 import { useDictStoreWithOut } from '@/store/modules/dict'
 import { useUserStoreWithOut } from '@/store/modules/user'
 import { usePermissionStoreWithOut } from '@/store/modules/permission'
+import { tryAutoLogin } from '@/utils/autoLogin'
 
 const { start, done } = useNProgress()
 
@@ -71,27 +72,40 @@ router.beforeEach(async (to, from, next) => {
         await dictStore.setDictMap()
       }
       if (!userStore.getIsSetUser) {
-        isRelogin.show = true
-        await userStore.setUserInfoAction()
-        isRelogin.show = false
-        await permissionStore.generateRoutes()
-        permissionStore.getAddRouters.forEach((route) => {
-          router.addRoute(route as unknown as RouteRecordRaw) 
-        })
-        const redirectPath = from.query.redirect || to.path
-        const redirect = decodeURIComponent(redirectPath as string)
-        const { paramsObject: query } = parseURL(redirect)
-        const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect, query }
-        next(nextData)
+        try {
+          isRelogin.show = true
+          await userStore.setUserInfoAction()
+          isRelogin.show = false
+          await permissionStore.generateRoutes()
+          permissionStore.getAddRouters.forEach((route) => {
+            try {
+              router.addRoute(route as unknown as RouteRecordRaw)
+            } catch (e) {
+              console.error('[ROUTE_ADD_FAIL]', route?.path, route?.name, e)
+            }
+          })
+          const redirectPath = from.query.redirect || to.path
+          const redirect = decodeURIComponent(redirectPath as string)
+          const { paramsObject: query } = parseURL(redirect)
+          const nextData = to.path === redirect ? { ...to, replace: true } : { path: redirect, query }
+          next(nextData)
+        } catch (e) {
+          console.error('[GUARD_FAIL]', e)
+          next()
+        }
       } else {
         next()
       }
     }
   } else {
+    // === UniTree autoLogin: 演示/内网环境免登录 ===
+    if (await tryAutoLogin()) {
+      return next({ ...to, replace: true })
+    }
     if (whiteList.indexOf(to.path) !== -1) {
       next()
     } else {
-      next(`/login?redirect=${to.fullPath}`) 
+      next(`/login?redirect=${to.fullPath}`)
     }
   }
 })

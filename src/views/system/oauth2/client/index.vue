@@ -10,10 +10,10 @@
       :inline="true"
       label-width="80px"
     >
-      <el-form-item label="应用名" prop="name">
+      <el-form-item label="客户端名称" prop="name">
         <el-input
           v-model="queryParams.name"
-          placeholder="请输入应用名"
+          placeholder="请输入客户端名称"
           clearable
           @keyup.enter="handleQuery"
           class="!w-200px"
@@ -63,8 +63,8 @@
       <el-table-column type="selection" width="55" />
       <el-table-column label="客户端编号" width="160" align="center" prop="clientId" />
       <el-table-column label="客户端密钥" width="160" align="center" prop="secret" />
-      <el-table-column label="应用名" width="120" align="center" prop="name" />
-      <el-table-column label="应用图标" width="120" align="center" prop="logo">
+      <el-table-column label="客户端名称" width="120" align="center" prop="name" />
+      <el-table-column label="客户端图标" width="120" align="center" prop="logo">
         <template #default="scope">
           <img width="40px" height="40px" :src="scope.row.logo" />
         </template>
@@ -93,7 +93,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="默认状态" width="100" align="center" fixed="right" prop="defaultFlagText" />
+      <!-- <el-table-column label="默认状态" width="100" align="center" fixed="right" prop="defaultFlagText" /> -->
       <el-table-column
         label="创建时间"
         align="center"
@@ -121,14 +121,14 @@
           >
             删除
           </el-button>
-          <el-button
+          <!-- <el-button
             link
             preIcon="ep:basketball"
             title="绑定菜单"
             class="btn-other"
             @click="openAssignMenuForm(scope.row)"
           > 绑定菜单
-          </el-button>
+          </el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -143,8 +143,6 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <ClientForm ref="formRef" @success="getList" />
-  <!-- 表单弹窗：绑定菜单 -->
-  <ClientAssignMenuForm ref="assignMenuFormRef" @success="getList" />
 </template>
 <script lang="ts" setup>
 import { DICT_TYPE, getIntDictOptions } from '@/utils/dict'
@@ -228,12 +226,6 @@ const handleDeleteBatch = async () => {
     // 刷新列表
     await getList()
   } catch {}
-}
-
-/** 绑定菜单操作 */
-const assignMenuFormRef = ref()
-const openAssignMenuForm = async (row: ClientApi.OAuth2ClientVO) => {
-  assignMenuFormRef.value.open(row)
 }
 
 /** 初始化 **/

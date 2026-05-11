@@ -602,3 +602,13 @@
 .el-dialog {
     --el-dialog-margin-top: 5vh;
 }
+
+/* G1 头像在圆形容器里居中机器人头部（偏右上） */
+.el-avatar img,
+.el-avatar > img {
+  object-fit: cover !important;
+  object-position: 70% 30% !important;
+}
+.ut-avatar img {
+  object-position: 70% 30% !important;
+}

@@ -63,6 +63,16 @@ VxeUIPluginRenderElement.component(ElTimeSelect)
 
 VxeUI.use(VxeUIPluginRenderElement)
 
+// Mock 模式：清掉历史 theme/layout 缓存，确保新设计生效
+if (import.meta.env.VITE_MOCK_MODE === 'true') {
+  try {
+    localStorage.removeItem('theme')
+    localStorage.removeItem('layout')
+    localStorage.removeItem('isDark')
+    localStorage.removeItem('fixedMenu')
+  } catch {}
+}
+
 // 创建实例
 const setupAll = async () => {
   const app = createApp(App)
@@ -83,7 +93,15 @@ const setupAll = async () => {
   setupAuth(app)
   setupMountedFocus(app)
 
-  await router.isReady()
+  try {
+    await Promise.race([
+      router.isReady(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('router.isReady timeout')), 8000))
+    ])
+  } catch (e) {
+    console.error('[BOOT]', e)
+    // 即使路由没 ready 也强制 mount，让用户看到错误
+  }
 
   app.use(VueDOMPurifyHTML)
 

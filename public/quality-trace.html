@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>质量追溯系统 Demo</title>
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary: #1677ff;
+      --success: #52c41a;
+      --warning: #faad14;
+      --danger: #ff4d4f;
+      --info: #13c2c2;
+      --bg-body: #f0f2f5;
+      --bg-card: #fff;
+      --border-color: #e8e8e8;
+      --text-primary: #262626;
+      --text-secondary: #595959;
+      --text-muted: #8c8c8c;
+      --sidebar-bg: #001529;
+      --sidebar-active: #1890ff;
+      --transition: all 0.2s ease;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-body); color: var(--text-primary); line-height: 1.5; }
+    
+    /* Sidebar Navigation */
+    .sidebar { width: 200px; background: var(--sidebar-bg); position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-header { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-header h2 { color: #fff; font-size: 16px; font-weight: 600; }
+    .sidebar-menu { list-style: none; padding: 8px 0; }
+    .sidebar-menu li { margin: 2px 0; }
+    .sidebar-menu a { display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; transition: var(--transition); }
+    .sidebar-menu a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .sidebar-menu a.active { color: #fff; background: var(--sidebar-active); }
+    .sidebar-menu a i { font-size: 16px; width: 20px; text-align: center; }
+    
+    /* Main Content */
+    .main-content { margin-left: 200px; padding: 16px 24px; min-height: 100vh; }
+    
+    /* Top Header */
+    .top-header { background: var(--bg-card); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-between; }
+    .top-header h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .top-header h1 i { color: var(--primary); margin-right: 8px; }
+    .header-actions { display: flex; gap: 8px; }
+    .header-actions button { font-size: 12px; padding: 6px 12px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: 4px; cursor: pointer; color: var(--text-secondary); transition: var(--transition); }
+    .header-actions button:hover { border-color: var(--primary); color: var(--primary); }
+    
+    /* Stats Cards */
+    .stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 16px; }
+    .stat-card { background: var(--bg-card); border-radius: 8px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .stat-card .stat-value { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .stat-card .stat-label { font-size: 12px; color: var(--text-muted); }
+    .stat-card.primary .stat-value { color: var(--primary); }
+    .stat-card.success .stat-value { color: var(--success); }
+    .stat-card.warning .stat-value { color: var(--warning); }
+    .stat-card.danger .stat-value { color: var(--danger); }
+    .stat-card.info .stat-value { color: var(--info); }
+    
+    /* Layout */
+    .main-layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; min-height: calc(100vh - 180px); }
+    
+    /* Impact Analysis */
+    .impact-analysis { background: var(--bg-card); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .impact-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    .impact-title i { color: var(--warning); }
+    .impact-info { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+    .impact-info strong { color: var(--primary); margin: 0 4px; }
+    .impact-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+    .impact-stat-item { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f5f7fa; border-radius: 6px; }
+    .impact-stat-item .stat-num { font-size: 18px; font-weight: 700; }
+    .impact-stat-item .stat-text { font-size: 12px; color: var(--text-muted); }
+    .impact-stat-item.shipped .stat-num { color: var(--info); }
+    .impact-stat-item.instock .stat-num { color: var(--success); }
+    .impact-stat-item.inprod .stat-num { color: var(--warning); }
+    .impact-stat-item.abnormal .stat-num { color: var(--danger); }
+    .impact-alert { margin-top: 12px; padding: 8px 12px; background: #fff2f0; border: 1px solid #ffccc7; border-radius: 6px; font-size: 12px; color: var(--danger); display: flex; align-items: center; gap: 6px; }
+    .impact-alert i { font-size: 14px; }
+    
+    /* Trace Mode Selector */
+    .trace-mode-selector { background: var(--bg-card); border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+    .trace-mode-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); }
+    .trace-mode-tab { padding: 8px 20px; font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); }
+    .trace-mode-tab:hover { color: var(--primary); }
+    .trace-mode-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .trace-input-row { display: flex; gap: 12px; align-items: center; }
+    .trace-input-row label { font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+    .trace-input-row input { flex: 1; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; }
+    .trace-input-row input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .trace-input-row button { padding: 8px 20px; background: var(--primary); color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; transition: var(--transition); }
+    .trace-input-row button:hover { background: #0958d9; }
+    .trace-mode-content { display: none; }
+    .trace-mode-content.active { display: block; }
+    .trace-hint { margin-top: 8px; padding: 8px 12px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px; font-size: 12px; color: #0050b3; }
+    
+    /* Demo Buttons */
+    .demo-buttons { margin-top: 10px; padding: 10px 12px; background: #f5f7fa; border-radius: 6px; }
+    .demo-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+    .demo-btn-row { display: flex; gap: 8px; }
+    .demo-btn { flex: 1; padding: 8px 12px; background: #fff; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; color: var(--text-primary); cursor: pointer; text-align: left; transition: var(--transition); }
+    .demo-btn:hover { border-color: var(--primary); color: var(--primary); background: #f0f7ff; }
+    .demo-btn::before { content: "▶ "; color: var(--primary); font-size: 10px; }
+    
+    /* Batch Tabs */
+    .batch-tab { padding: 8px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); }
+    .batch-tab:hover { color: var(--primary); }
+    .batch-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .batch-checkbox { cursor: pointer; }
+    
+    /* Product Tabs */
+    .product-tab { padding: 8px 20px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); }
+    .product-tab:hover { color: var(--primary); }
+    .product-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    
+    /* Tree Panel */
+    .tree-panel { background: var(--bg-card); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); overflow: hidden; }
+    .tree-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+    .tree-header h3 { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .tree-header h3 i { color: var(--primary); margin-right: 6px; }
+    .tree-actions { display: flex; gap: 8px; }
+    .tree-actions button { font-size: 12px; padding: 4px 10px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: 4px; cursor: pointer; color: var(--text-secondary); transition: var(--transition); }
+    .tree-actions button:hover { border-color: var(--primary); color: var(--primary); }
+    
+    .tree-content { padding: 12px; overflow-y: auto; max-height: calc(100vh - 200px); }
+    
+    /* Tree Nodes */
+    .tree-node { user-select: none; }
+    .tree-node-row { display: flex; align-items: center; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: var(--transition); }
+    .tree-node-row:hover { background: #f0f5ff; }
+    .tree-node-row.active { background: #e6f4ff; }
+    .tree-toggle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 12px; transition: var(--transition); flex-shrink: 0; }
+    .tree-toggle.expanded { transform: rotate(90deg); }
+    .tree-toggle.hidden { visibility: hidden; }
+    .tree-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin: 0 6px; color: var(--primary); font-size: 14px; flex-shrink: 0; }
+    .tree-label { flex: 1; font-size: 13px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tree-status { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+    .tree-tag { font-size: 11px; padding: 1px 6px; border-radius: 10px; font-weight: 500; }
+    .tree-tag.shipped { background: #e6f7ff; color: var(--info); }
+    .tree-tag.instock { background: #f6ffed; color: var(--success); }
+    .tree-tag.inprod { background: #fffbe6; color: var(--warning); }
+    .tree-tag.mrb { background: #fff1f0; color: var(--danger); }
+    
+    .tree-children { margin-left: 20px; border-left: 1px dashed var(--border-color); padding-left: 8px; }
+    .tree-children.collapsed { display: none; }
+    
+    /* Detail Panel */
+    .detail-panel { background: var(--bg-card); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); overflow: hidden; }
+    .detail-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+    .detail-header h3 { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .detail-header h3 i { color: var(--primary); margin-right: 6px; }
+    
+    .detail-body { padding: 16px; overflow-y: auto; max-height: calc(100vh - 160px); }
+    
+    /* Detail Sections */
+    .detail-section { margin-bottom: 20px; }
+    .section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid var(--border-color); display: flex; align-items: center; gap: 6px; }
+    .section-title i { color: var(--primary); }
+    
+    /* Detail Grid */
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .detail-item { display: flex; flex-direction: column; gap: 4px; }
+    .detail-item .label { font-size: 12px; color: var(--text-muted); }
+    .detail-item .value { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+    .detail-item-full { grid-column: 1 / -1; }
+    
+    /* Status Tags */
+    .highlight-ok { color: var(--success); font-weight: 600; }
+    .highlight-err { color: var(--danger); font-weight: 600; }
+    
+    /* Table */
+    .detail-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .detail-table th, .detail-table td { padding: 8px 12px; border: 1px solid var(--border-color); text-align: left; }
+    .detail-table th { background: #fafafa; font-weight: 600; color: var(--text-secondary); }
+    .detail-table tr:hover { background: #f5f7fa; }
+    
+    /* Links */
+    .detail-link-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--primary); text-decoration: none; cursor: pointer; padding: 4px 0; }
+    .detail-link-btn:hover { text-decoration: underline; }
+    .table-link { color: var(--primary); cursor: pointer; text-decoration: none; }
+    .table-link:hover { text-decoration: underline; }
+    
+    /* Inspect Items */
+    .inspect-items { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .inspect-item { font-size: 12px; padding: 4px 10px; background: #f6ffed; border-radius: 4px; color: var(--success); }
+    
+    /* Button */
+    .btn-sm-custom { font-size: 12px; padding: 4px 12px; border-radius: 4px; cursor: pointer; transition: var(--transition); }
+    .btn-sm-custom:hover { opacity: 0.85; }
+    
+    /* IPQC Tabs */
+    .ipqc-tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 12px; }
+    .ipqc-tab { padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: var(--transition); display: flex; align-items: center; gap: 4px; }
+    .ipqc-tab:hover { color: var(--primary); }
+    .ipqc-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-badge { background: var(--primary); color: #fff; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 4px; }
+    .ipqc-tab-content { display: none; }
+    .ipqc-tab-content.active { display: block; }
+    
+    /* Empty State */
+    .empty-state { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+    .empty-state i { font-size: 48px; margin-bottom: 12px; display: block; }
+    .empty-state p { font-size: 14px; }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>QMS 质量管理系统</h2>
+    </div>
+    <ul class="sidebar-menu">
+      <li><a href="#" class="active"><i class="bi bi-diagram-3"></i>质量追溯</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="top-header">
+      <h1><i class="bi bi-diagram-3"></i>质量追溯</h1>
+    </div>
+    
+    <!-- 追溯模式选择 -->
+    <div class="trace-mode-selector">
+      <div class="trace-mode-tabs">
+        <div class="trace-mode-tab active" onclick="switchTraceMode('forward')">正向追溯</div>
+        <div class="trace-mode-tab" onclick="switchTraceMode('reverse')">逆向追溯</div>
+      </div>
+      
+      <!-- 正向追溯输入 -->
+      <div id="trace-forward" class="trace-mode-content active">
+        <div class="trace-input-row">
+          <label>零件号：</label>
+          <input type="text" id="forward-part-no" placeholder="请输入零件号，如：SM-202604001" style="flex:1;">
+          <label style="margin-left:12px;">批次号：</label>
+          <input type="text" id="forward-batch-no" placeholder="请输入批次号" style="flex:1;">
+          <button onclick="traceForward()" style="margin-left:12px;"><i class="bi bi-search"></i> 追溯查询</button>
+        </div>
+        <div class="demo-buttons">
+          <div class="demo-label">同组零部件：</div>
+          <div class="demo-btn-row">
+            <button class="demo-btn" onclick="setForwardDemo('SM')">伺服电机 SM-202604001</button>
+            <button class="demo-btn" onclick="setForwardDemo('HR')">谐波减速器 HR-202604001</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 逆向追溯输入 -->
+      <div id="trace-reverse" class="trace-mode-content">
+        <div class="trace-input-row">
+          <label>整机S/N码：</label>
+          <input type="text" id="reverse-sn" placeholder="请输入整机序列号，如：CR6-20260428-001">
+          <button onclick="traceReverse()"><i class="bi bi-search"></i> 追溯查询</button>
+        </div>
+        <div class="demo-buttons">
+          <div class="demo-label">演示数据：</div>
+          <div class="demo-btn-row">
+            <button class="demo-btn" onclick="setReverseDemo()">整机 CR6-20260428-001</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 影响范围分析（初始隐藏，查询后显示） -->
+    <div class="impact-analysis" id="impactAnalysis" style="display:none;">
+      <div class="impact-title"><i class="bi bi-exclamation-triangle"></i> 影响范围分析</div>
+      <div class="impact-info" id="impactInfo"></div>
+      <div class="impact-stats" id="impactStats"></div>
+      <div class="impact-alert" id="impactAlert" style="display:none;"></div>
+    </div>
+    
+    <div class="main-layout">
+      <div class="tree-panel">
+        <div class="tree-header">
+          <h3><i class="bi bi-diagram-3"></i>追溯树</h3>
+          <div class="tree-actions">
+            <button onclick="expandAll()"><i class="bi bi-arrows-expand"></i> 全部展开</button>
+            <button onclick="collapseAll()"><i class="bi bi-arrows-collapse"></i> 全部收起</button>
+          </div>
+        </div>
+        <div class="tree-content" id="treeContainer"></div>
+      </div>
+      
+      <div class="detail-panel">
+        <div class="detail-header">
+          <h3><i class="bi bi-info-circle"></i>详情</h3>
+        </div>
+        <div class="detail-body" id="detailBody">
+          <div class="empty-state">
+            <i class="bi bi-arrow-left-circle"></i>
+            <p>请点击左侧追溯树节点查看详情</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Utility
+    const $ = id => document.getElementById(id);
+    
+    // Global state
+    let currentData = null;
+    let currentMode = 'forward';
+    
+    // Mock Data - 正向追溯：伺服电机
+    const MOCK = {
+      forward: {
+        materialName: "伺服电机",
+        materialCode: "SM-202604001",
+        batchNo: "SM-202604001",
+        specModel: "SM-2025-V2",
+        productionDate: "2026-04-28",
+        totalProducts: 10,
+        supplier: {
+          code: "SUP-HC-001",
+          name: "汇川技术有限公司",
+          address: "深圳市南山区",
+          contact: "张工",
+          phone: "0755-XXXXXXXX",
+          buyer: "张三",
+          poNo: "PO-2026-04001",
+          receiptDate: "2026-04-10",
+          receiptQty: 200
+        },
+        iqc: {
+          no: "IQC-SM-24001",
+          date: "2026-04-11",
+          method: "抽样",
+          standard: "AQL=1.0",
+          receiptQty: 200,
+          sampleQty: 20,
+          defects: 0,
+          conclusion: "合格",
+          inspector: "陈工",
+          items: [
+            { item: "外观检查", standard: "无划痕/变形", actual: "合格", result: "合格" },
+            { item: "尺寸检测", standard: "±0.02mm", actual: "0.01mm", result: "合格" },
+            { item: "绝缘电阻", standard: "≥100MΩ", actual: "500MΩ", result: "合格" },
+            { item: "空载电流", standard: "≤0.5A", actual: "0.3A", result: "合格" },
+            { item: "振动", standard: "≤0.01mm", actual: "0.008mm", result: "合格" }
+          ]
+        },
+        mrbRecord: null,
+        tree: {
+          type:"root", label:"伺服电机 SM-202604001", icon:"bi-cpu", 
+          children: [
+            { type:"materialBaseInfo", label:"零部件基础信息", icon:"bi-info-circle", _detailType:"materialBaseInfo" },
+            { type:"supplier", label:"供应商信息", icon:"bi-building", _detailType:"supplier" },
+            { type:"iqc", label:"IQC来料检验", icon:"bi-clipboard-check", _detailType:"iqc" },
+            { type:"sameBatch", label:"同批次零部件信息", icon:"bi-upc-scan", _detailType:"sameBatch" },
+            { type:"workorder", label:"工序信息", icon:"bi-gear-wide-connected", expanded:true,
+              children: [
+                { type:"workorderDetail", label:"工序：L2-协作线", icon:"bi-pin", _detailType:"workorder" },
+                { type:"ipqc", label:"IPQC过程检验(4)", icon:"bi-clipboard-data", _detailType:"ipqc" }
+              ]
+            },
+            { type:"products", label:"整机信息：G01产品(5台)", icon:"bi-robot", expanded:true,
+              children: [
+                { type:"assembled-products", label:"已装配该物料(2台)", icon:"bi-check-circle", expanded:true,
+                  children: [
+                    { type:"product", label:"CR6-20260428-001", icon:"bi-box", status:"ok", statusText:"✓ 在库", statusTag:"instock", statusTagText:"在库", _detailType:"product", batchIdx:0, productType:"assembled" },
+                    { type:"product", label:"CR6-20260428-003", icon:"bi-box", status:"err", statusText:"✗ MRB-处置", mrbTag:"处置", statusTag:"instock", statusTagText:"在库", _detailType:"product", batchIdx:1, productType:"assembled" }
+                  ]
+                },
+                { type:"same-order-products", label:"同订单整机(3台)", icon:"bi-link-45deg", expanded:false,
+                  children: [
+                    { type:"product", label:"CR6-20260428-002", icon:"bi-box", status:"ok", statusText:"✓ 已发货", statusTag:"shipped", statusTagText:"已发货", _detailType:"product", batchIdx:0, productType:"sameOrder" },
+                    { type:"product", label:"CR6-20260428-004", icon:"bi-box", status:"ok", statusText:"✓ 在库", statusTag:"instock", statusTagText:"在库", _detailType:"product", batchIdx:1, productType:"sameOrder" },
+                    { type:"product", label:"CR6-20260428-005", icon:"bi-box", status:"ok", statusText:"✓ 已发货", statusTag:"shipped", statusTagText:"已发货", _detailType:"product", batchIdx:2, productType:"sameOrder" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        sameBatchParts: [
+          { sn:"SM-202604001", code:"SM-2025-V2", name:"伺服电机", productSN:"CR6-20260428-001", status:"已使用", productStatus:"已发货", customer:"A客户(华南)", iqcResult:"合格", locked:false },
+          { sn:"SM-202604002", code:"SM-2025-V2", name:"伺服电机", productSN:"CR6-20260428-002", status:"已使用", productStatus:"已发货", customer:"B客户(华东)", iqcResult:"合格", locked:false },
+          { sn:"SM-202604003", code:"SM-2025-V2", name:"伺服电机", productSN:"CR6-20260428-003", status:"已使用", productStatus:"在库", customer:null, iqcResult:"合格", locked:false },
+          { sn:"SM-202604004", code:"SM-2025-V2", name:"伺服电机", productSN:"CR6-20260428-004", status:"已使用", productStatus:"在库", customer:null, iqcResult:"合格", locked:false },
+          { sn:"SM-202604005", code:"SM-2025-V2", name:"伺服电机", productSN:"CR6-20260428-005", status:"已使用", productStatus:"已发货", customer:"C客户(华南)", iqcResult:"合格", locked:false },
+          { sn:"SM-202604006", code:"SM-2025-V2", name:"伺服电机", productSN:null, status:"未使用", productStatus:"在库", customer:null, iqcResult:"合格", locked:false },
+          { sn:"SM-202604007", code:"SM-2025-V2", name:"伺服电机", productSN:null, status:"未使用", productStatus:"在库", customer:null, iqcResult:"合格", locked:false },
+          { sn:"SM-202604008", code:"SM-2025-V2", name:"伺服电机", productSN:null, status:"未使用", productStatus:"在库", customer:null, iqcResult:"合格", locked:true, lockReason:"IQC不合格" }
+        ],
+        // 整机信息：已装配该物料的整机
+        assembledProducts: [
+          { batchNo:"CR6-20260428-001", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-001", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 10:00", conclusion:"合格", inspectNo:"FQC-CR6-001"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 09:00", conclusion:"合格", reInspectNo:"FQC-CR6-001-R1"}
+          },
+          { batchNo:"CR6-20260428-003", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-003", fqcDate:"2026-04-30", fqcConclusion:"不合格", fqcInspector:"刘工", hasMrb:true, mrbNo:"MRB-2026-003", mrbOpinion:"处置", mrbDesc:"负载测试不达标", locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 11:00", conclusion:"不合格", inspectNo:"FQC-CR6-003", defectItems:["负载测试不达标，实测85kg，标准≥100kg"]},
+            disposition:{method:"MRB处理", mrbNo:"MRB-2026-003", mrbOpinion:"处置", reviewTeam:"质量部、生产部、技术部", reviewDate:"2026-04-30", actionPlan:"返工", status:"处置中"}
+          }
+        ],
+        // 同订单的其他整机
+        sameOrderProducts: [
+          { batchNo:"CR6-20260428-002", code:"CR6-100", name:"G01产品", status:"已发货", customer:"B客户(华东)", fqc:"FQC-CR6-002", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 10:30", conclusion:"合格", inspectNo:"FQC-CR6-002"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 09:30", conclusion:"合格", reInspectNo:"FQC-CR6-002-R1"}
+          },
+          { batchNo:"CR6-20260428-004", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-004", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 14:00", conclusion:"合格", inspectNo:"FQC-CR6-004"},
+            reInspection:{inspector:"赵工", inspectDate:"2026-05-01 10:00", conclusion:"合格", reInspectNo:"FQC-CR6-004-R1"}
+          },
+          { batchNo:"CR6-20260428-005", code:"CR6-100", name:"G01产品", status:"已发货", customer:"C客户(华南)", fqc:"FQC-CR6-005", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 14:30", conclusion:"合格", inspectNo:"FQC-CR6-005"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 10:30", conclusion:"合格", reInspectNo:"FQC-CR6-005-R1"}
+          }
+        ],
+        products: [
+          { batchNo:"CR6-20260428-001", code:"CR6-100", name:"G01产品", status:"已发货", customer:"A客户(华南)", fqc:"FQC-CR6-001", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 10:00", conclusion:"合格", inspectNo:"FQC-CR6-001"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 09:00", conclusion:"合格", reInspectNo:"FQC-CR6-001-R1"}
+          },
+          { batchNo:"CR6-20260428-002", code:"CR6-100", name:"G01产品", status:"已发货", customer:"B客户(华东)", fqc:"FQC-CR6-002", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 10:30", conclusion:"合格", inspectNo:"FQC-CR6-002"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 09:30", conclusion:"合格", reInspectNo:"FQC-CR6-002-R1"}
+          },
+          { batchNo:"CR6-20260428-003", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-003", fqcDate:"2026-04-30", fqcConclusion:"不合格", fqcInspector:"刘工", hasMrb:true, mrbNo:"MRB-2026-003", mrbOpinion:"处置", mrbDesc:"负载测试不达标", locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 11:00", conclusion:"不合格", inspectNo:"FQC-CR6-003", defectItems:["负载测试不达标，实测85kg，标准≥100kg"]},
+            disposition:{method:"MRB处理", mrbNo:"MRB-2026-003", mrbOpinion:"处置", reviewTeam:"质量部、生产部、技术部", reviewDate:"2026-04-30", actionPlan:"返工", status:"处置中"}
+          },
+          { batchNo:"CR6-20260428-004", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-004", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 14:00", conclusion:"合格", inspectNo:"FQC-CR6-004"},
+            reInspection:{inspector:"赵工", inspectDate:"2026-05-01 10:00", conclusion:"合格", reInspectNo:"FQC-CR6-004-R1"}
+          },
+          { batchNo:"CR6-20260428-005", code:"CR6-100", name:"G01产品", status:"已发货", customer:"C客户(华南)", fqc:"FQC-CR6-005", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 14:30", conclusion:"合格", inspectNo:"FQC-CR6-005"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 10:30", conclusion:"合格", reInspectNo:"FQC-CR6-005-R1"}
+          },
+          { batchNo:"CR6-20260428-006", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-006", fqcDate:"2026-04-30", fqcConclusion:"不合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 15:00", conclusion:"不合格", inspectNo:"FQC-CR6-006", defectItems:["表面有轻微划痕","转动时有轻微异响"]},
+            disposition:{method:"现场处置", handler:"孙八", requiredTime:"2026-05-01", result:"已完成", defectDesc:"外观缺陷、功能缺陷",
+              disposePerson:"孙八", disposeTime:"2026-05-01 10:30", disposeMeasure:"已对表面划痕进行抛光处理，更换异响轴承，复测合格",
+              attachments:["处置报告.pdf", "复测照片.jpg"], remark:"处置完成后经刘工复验合格，可正常入库"}
+          },
+          { batchNo:"CR6-20260428-007", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-007", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 15:30", conclusion:"合格", inspectNo:"FQC-CR6-007"},
+            reInspection:{inspector:"赵工", inspectDate:"2026-05-01 11:00", conclusion:"合格", reInspectNo:"FQC-CR6-007-R1"}
+          },
+          { batchNo:"CR6-20260428-008", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-008", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 16:00", conclusion:"合格", inspectNo:"FQC-CR6-008"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 14:00", conclusion:"合格", reInspectNo:"FQC-CR6-008-R1"}
+          },
+          { batchNo:"CR6-20260428-009", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-009", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 16:30", conclusion:"合格", inspectNo:"FQC-CR6-009"},
+            reInspection:{inspector:"赵工", inspectDate:"2026-05-01 14:30", conclusion:"合格", reInspectNo:"FQC-CR6-009-R1"}
+          },
+          { batchNo:"CR6-20260428-010", code:"CR6-100", name:"G01产品", status:"已发货", customer:"B客户(华东)", fqc:"FQC-CR6-010", fqcDate:"2026-04-30", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"",
+            firstInspection:{inspector:"刘工", inspectDate:"2026-04-30 17:00", conclusion:"合格", inspectNo:"FQC-CR6-010"},
+            reInspection:{inspector:"王工", inspectDate:"2026-05-01 15:00", conclusion:"合格", reInspectNo:"FQC-CR6-010-R1"}
+          }
+        ],
+        workorder: {
+          wo: "WO-20260428-001",
+          line: "L2-协作线",
+          planned: 10,
+          actual: 10,
+          qualified: 9,
+          status: "已完成",
+          start: "2026-04-28",
+          end: "2026-04-30"
+        },
+        processes: [
+          { no:10, name:"机加工", equip:"MC-001", goodQty:10, badQty:0 },
+          { no:20, name:"表面处理", equip:"ST-002", goodQty:10, badQty:0 },
+          { no:30, name:"关节单元装配", equip:"AL-003", goodQty:10, badQty:0 },
+          { no:40, name:"总装", equip:"AL-004", goodQty:9, badQty:1 },
+          { no:50, name:"电气调试", equip:"TS-005", goodQty:9, badQty:0 },
+          { no:60, name:"负载测试", equip:"TS-006", goodQty:9, badQty:0 },
+          { no:70, name:"老化测试(48h)", equip:"AG-007", goodQty:9, badQty:0 }
+        ],
+        ipqcRecords: {
+          // 首件检验：每个工序一条记录
+          firstArticles: [
+            {
+              no: "IPQC202604001",
+              process: "机加工",
+              inspector: "张三",
+              inspectTime: "2026-04-28 08:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "顾客订单记录、客户BOM、作业指导书、检验标准",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "机加工部位",
+              operator: "王五",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "胶水是否用错", standard: "无错用", method: "目检", result: "✓" },
+                { no: 2, item: "零件有无反装、螺丝有无锁紧", standard: "无反装、螺丝锁紧", method: "目检", result: "✓" },
+                { no: 3, item: "零件是否清洁", standard: "已清洁", method: "目检", result: "✓" },
+                { no: 4, item: "零件有无毛刺", standard: "无毛刺", method: "目检", result: "✓" },
+                { no: 5, item: "零件是否安装到位", standard: "安装到位", method: "测量", result: "✓" },
+                { no: 6, item: "外观是否有缺陷", standard: "无外观缺陷", method: "目检", result: "✓" }
+              ]
+            },
+            {
+              no: "IPQC202604002",
+              process: "表面处理",
+              inspector: "张三",
+              inspectTime: "2026-04-28 09:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "检验标准、作业指导书",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "表面处理部位",
+              operator: "王五",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "表面粗糙度", standard: "Ra≤0.8", method: "测量", result: "✓" },
+                { no: 2, item: "镀层厚度", standard: "≥5μm", method: "测量", result: "✓" },
+                { no: 3, item: "外观检查", standard: "无划痕/变形", method: "目检", result: "✓" }
+              ]
+            },
+            {
+              no: "IPQC202604003",
+              process: "关节单元装配",
+              inspector: "张三",
+              inspectTime: "2026-04-28 10:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "装配作业指导书、检验标准",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "关节单元",
+              operator: "赵六",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "装配顺序", standard: "按SOP", method: "目检", result: "✓" },
+                { no: 2, item: "螺丝锁紧扭矩", standard: "规定值±10%", method: "测量", result: "✓" },
+                { no: 3, item: "零件是否安装到位", standard: "安装到位", method: "目检", result: "✓" }
+              ]
+            },
+            {
+              no: "IPQC202604004",
+              process: "总装",
+              inspector: "李四",
+              inspectTime: "2026-04-28 11:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "总装作业指导书、检验标准",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "总装部位",
+              operator: "孙七",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "零件有无反装", standard: "无反装", method: "目检", result: "✓" },
+                { no: 2, item: "线束连接", standard: "连接牢固", method: "目检", result: "✓" },
+                { no: 3, item: "外观检查", standard: "无缺陷", method: "目检", result: "✓" }
+              ]
+            },
+            {
+              no: "IPQC202604005",
+              process: "电气调试",
+              inspector: "李四",
+              inspectTime: "2026-04-28 14:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "电气调试标准、检验规范",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "电气系统",
+              operator: "周八",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "绝缘电阻", standard: "≥100MΩ", method: "测量", result: "✓" },
+                { no: 2, item: "空载电流", standard: "≤0.5A", method: "测量", result: "✓" },
+                { no: 3, item: "振动", standard: "≤0.01mm", method: "测量", result: "✓" }
+              ]
+            },
+            {
+              no: "IPQC202604006",
+              process: "负载测试",
+              inspector: "李四",
+              inspectTime: "2026-04-28 16:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "负载测试标准",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "负载系统",
+              operator: "周八",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "额定负载", standard: "≥100kg", method: "测试", result: "✓" },
+                { no: 2, item: "负载稳定性", standard: "波动≤5%", method: "测试", result: "✓" }
+              ]
+            },
+            {
+              no: "IPQC202604007",
+              process: "老化测试(48h)",
+              inspector: "王五",
+              inspectTime: "2026-04-28 18:00",
+              conclusion: "合格",
+              hasMrb: false,
+              basis: "老化测试标准",
+              productName: "伺服电机",
+              productModel: "SM-2025-V2",
+              productPart: "整机",
+              operator: "吴九",
+              sampleQty: 1,
+              defectQty: 0,
+              items: [
+                { no: 1, item: "连续运行", standard: "48h无故障", method: "测试", result: "✓" },
+                { no: 2, item: "温升", standard: "≤40℃", method: "测量", result: "✓" }
+              ]
+            }
+          ],
+          // 过程巡检：每次巡检一条记录
+          patrolRecords: [
+            { no: 1, processNo: "IPQC202604010", process: "机加工", inspector: "张三", period: "第1时段", inspectTime: "2026-04-28 10:00", result: "合格", hasMrb: false },
+            { no: 2, processNo: "IPQC202604011", process: "表面处理", inspector: "张三", period: "第2时段", inspectTime: "2026-04-28 13:00", result: "合格", hasMrb: false },
+            { no: 3, processNo: "IPQC202604012", process: "关节单元装配", inspector: "王五", period: "第3时段", inspectTime: "2026-04-28 16:00", result: "不合格", hasMrb: true, mrbNo: "IPQCMRB202604001", mrbOpinion: "返工", mrbDesc: "关节装配尺寸超差" },
+            { no: 4, processNo: "IPQC202604013", process: "总装", inspector: "王五", period: "第4时段", inspectTime: "2026-04-28 19:00", result: "合格", hasMrb: false },
+            { no: 5, processNo: "IPQC202604014", process: "电气调试", inspector: "张三", period: "第5时段", inspectTime: "2026-04-28 21:00", result: "合格", hasMrb: false },
+            { no: 6, processNo: "IPQC202604015", process: "负载测试", inspector: "张三", period: "第6时段", inspectTime: "2026-04-29 10:00", result: "合格", hasMrb: false },
+            { no: 7, processNo: "IPQC202604016", process: "老化测试(48h)", inspector: "王五", period: "第7时段", inspectTime: "2026-04-29 14:00", result: "合格", hasMrb: false }
+          ]
+        }
+      }
+    ,
+    
+    // 正向追溯演示数据2：减速器
+    forwardReducer: {
+      materialName: "谐波减速器",
+      materialCode: "HR-202604001",
+      batchNo: "HR-202604001",
+      specModel: "HR-2025-V1",
+      productionDate: "2026-04-25",
+      totalProducts: 8,
+      supplier: {
+        code: "SUP-LH-002",
+        name: "绿的谐波传动科技有限公司",
+        address: "苏州市工业园区",
+        contact: "李工",
+        phone: "0512-XXXXXXXX",
+        buyer: "李四",
+        poNo: "PO-2026-04002",
+        receiptDate: "2026-04-08",
+        receiptQty: 100
+      },
+      iqc: {
+        no: "IQC-HR-24002",
+        date: "2026-04-09",
+        method: "全检",
+        standard: "AQL=0.65",
+        receiptQty: 100,
+        sampleQty: 100,
+        defects: 0,
+        conclusion: "合格",
+        inspector: "王工",
+        items: [
+          { item: "外观检查", standard: "无划痕/变形", actual: "合格", result: "合格" },
+          { item: "回程间隙", standard: "≤30弧秒", actual: "25弧秒", result: "合格" },
+          { item: "启动扭矩", standard: "≤0.5Nm", actual: "0.4Nm", result: "合格" },
+          { item: "定位精度", standard: "±10弧秒", actual: "8弧秒", result: "合格" }
+        ]
+      },
+      mrbRecord: null,
+      tree: {
+        type:"root", label:"谐波减速器 HR-202604001", icon:"bi-gear-wide", 
+        children: [
+          { type:"materialBaseInfo", label:"零部件基础信息", icon:"bi-info-circle", _detailType:"materialBaseInfo" },
+          { type:"supplier", label:"供应商信息", icon:"bi-building", _detailType:"supplier" },
+          { type:"iqc", label:"IQC来料检验", icon:"bi-clipboard-check", _detailType:"iqc" },
+          { type:"workorder", label:"工序信息", icon:"bi-gear-wide-connected", expanded:true,
+            children: [
+              { type:"workorderDetail", label:"工序：L1-主线", icon:"bi-pin", _detailType:"workorder" },
+              { type:"ipqc", label:"IPQC过程检验(3)", icon:"bi-clipboard-data", _detailType:"ipqc" }
+            ]
+          },
+          { type:"products", label:"整机信息：G01产品(3台)", icon:"bi-robot", expanded:true,
+            children: [
+              { type:"products-overview", label:"整机信息一览表", icon:"bi-table", _detailType:"products-overview" },
+              { type:"instock-group", label:"在库(2台)", icon:"bi-box-seam", expanded:false,
+                children: [
+                  { type:"product", label:"CR6-20260425-002", icon:"bi-box", status:"ok", statusText:"✓ 在库", statusTag:"instock", statusTagText:"在库", _detailType:"product", batchIdx:1 },
+                  { type:"product", label:"CR6-20260425-003", icon:"bi-box", status:"ok", statusText:"✓ 在库", statusTag:"instock", statusTagText:"在库", _detailType:"product", batchIdx:2 }
+                ]
+              },
+              { type:"shipped-group", label:"已发货(1台)", icon:"bi-truck", expanded:false,
+                children: [
+                  { type:"product", label:"CR6-20260425-001", icon:"bi-box", status:"ok", statusText:"✓ 已发货", statusTag:"shipped", statusTagText:"已发货", _detailType:"product", batchIdx:0 }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      products: [
+        { batchNo:"CR6-20260425-001", code:"CR6-100", name:"G01产品", status:"已发货", customer:"D客户(华北)", fqc:"FQC-CR6-011", fqcDate:"2026-04-27", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"" },
+        { batchNo:"CR6-20260425-002", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-012", fqcDate:"2026-04-27", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"" },
+        { batchNo:"CR6-20260425-003", code:"CR6-100", name:"G01产品", status:"在库", customer:null, fqc:"FQC-CR6-013", fqcDate:"2026-04-27", fqcConclusion:"合格", fqcInspector:"刘工", hasMrb:false, locked:false, lockReason:"" }
+      ],
+      workorder: {
+        wo: "WO-20260425-002",
+        line: "L1-主线",
+        planned: 8,
+        actual: 8,
+        qualified: 8,
+        status: "已完成",
+        start: "2026-04-25",
+        end: "2026-04-27"
+      },
+      processes: [],
+      ipqcRecords: {
+        firstArticles: [],
+        patrolRecords: [
+          { no: 1, processNo: "IPQC202604020", process: "装配工序", inspector: "李四", period: "第1时段", inspectTime: "2026-04-25 10:00", result: "合格", hasMrb: false },
+          { no: 2, processNo: "IPQC202604021", process: "测试工序", inspector: "李四", period: "第2时段", inspectTime: "2026-04-25 14:00", result: "合格", hasMrb: false },
+          { no: 3, processNo: "IPQC202604022", process: "包装工序", inspector: "王五", period: "第3时段", inspectTime: "2026-04-25 18:00", result: "合格", hasMrb: false }
+        ]
+      }
+    },
+    
+    // 逆向追溯演示数据：整机CR6-20260428-001
+    reverse: {
+      productSN: "CR6-20260428-001",
+      productName: "G01产品",
+      productModel: "G01-2025-V2",
+      productCode: "CR6-100",
+      productionDate: "2026-04-28",
+      status: "已发货",
+      customer: "A客户(华南)",
+      shipDate: "2026-05-02",
+      fqcConclusion: "合格",
+      tree: {
+        type:"root", label:"G01产品 CR6-20260428-001", icon:"bi-robot",
+        children: [
+          { type:"productBaseInfo", label:"整机基础信息", icon:"bi-info-circle", _detailType:"productBaseInfo" },
+          { type:"sameBatchProducts", label:"同批次整机信息(10台)", icon:"bi-upc-scan", _detailType:"sameBatchProducts" },
+          { type:"fqc", label:"FQC出厂检验", icon:"bi-clipboard-check", _detailType:"fqc" },
+          { type:"workorderReverse", label:"工序信息", icon:"bi-gear-wide-connected", expanded:true,
+            children: [
+              { type:"workorderDetail", label:"工序：L2-协作线", icon:"bi-pin", _detailType:"workorder" },
+              { type:"ipqc_reverse", label:"IPQC过程检验", icon:"bi-clipboard-data", _detailType:"ipqc_reverse" }
+            ]
+          },
+          { type:"materials", label:"装配物料清单(3)", icon:"bi-boxes", expanded:true,
+            children: [
+              { type:"material", label:"伺服电机 SM-202604001", icon:"bi-cpu", _detailType:"material", matIdx:0 },
+              { type:"material", label:"谐波减速器 HR-202604001", icon:"bi-gear-wide", _detailType:"material", matIdx:1 },
+              { type:"material", label:"控制器 CT-202604005", icon:"bi-motherboard", _detailType:"material", matIdx:2 }
+            ]
+          }
+        ]
+      },
+      // 同批次整机信息
+      sameBatchProducts: [
+        { sn:"CR6-20260428-001", status:"已发货", customer:"A客户(华南)", fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-002", status:"已发货", customer:"B客户(华东)", fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-003", status:"在库", customer:null, fqcConclusion:"不合格", locked:false, lockReason:"", hasMrb:true, mrbNo:"MRB-2026-003" },
+        { sn:"CR6-20260428-004", status:"在库", customer:null, fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-005", status:"已发货", customer:"C客户(华南)", fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-006", status:"在库", customer:null, fqcConclusion:"不合格", locked:false, lockReason:"", disposition:"现场处置" },
+        { sn:"CR6-20260428-007", status:"在库", customer:null, fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-008", status:"在库", customer:null, fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-009", status:"在库", customer:null, fqcConclusion:"合格", locked:false, lockReason:"" },
+        { sn:"CR6-20260428-010", status:"已发货", customer:"B客户(华东)", fqcConclusion:"合格", locked:false, lockReason:"" }
+      ],
+      // FQC检验信息（与正向追溯整机详情一致）
+      fqc: {
+        firstInspection: {
+          inspectNo: "FQC-CR6-001",
+          inspectDate: "2026-04-30 10:00",
+          inspector: "刘工",
+          conclusion: "合格",
+          items: ["外观检查", "电气安全", "性能测试", "负载测试"]
+        },
+        reInspection: {
+          reInspectNo: "FQC-CR6-001-R1",
+          inspectDate: "2026-05-01 09:00",
+          inspector: "王工",
+          conclusion: "合格"
+        }
+      },
+      // 装配物料清单（含IQC详情）
+      materials: [
+        { 
+          code:"SM-202604001", name:"伺服电机", supplier:"汇川技术", batchNo:"SM-202604001", 
+          receiptDate:"2026-04-10", iqcResult:"合格",
+          iqcDetail: {
+            no: "IQC-SM-24001", date: "2026-04-11", method: "抽样", standard: "AQL=1.0",
+            receiptQty: 200, sampleQty: 20, defects: 0, conclusion: "合格", inspector: "陈工",
+            items: [
+              { item: "外观检查", standard: "无划痕/变形", actual: "合格", result: "合格" },
+              { item: "尺寸检测", standard: "±0.02mm", actual: "0.01mm", result: "合格" },
+              { item: "绝缘电阻", standard: "≥100MΩ", actual: "500MΩ", result: "合格" }
+            ]
+          }
+        },
+        { 
+          code:"HR-202604001", name:"谐波减速器", supplier:"绿的谐波", batchNo:"HR-202604001", 
+          receiptDate:"2026-04-08", iqcResult:"合格",
+          iqcDetail: {
+            no: "IQC-HR-24002", date: "2026-04-09", method: "全检", standard: "AQL=0.65",
+            receiptQty: 100, sampleQty: 100, defects: 0, conclusion: "合格", inspector: "王工",
+            items: [
+              { item: "外观检查", standard: "无划痕/变形", actual: "合格", result: "合格" },
+              { item: "回程间隙", standard: "≤30弧秒", actual: "25弧秒", result: "合格" },
+              { item: "启动扭矩", standard: "≤0.5Nm", actual: "0.4Nm", result: "合格" }
+            ]
+          }
+        },
+        { 
+          code:"CT-202604005", name:"控制器", supplier:"深圳汇川", batchNo:"CT-202604005", 
+          receiptDate:"2026-04-12", iqcResult:"合格",
+          iqcDetail: {
+            no: "IQC-CT-24005", date: "2026-04-13", method: "抽样", standard: "AQL=1.0",
+            receiptQty: 60, sampleQty: 6, defects: 0, conclusion: "合格", inspector: "陈工",
+            items: [
+              { item: "外观检查", standard: "无破损", actual: "合格", result: "合格" },
+              { item: "功能测试", standard: "正常", actual: "正常", result: "合格" }
+            ]
+          }
+        }
+      ],
+      workorder: {
+        wo: "WO-20260428-001",
+        line: "L2-协作线",
+        planned: 10,
+        actual: 10,
+        qualified: 9,
+        status: "已完成",
+        start: "2026-04-28",
+        end: "2026-04-30"
+      },
+      processes: [
+        { no:10, name:"整机组装", equip:"AL-001", goodQty:10, badQty:0 },
+        { no:20, name:"电气接线", equip:"AL-002", goodQty:10, badQty:0 },
+        { no:30, name:"电气调试", equip:"TS-003", goodQty:10, badQty:0 },
+        { no:40, name:"负载测试", equip:"TS-004", goodQty:10, badQty:0 },
+        { no:50, name:"老化测试(48h)", equip:"AG-005", goodQty:10, badQty:0 },
+        { no:60, name:"FQC出厂检验", equip:"QC-006", goodQty:9, badQty:1 }
+      ],
+      ipqcRecords: {
+        firstArticles: [
+          {
+            no: "IPQC202604001",
+            process: "总装工序",
+            inspector: "张三",
+            inspectTime: "2026-04-28 08:00",
+            conclusion: "合格",
+            hasMrb: false,
+            basis: "顾客订单记录、客户BOM、作业指导书、检验标准",
+            productName: "G01产品",
+            productModel: "G01-2025-V2",
+            productPart: "整机组装",
+            operator: "王五",
+            sampleQty: 1,
+            defectQty: 0,
+            items: [
+              { no: 1, item: "胶水是否用错", standard: "无错用", method: "目检", result: "✓" },
+              { no: 2, item: "零件有无反装、螺丝有无锁紧", standard: "无反装、螺丝锁紧", method: "目检", result: "✓" },
+              { no: 3, item: "零件是否清洁", standard: "已清洁", method: "目检", result: "✓" },
+              { no: 4, item: "零件有无毛刺", standard: "无毛刺", method: "目检", result: "✓" },
+              { no: 5, item: "零件是否安装到位", standard: "安装到位", method: "测量", result: "✓" },
+              { no: 6, item: "外观是否有缺陷", standard: "无外观缺陷", method: "目检", result: "✓" }
+            ]
+          }
+        ],
+        patrolRecords: [
+          { no: 1, processNo: "IPQC202604010", process: "机加工序", inspector: "张三", period: "第1时段", inspectTime: "2026-04-28 10:00", result: "合格", hasMrb: false },
+          { no: 2, processNo: "IPQC202604011", process: "表面处理", inspector: "张三", period: "第2时段", inspectTime: "2026-04-28 13:00", result: "合格", hasMrb: false },
+          { no: 3, processNo: "IPQC202604012", process: "关节装配", inspector: "王五", period: "第3时段", inspectTime: "2026-04-28 16:00", result: "合格", hasMrb: false },
+          { no: 4, processNo: "IPQC202604013", process: "总装调试", inspector: "王五", period: "第4时段", inspectTime: "2026-04-28 19:00", result: "合格", hasMrb: false },
+          { no: 5, processNo: "IPQC202604014", process: "老化测试", inspector: "张三", period: "第5时段", inspectTime: "2026-04-28 22:00", result: "合格", hasMrb: false }
+        ]
+      }
+    }
+  };
+    
+    let d = JSON.parse(JSON.stringify(MOCK.forward));
+    
+    // Render Tree
+    function renderTree(node, container, level = 0) {
+      container.innerHTML = renderTreeNode(node, level);
+    }
+    
+    function renderTreeNode(node, level) {
+      const hasChildren = node.children && node.children.length > 0;
+      const isExpanded = node.expanded !== false;
+      
+      let statusHtml = '';
+      if (node.statusTag) {
+        statusHtml = `<span class="tree-tag ${node.statusTag}">${node.statusTagText}</span>`;
+      }
+      if (node.mrbTag) {
+        statusHtml += `<span class="tree-tag mrb">${node.mrbTag}</span>`;
+      }
+      
+      return `
+        <div class="tree-node" data-type="${node.type}">
+          <div class="tree-node-row" data-type="${node.type}" data-idx="${node.batchIdx !== undefined ? node.batchIdx : (node.matIdx !== undefined ? node.matIdx : '')}" onclick="onTreeNodeClick(this)">
+            <span class="tree-toggle ${hasChildren ? (isExpanded ? 'expanded' : '') : 'hidden'}"><i class="bi bi-chevron-right"></i></span>
+            <span class="tree-icon"><i class="bi ${node.icon || 'bi-circle'}"></i></span>
+            <span class="tree-label">${node.label}</span>
+            <span class="tree-status">${statusHtml}</span>
+          </div>
+          ${hasChildren ? `<div class="tree-children ${isExpanded ? '' : 'collapsed'}">${node.children.map(c => renderTreeNode(c, level + 1)).join('')}</div>` : ''}
+        </div>
+      `;
+    }
+    
+    function initTree() {
+      const container = $('treeContainer');
+      container.innerHTML = '';
+      renderTree(d.tree, container);
+    }
+    
+    // Tree click handler
+    function onTreeNodeClick(el) {
+      // Active state
+      document.querySelectorAll('.tree-node-row').forEach(r => r.classList.remove('active'));
+      el.classList.add('active');
+      
+      // Toggle children
+      const parentNode = el.closest('.tree-node');
+      const childrenContainer = parentNode.querySelector('.tree-children');
+      const toggle = el.querySelector('.tree-toggle');
+      
+      if (childrenContainer) {
+        const isCollapsed = childrenContainer.classList.contains('collapsed');
+        childrenContainer.classList.toggle('collapsed');
+        toggle.classList.toggle('expanded');
+      }
+      
+      // Render detail
+      const type = el.dataset.type;
+      const idx = el.dataset.idx;
+      renderDetail(type, idx);
+    }
+    
+    // Render detail panel
+    function renderDetail(type, idx) {
+      const detailBody = $('detailBody');
+      const node = findNodeByType(d.tree, type);
+      if (!node) return;
+      
+      switch(type) {
+        case "root": detailBody.innerHTML = ''; break;
+        case "materialBaseInfo": renderMaterialBaseInfo(d); break;
+        case "productBaseInfo": renderProductBaseInfo(d); break;
+        case "supplier": renderSupplierDetail(d); break;
+        case "iqc": renderIqcDetail(d); break;
+        case "mrb": renderMrbDetail(d); break;
+        case "sameBatch": renderSameBatchDetail(d); break;
+        case "sameBatchProducts": renderSameBatchProducts(d); break;
+        case "workorder": detailBody.innerHTML = ''; break;
+        case "workorderDetail": renderWorkorderDetail(d); break;
+        case "workorderReverse": detailBody.innerHTML = ''; break;
+        case "ipqc": renderIpqcDetail(d); break;
+        case "ipqc_reverse": renderIpqcReverseDetail(d); break;
+        case "fqc": renderFqcDetail(d); break;
+        case "material": renderMaterialDetailWithIqc(d, parseInt(idx)); break;
+        case "product": renderProductDetail(d, parseInt(idx)); break;
+        case "products": detailBody.innerHTML = ''; break;
+        case "assembled-products": renderAssembledProducts(d); break;
+        case "same-order-products": renderSameOrderProducts(d); break;
+        default: renderDefaultDetail(node); break;
+      }
+    }
+    
+    function findNodeByType(node, type) {
+      if (node.type === type) return node;
+      if (node.children) {
+        for (const child of node.children) {
+          const found = findNodeByType(child, type);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+    
+    // Detail renderers
+    function renderMaterialBaseInfo(d) {
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-info-circle"></i> 零部件基础信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">物料编号</span><span class="value">${d.materialCode || d.materialName}</span></div>
+            <div class="detail-item"><span class="label">物料名称</span><span class="value">${d.materialName}</span></div>
+            <div class="detail-item"><span class="label">规格型号</span><span class="value">${d.specModel}</span></div>
+            <div class="detail-item"><span class="label">批次号</span><span class="value">${d.batchNo}</span></div>
+          </div>
+        </div>`;
+    }
+    
+    // 逆向追溯：整机基础信息
+    function renderProductBaseInfo(d) {
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-info-circle"></i> 整机基础信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">整机S/N码</span><span class="value">${d.productSN}</span></div>
+            <div class="detail-item"><span class="label">产品名称</span><span class="value">${d.productName}</span></div>
+            <div class="detail-item"><span class="label">规格型号</span><span class="value">${d.productModel}</span></div>
+            <div class="detail-item"><span class="label">产品编号</span><span class="value">${d.productCode}</span></div>
+            <div class="detail-item"><span class="label">生产日期</span><span class="value">${d.productionDate}</span></div>
+            <div class="detail-item"><span class="label">状态</span><span class="value">${d.status}${d.customer ? ' → ' + d.customer : ''}</span></div>
+          </div>
+        </div>`;
+    }
+    
+    // 逆向追溯：同批次整机信息
+    function renderSameBatchProducts(d) {
+      if (!d.sameBatchProducts || d.sameBatchProducts.length === 0) {
+        detailBody.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">暂无同批次整机信息</div>';
+        return;
+      }
+      
+      const products = d.sameBatchProducts;
+      const allCount = products.length;
+      const shippedCount = products.filter(p => p.status === '已发货').length;
+      const instockCount = products.filter(p => p.status === '在库').length;
+      
+      const tabsHtml = `
+        <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border-color);">
+          <div class="product-tab active" onclick="switchSameBatchTab('all', this)">全部(${allCount})</div>
+          <div class="product-tab" onclick="switchSameBatchTab('shipped', this)">已发货(${shippedCount})</div>
+          <div class="product-tab" onclick="switchSameBatchTab('instock', this)">在库(${instockCount})</div>
+        </div>
+      `;
+      
+      const rowsHtml = products.map((p, idx) => {
+        const fqcColor = p.fqcConclusion === '合格' ? 'var(--success)' : 'var(--danger)';
+        const fqcText = p.fqcConclusion === '合格' ? '✓ 合格' : '✗ 不合格';
+        const lockHtml = p.locked ? 
+          `<span style="color:var(--danger);font-weight:600;"><i class="bi bi-lock"></i> 已锁定</span>` : 
+          '<span style="color:var(--text-muted);">—</span>';
+        const customerText = p.customer || '—';
+        const isShipped = p.status === '已发货';
+        const lockCheckbox = p.locked || isShipped ? 
+          `<input type="checkbox" class="reverse-product-checkbox" data-idx="${idx}" disabled title="${isShipped ? '已发货，无法操作' : '已锁定，无法操作'}">` :
+          `<input type="checkbox" class="reverse-product-checkbox" data-idx="${idx}">`;
+        
+        return `
+        <tr data-shipped="${isShipped}">
+          <td style="width:40px;">${lockCheckbox}</td>
+          <td style="font-weight:600;">${p.sn}</td>
+          <td><span style="background:${p.status==='已发货'?'var(--info)':p.status==='在库'?'var(--success)':'var(--text-muted)'};color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">${p.status}</span></td>
+          <td><span style="color:${fqcColor};font-weight:600;">${fqcText}</span></td>
+          <td>${customerText}</td>
+          <td>${lockHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="traceReverseProduct('${p.sn}')">追溯</button></td>
+        </tr>`;
+      }).join('');
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">同批次整机信息</div>
+          ${tabsHtml}
+          
+          <div id="reverse-product-batch-actions" style="display:none;margin-bottom:12px;gap:8px;align-items:center;">
+            <button class="btn-sm-custom" style="background:var(--danger);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="reverseBatchLock()">
+              <i class="bi bi-lock"></i> 批量锁定
+            </button>
+            <button class="btn-sm-custom" style="background:var(--success);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="reverseBatchUnlock()">
+              <i class="bi bi-unlock"></i> 批量解锁
+            </button>
+            <span id="reverse-selected-count" style="margin-left:8px;font-size:12px;color:var(--text-muted);">已选择 0 台</span>
+          </div>
+          
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;"><input type="checkbox" id="select-all-reverse-products" onchange="toggleReverseSelectAll(this.checked)" style="display:none;"></th>
+                  <th>整机S/N码</th>
+                  <th>状态</th>
+                  <th>FQC结论</th>
+                  <th>客户</th>
+                  <th>锁定状态</th>
+                  <th style="width:80px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="reverse-products-table-body">${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>`;
+      
+      setTimeout(() => {
+        document.querySelectorAll('.reverse-product-checkbox').forEach(cb => {
+          cb.addEventListener('change', updateReverseSelectedCount);
+        });
+      }, 0);
+    }
+    
+    // 逆向追溯：物料详情+IQC检验+正向追溯按钮
+    function renderMaterialDetailWithIqc(d, idx) {
+      const mat = d.materials[idx];
+      if (!mat) return;
+      
+      const iqcColor = mat.iqcResult === '合格' ? 'var(--success)' : 'var(--danger)';
+      
+      let iqcDetailHtml = '';
+      if (mat.iqcDetail) {
+        const iqc = mat.iqcDetail;
+        const itemsHtml = iqc.items.map(item => `
+          <tr>
+            <td>${item.item}</td>
+            <td>${item.standard}</td>
+            <td>${item.actual}</td>
+            <td><span style="color:var(--success);font-weight:600;">✓ ${item.result}</span></td>
+          </tr>
+        `).join('');
+        
+        iqcDetailHtml = `
+          <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px dashed var(--border-color);">
+            <div class="section-title"><i class="bi bi-clipboard-check"></i> IQC来料检验</div>
+            <div class="detail-grid">
+              <div class="detail-item"><span class="label">检验编号</span><span class="value">${iqc.no}</span></div>
+              <div class="detail-item"><span class="label">检验日期</span><span class="value">${iqc.date}</span></div>
+              <div class="detail-item"><span class="label">检验方式</span><span class="value">${iqc.method}</span></div>
+              <div class="detail-item"><span class="label">抽样标准</span><span class="value">${iqc.standard}</span></div>
+              <div class="detail-item"><span class="label">来料数 / 抽样数</span><span class="value">${iqc.receiptQty} / ${iqc.sampleQty}</span></div>
+              <div class="detail-item"><span class="label">不合格数</span><span class="value">${iqc.defects}</span></div>
+              <div class="detail-item"><span class="label">检验结论</span><span class="value" style="color:${iqcColor};font-weight:600;">${iqc.conclusion === '合格' ? '✓ 合格' : '✗ 不合格'}</span></div>
+              <div class="detail-item"><span class="label">检验员</span><span class="value">${iqc.inspector}</span></div>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <div class="section-title">检验项目明细</div>
+            <div style="overflow-x:auto;">
+              <table class="detail-table">
+                <thead>
+                  <tr>
+                    <th>检验项目</th>
+                    <th>标准要求</th>
+                    <th>实测值</th>
+                    <th>判定</th>
+                  </tr>
+                </thead>
+                <tbody>${itemsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">装配物料信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">物料编码</span><span class="value">${mat.code}</span></div>
+            <div class="detail-item"><span class="label">物料名称</span><span class="value">${mat.name}</span></div>
+            <div class="detail-item"><span class="label">供应商</span><span class="value">${mat.supplier}</span></div>
+            <div class="detail-item"><span class="label">批次号</span><span class="value">${mat.batchNo}</span></div>
+            <div class="detail-item"><span class="label">来料日期</span><span class="value">${mat.receiptDate}</span></div>
+            <div class="detail-item"><span class="label">IQC检验结果</span><span class="value" style="color:${iqcColor};font-weight:600;">✓ ${mat.iqcResult}</span></div>
+          </div>
+        </div>
+        ${iqcDetailHtml}
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#" onclick="traceMaterialForward('${mat.code}'); return false;" style="color:var(--primary);"><i class="bi bi-arrow-right-circle"></i> 正向追溯 →</a>
+        </div>`;
+    }
+    
+    function renderSupplierDetail(d) {
+      const s = d.supplier;
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title" style="cursor:pointer;" onclick="toggleSupplierGroup('basic')">
+            <i class="bi bi-chevron-down" id="basic-toggle"></i> 基本信息
+          </div>
+          <div id="supplier-basic" class="detail-grid">
+            <div class="detail-item"><span class="label">供应商编码</span><span class="value">${s.code}</span></div>
+            <div class="detail-item"><span class="label">供应商名称</span><span class="value">${s.name}</span></div>
+            <div class="detail-item"><span class="label">供应商地址</span><span class="value">${s.address}</span></div>
+            <div class="detail-item"><span class="label">联系人</span><span class="value">${s.contact}</span></div>
+            <div class="detail-item"><span class="label">联系方式</span><span class="value">${s.phone}</span></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="section-title" style="cursor:pointer;" onclick="toggleSupplierGroup('purchase')">
+            <i class="bi bi-chevron-down" id="purchase-toggle"></i> 采购信息
+          </div>
+          <div id="supplier-purchase" class="detail-grid">
+            <div class="detail-item"><span class="label">采购员</span><span class="value">${s.buyer}</span></div>
+            <div class="detail-item"><span class="label">收货单号</span><span class="value">${s.poNo}</span></div>
+            <div class="detail-item"><span class="label">来料日期</span><span class="value">${s.receiptDate}</span></div>
+            <div class="detail-item"><span class="label">来料数量</span><span class="value">${s.receiptQty}</span></div>
+          </div>
+        </div>`;
+    }
+    
+    function toggleSupplierGroup(group) {
+      const el = $(`supplier-${group}`);
+      const toggle = $(`${group}-toggle`);
+      if (el) {
+        const isHidden = el.style.display === 'none';
+        el.style.display = isHidden ? 'grid' : 'none';
+        toggle.className = isHidden ? 'bi bi-chevron-down' : 'bi bi-chevron-right';
+      }
+    }
+    
+    function renderIqcDetail(d) {
+      const i = d.iqc;
+      const mrb = d.mrbRecord;
+      
+      const conclusionHtml = i.conclusion === '合格' ? 
+        '<span style="color:var(--success);font-weight:600;">✓ 合格</span>' : 
+        '<span style="color:var(--danger);font-weight:600;">✗ 不合格</span>';
+      
+      const mrbHtml = mrb ? `
+        <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border-color);">
+          <div class="section-title" style="color:var(--warning);">
+            <i class="bi bi-exclamation-triangle"></i> MRB/处置记录
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">MRB编号</span><span class="value highlight-err">${mrb.mrbNo}</span></div>
+            <div class="detail-item"><span class="label">不合格描述</span><span class="value">${mrb.desc}</span></div>
+            <div class="detail-item"><span class="label">处置意见</span><span class="value highlight-err">${mrb.opinion}</span></div>
+            <div class="detail-item"><span class="label">执行人</span><span class="value">${mrb.executor}</span></div>
+          </div>
+        </div>
+      ` : '';
+      
+      // 检验项目明细表
+      const itemsHtml = i.items.map(item => `
+        <tr>
+          <td>${item.item}</td>
+          <td>${item.standard}</td>
+          <td>${item.actual}</td>
+          <td><span style="color:var(--success);font-weight:600;">✓ ${item.result}</span></td>
+        </tr>
+      `).join('');
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">IQC来料检验</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">检验编号</span><span class="value">${i.no}</span></div>
+            <div class="detail-item"><span class="label">检验日期</span><span class="value">${i.date}</span></div>
+            <div class="detail-item"><span class="label">检验方式</span><span class="value">${i.method}</span></div>
+            <div class="detail-item"><span class="label">抽样标准</span><span class="value">${i.standard}</span></div>
+            <div class="detail-item"><span class="label">来料数 / 抽样数</span><span class="value">${i.receiptQty} / ${i.sampleQty}</span></div>
+            <div class="detail-item"><span class="label">不合格数</span><span class="value">${i.defects}</span></div>
+            <div class="detail-item"><span class="label">检验结论</span><span class="value">${conclusionHtml}</span></div>
+            <div class="detail-item"><span class="label">检验员</span><span class="value">${i.inspector}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">检验项目明细</div>
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>检验项目</th>
+                  <th>标准要求</th>
+                  <th>实测值</th>
+                  <th>判定</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#"><i class="bi bi-box-arrow-up-right"></i> 查看IQC详情 →</a>
+        </div>
+        ${mrbHtml}`;
+    }
+    
+    function renderMrbDetail(d) {
+      if (!d.mrbRecord) {
+        detailBody.innerHTML = `<div class="detail-section"><div class="section-title">MRB/处置</div><div style="padding:20px;text-align:center;color:var(--text-muted);"><i class="bi bi-check-circle" style="font-size:24px;display:block;margin-bottom:8px;color:var(--success);"></i><p>该物料无 MRB 记录</p></div></div>`;
+        return;
+      }
+    }
+    
+    // 同批次零部件信息
+    function renderSameBatchDetail(d) {
+      if (!d.sameBatchParts || d.sameBatchParts.length === 0) {
+        detailBody.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">暂无同批次零部件信息</div>';
+        return;
+      }
+      
+      const parts = d.sameBatchParts;
+      const allCount = parts.length;
+      const usedCount = parts.filter(p => p.status === '已使用').length;
+      const unusedCount = parts.filter(p => p.status === '未使用').length;
+      
+      // Tab切换
+      const tabsHtml = `
+        <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border-color);">
+          <div class="batch-tab active" onclick="switchBatchTab('all', this)">全部(${allCount})</div>
+          <div class="batch-tab" onclick="switchBatchTab('used', this)">已使用(${usedCount})</div>
+          <div class="batch-tab" onclick="switchBatchTab('unused', this)">未使用(${unusedCount})</div>
+        </div>
+      `;
+      
+      // 表格行
+      const rowsHtml = parts.map((p, idx) => {
+        const productText = p.productSN || '—';
+        const customerText = p.customer || '—';
+        const statusClass = p.status === '已使用' ? 'color:var(--primary);' : 'color:var(--success);';
+        const productStatusClass = p.productStatus === '已发货' ? 'var(--info)' : p.productStatus === '在库' ? 'var(--success)' : p.productStatus === '产线中' ? 'var(--warning)' : 'var(--text-muted)';
+        const lockHtml = p.locked ? 
+          `<span style="color:var(--danger);font-weight:600;"><i class="bi bi-lock"></i> 已锁定</span>` : 
+          '<span style="color:var(--text-muted);">—</span>';
+        const checkbox = p.status === '未使用' && !p.locked ? 
+          `<input type="checkbox" class="batch-checkbox" data-idx="${idx}">` : 
+          `<input type="checkbox" disabled title="${p.status === '已使用' ? '已使用，无法锁定' : '已锁定'}">`;
+        
+        return `
+        <tr data-status="${p.status}">
+          <td style="width:40px;">${checkbox}</td>
+          <td style="font-weight:600;">${p.sn}</td>
+          <td>${p.code}</td>
+          <td>${p.name}</td>
+          <td>${productText}</td>
+          <td><span style="${statusClass}font-weight:600;">${p.status}</span></td>
+          <td><span style="background:${productStatusClass};color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">${p.productStatus || '—'}</span></td>
+          <td>${customerText}</td>
+          <td><span style="color:var(--success);font-weight:600;">✓ ${p.iqcResult}</span></td>
+          <td>${lockHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="traceSameBatchPart('${p.sn}')">追溯</button></td>
+        </tr>`;
+      }).join('');
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">同批次零部件信息</div>
+          ${tabsHtml}
+          
+          <!-- 批量操作按钮（仅未使用Tab显示） -->
+          <div id="batch-actions" style="display:none;margin-bottom:12px;gap:8px;align-items:center;">
+            <button class="btn-sm-custom" style="background:var(--danger);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="batchLockParts()">
+              <i class="bi bi-lock"></i> 批量锁定
+            </button>
+            <button class="btn-sm-custom" style="background:var(--success);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="batchUnlockParts()">
+              <i class="bi bi-unlock"></i> 批量解锁
+            </button>
+            <span id="batch-selected-count" style="margin-left:8px;font-size:12px;color:var(--text-muted);">已选择 0 个</span>
+          </div>
+          
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;"><input type="checkbox" id="select-all-batch" onchange="toggleSelectAllBatch(this.checked)" style="display:none;"></th>
+                  <th>零部件S/N号</th>
+                  <th>物料编码</th>
+                  <th>物料名称</th>
+                  <th>装配整机</th>
+                  <th>状态</th>
+                  <th>整机状态</th>
+                  <th>客户</th>
+                  <th>IQC结果</th>
+                  <th>锁定状态</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="batch-table-body">${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>`;
+      
+      // 绑定checkbox事件
+      setTimeout(() => {
+        document.querySelectorAll('.batch-checkbox').forEach(cb => {
+          cb.addEventListener('change', updateBatchSelectedCount);
+        });
+      }, 0);
+    }
+    
+    // 切换同批次零部件Tab
+    function switchBatchTab(tab, el) {
+      document.querySelectorAll('.batch-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      
+      const rows = document.querySelectorAll('#batch-table-body tr');
+      const batchActions = document.getElementById('batch-actions');
+      
+      rows.forEach(row => {
+        const status = row.dataset.status;
+        if (tab === 'all') {
+          row.style.display = '';
+        } else if (tab === 'used') {
+          row.style.display = status === '已使用' ? '' : 'none';
+        } else if (tab === 'unused') {
+          row.style.display = status === '未使用' ? '' : 'none';
+        }
+      });
+      
+      // 仅未使用Tab显示批量操作按钮和全选
+      batchActions.style.display = tab === 'unused' ? 'flex' : 'none';
+      const selectAll = document.getElementById('select-all-batch');
+      if (selectAll) selectAll.style.display = tab === 'unused' ? '' : 'none';
+    }
+    
+    // 全选/取消全选同批次零部件
+    function toggleSelectAllBatch(checked) {
+      document.querySelectorAll('.batch-checkbox:not(:disabled)').forEach(cb => {
+        cb.checked = checked;
+      });
+      updateBatchSelectedCount();
+    }
+    
+    // 更新已选择数量
+    function updateBatchSelectedCount() {
+      const checked = document.querySelectorAll('.batch-checkbox:checked').length;
+      const countEl = document.getElementById('batch-selected-count');
+      if (countEl) countEl.textContent = `已选择 ${checked} 个`;
+    }
+    
+    // 批量锁定零部件
+    function batchLockParts() {
+      const checkedBoxes = document.querySelectorAll('.batch-checkbox:checked');
+      if (checkedBoxes.length === 0) {
+        alert('请选择要锁定的零部件');
+        return;
+      }
+      
+      const reason = prompt('请输入锁定原因：');
+      if (!reason) return;
+      
+      checkedBoxes.forEach(cb => {
+        const idx = parseInt(cb.dataset.idx);
+        d.sameBatchParts[idx].locked = true;
+        d.sameBatchParts[idx].lockReason = reason;
+      });
+      
+      alert(`成功锁定 ${checkedBoxes.length} 个零部件`);
+      renderSameBatchDetail(d);
+    }
+    
+    // 批量解锁零部件
+    function batchUnlockParts() {
+      const checkedBoxes = document.querySelectorAll('.batch-checkbox:checked');
+      if (checkedBoxes.length === 0) {
+        alert('请选择要解锁的零部件');
+        return;
+      }
+      
+      checkedBoxes.forEach(cb => {
+        const idx = parseInt(cb.dataset.idx);
+        d.sameBatchParts[idx].locked = false;
+        d.sameBatchParts[idx].lockReason = '';
+      });
+      
+      alert(`成功解锁 ${checkedBoxes.length} 个零部件`);
+      renderSameBatchDetail(d);
+    }
+    
+    // 追溯同批次零部件
+    function traceSameBatchPart(sn) {
+      document.getElementById('forward-part-no').value = sn;
+      document.getElementById('forward-batch-no').value = sn;
+      traceForward();
+    }
+    
+    function renderWorkorderDetail(d) {
+      const w = d.workorder;
+      
+      // 工序明细表
+      const processesHtml = (d.processes || []).map(p => `
+        <tr>
+          <td>${p.no}</td>
+          <td>${p.name}</td>
+          <td>${p.equip}</td>
+          <td style="color:var(--success);font-weight:600;">${p.goodQty || '-'}</td>
+          <td style="color:${(p.badQty && p.badQty > 0) ? 'var(--danger)' : 'var(--text-muted)'};${p.badQty && p.badQty > 0 ? 'font-weight:600;' : ''}">${p.badQty || '0'}</td>
+        </tr>
+      `).join('');
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">工序信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">工单号</span><span class="value">${w.wo}</span></div>
+            <div class="detail-item"><span class="label">产线</span><span class="value">${w.line}</span></div>
+            <div class="detail-item"><span class="label">计划数量</span><span class="value">${w.planned}</span></div>
+            <div class="detail-item"><span class="label">完成数量</span><span class="value">${w.actual}</span></div>
+            <div class="detail-item"><span class="label">合格数量</span><span class="value">${w.qualified}</span></div>
+            <div class="detail-item"><span class="label">工单状态</span><span class="value highlight-ok">${w.status}</span></div>
+            <div class="detail-item"><span class="label">开始日期</span><span class="value">${w.start}</span></div>
+            <div class="detail-item"><span class="label">完成日期</span><span class="value">${w.end}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">工序明细</div>
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>工序名称</th>
+                  <th>设备</th>
+                  <th>良品数</th>
+                  <th>不良品数</th>
+                </tr>
+              </thead>
+              <tbody>${processesHtml}</tbody>
+            </table>
+          </div>
+        </div>`;
+    }
+    
+    function renderIpqcDetail(d) {
+      const firstArticles = d.ipqcRecords.firstArticles || [];
+      const patrolRecords = d.ipqcRecords.patrolRecords || [];
+      
+      // 首件检验列表HTML
+      const firstArticleRowsHtml = firstArticles.length > 0 ? firstArticles.map((fa, idx) => {
+        const resultColor = fa.conclusion === '合格' ? 'var(--success)' : 'var(--danger)';
+        const resultText = fa.conclusion === '合格' ? '✓ 合格' : '✗ 不合格';
+        const mrbHtml = fa.hasMrb ? 
+          `<a class="table-link" onclick="showMrbDetail('${fa.mrbNo}')" style="color:var(--primary);cursor:pointer;">${fa.mrbNo}</a>` : 
+          '—';
+        return `
+        <tr>
+          <td>${fa.process}</td>
+          <td style="font-weight:600;">${fa.no}</td>
+          <td>${fa.inspector}</td>
+          <td>${fa.inspectTime}</td>
+          <td><span style="color:${resultColor};font-weight:600;">${resultText}</span></td>
+          <td>${mrbHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="showFirstArticleDetail(${idx})">查看详情</button></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">暂无首件检验记录</td></tr>';
+      
+      // 过程巡检列表HTML
+      const patrolRowsHtml = patrolRecords.length > 0 ? patrolRecords.map((r, idx) => {
+        const resultColor = r.result === '合格' ? 'var(--success)' : 'var(--danger)';
+        const resultText = r.result === '合格' ? '✓ 合格' : '✗ 不合格';
+        const mrbHtml = r.hasMrb ? 
+          `<a class="table-link" onclick="showMrbDetail('${r.mrbNo}')" style="color:var(--primary);cursor:pointer;">${r.mrbNo}</a>` : 
+          '—';
+        return `
+        <tr>
+          <td>${r.no}</td>
+          <td style="font-weight:600;">${r.processNo}</td>
+          <td>${r.inspector}</td>
+          <td>${r.period}</td>
+          <td>${r.inspectTime}</td>
+          <td><span style="color:${resultColor};font-weight:600;">${resultText}</span></td>
+          <td>${mrbHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="showPatrolRecordDetail(${idx})">查看详情</button></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px;">暂无过程巡检记录</td></tr>';
+      
+      // 统计异常数量
+      const abnormalFirstCount = firstArticles.filter(fa => fa.conclusion !== '合格').length;
+      const abnormalPatrolCount = patrolRecords.filter(r => r.hasMrb).length;
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">IPQC过程检验记录</div>
+          
+          <!-- Tab切换 -->
+          <div class="ipqc-tabs">
+            <div class="ipqc-tab active" onclick="switchIpqcTab('first-article')">
+              <i class="bi bi-1-circle"></i>首件检验
+              <span class="tab-badge">${firstArticles.length}</span>
+            </div>
+            <div class="ipqc-tab" onclick="switchIpqcTab('patrol')">
+              <i class="bi bi-arrow-repeat"></i>过程巡检
+              <span class="tab-badge">${patrolRecords.length}</span>
+            </div>
+          </div>
+          
+          <!-- 首件检验内容 -->
+          <div id="ipqc-first-article" class="ipqc-tab-content active">
+            <div style="overflow-x:auto;">
+              <table class="detail-table">
+                <thead>
+                  <tr>
+                    <th>工序名称</th>
+                    <th>检验单号</th>
+                    <th>检验人员</th>
+                    <th>检验时间</th>
+                    <th style="width:100px;">检验结果</th>
+                    <th>MRB单号</th>
+                    <th style="width:100px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>${firstArticleRowsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- 过程巡检内容 -->
+          <div id="ipqc-patrol" class="ipqc-tab-content">
+            <div style="overflow-x:auto;">
+              <table class="detail-table">
+                <thead>
+                  <tr>
+                    <th style="width:60px;">序号</th>
+                    <th>检验单号</th>
+                    <th>巡检人员</th>
+                    <th>巡检时段</th>
+                    <th>巡检时间</th>
+                    <th style="width:100px;">检验结果</th>
+                    <th>MRB单号</th>
+                    <th style="width:100px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>${patrolRowsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+            <i class="bi bi-info-circle"></i> 
+            首件检验：共 ${firstArticles.length} 条记录，其中 ${abnormalFirstCount} 条存在质量异常 | 
+            过程巡检：共 ${patrolRecords.length} 次记录，其中 ${abnormalPatrolCount} 次存在质量异常
+          </div>
+        </div>`;
+    }
+    
+    // IPQC Tab切换功能
+    function switchIpqcTab(tabName) {
+      // 切换Tab样式
+      document.querySelectorAll('.ipqc-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.closest('.ipqc-tab').classList.add('active');
+      
+      // 切换内容显示
+      document.querySelectorAll('.ipqc-tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      document.getElementById('ipqc-' + tabName).classList.add('active');
+    }
+    
+    // 显示首件检验详情
+    function showFirstArticleDetail(idx) {
+      const fa = d.ipqcRecords.firstArticles[idx];
+      if (!fa) return;
+      
+      const resultColor = fa.conclusion === '合格' ? 'var(--success)' : 'var(--danger)';
+      const resultText = fa.conclusion === '合格' ? '✓ 合格' : '✗ 不合格';
+      
+      const itemsHtml = fa.items.map(item => `
+        <tr>
+          <td>${item.no}</td>
+          <td>${item.item}</td>
+          <td>${item.standard}</td>
+          <td>${item.method}</td>
+          <td style="color:var(--success);font-weight:600;">${item.result}</td>
+        </tr>
+      `).join('');
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-1-circle"></i> 首件检验详情</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">检验单号</span><span class="value">${fa.no}</span></div>
+            <div class="detail-item"><span class="label">检验工序</span><span class="value">${fa.process}</span></div>
+            <div class="detail-item"><span class="label">检验员</span><span class="value">${fa.inspector}</span></div>
+            <div class="detail-item"><span class="label">检验时间</span><span class="value">${fa.inspectTime}</span></div>
+            <div class="detail-item"><span class="label">检验依据</span><span class="value">${fa.basis}</span></div>
+            <div class="detail-item"><span class="label">检验结论</span><span class="value" style="color:${resultColor};font-weight:600;">${resultText}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">检验记录详情</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">产品名称</span><span class="value">${fa.productName}</span></div>
+            <div class="detail-item"><span class="label">产品型号</span><span class="value">${fa.productModel}</span></div>
+            <div class="detail-item"><span class="label">检验部位</span><span class="value">${fa.productPart}</span></div>
+            <div class="detail-item"><span class="label">操作员</span><span class="value">${fa.operator}</span></div>
+            <div class="detail-item"><span class="label">抽样数量</span><span class="value">${fa.sampleQty}</span></div>
+            <div class="detail-item"><span class="label">不良品数量</span><span class="value">${fa.defectQty}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">检验项目明细</div>
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>检验项目</th>
+                  <th>检验标准</th>
+                  <th>检验方法</th>
+                  <th>检验结果</th>
+                </tr>
+              </thead>
+              <tbody>${itemsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#" onclick="renderIpqcDetail(d); return false;"><i class="bi bi-arrow-left"></i> 返回列表</a>
+        </div>`;
+    }
+    
+    // 显示巡检记录详情
+    function showPatrolRecordDetail(idx) {
+      const pr = d.ipqcRecords.patrolRecords[idx];
+      if (!pr) return;
+      
+      const resultColor = pr.result === '合格' ? 'var(--success)' : 'var(--danger)';
+      const resultText = pr.result === '合格' ? '✓ 合格' : '✗ 不合格';
+      
+      let mrbHtml = '';
+      if (pr.hasMrb) {
+        mrbHtml = `
+          <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border-color);">
+            <div class="section-title" style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> MRB/处置记录</div>
+            <div class="detail-grid">
+              <div class="detail-item"><span class="label">MRB编号</span><span class="value highlight-err">${pr.mrbNo}</span></div>
+              <div class="detail-item"><span class="label">处置意见</span><span class="value highlight-err">${pr.mrbOpinion}</span></div>
+              <div class="detail-item" style="grid-column:span 2;"><span class="label">不合格描述</span><span class="value">${pr.mrbDesc}</span></div>
+            </div>
+          </div>`;
+      }
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-arrow-repeat"></i> 巡检记录详情</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">检验单号</span><span class="value">${pr.processNo}</span></div>
+            <div class="detail-item"><span class="label">检验工序</span><span class="value">${pr.process}</span></div>
+            <div class="detail-item"><span class="label">巡检人员</span><span class="value">${pr.inspector}</span></div>
+            <div class="detail-item"><span class="label">巡检时段</span><span class="value">${pr.period}</span></div>
+            <div class="detail-item"><span class="label">巡检时间</span><span class="value">${pr.inspectTime}</span></div>
+            <div class="detail-item"><span class="label">检验结果</span><span class="value" style="color:${resultColor};font-weight:600;">${resultText}</span></div>
+          </div>
+        </div>
+        ${mrbHtml}
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#" onclick="renderIpqcDetail(d); return false;"><i class="bi bi-arrow-left"></i> 返回列表</a>
+        </div>`;
+    }
+    
+    // 渲染已装配该物料的整机列表
+    function renderAssembledProducts(d) {
+      renderProductGroupTable(d.assembledProducts || [], 'assembled');
+    }
+    
+    // 渲染同订单整机列表
+    function renderSameOrderProducts(d) {
+      renderProductGroupTable(d.sameOrderProducts || [], 'sameOrder');
+    }
+    
+    // 渲染整机分组表格（通用函数）
+    function renderProductGroupTable(products, productType) {
+      if (!products || products.length === 0) {
+        detailBody.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">暂无整机信息</div>';
+        return;
+      }
+      
+      const rowsHtml = products.map((p, idx) => {
+        const fqcColor = p.fqcConclusion === '合格' ? 'var(--success)' : 'var(--danger)';
+        const fqcText = p.fqcConclusion === '合格' ? '✓ 合格' : '✗ 不合格';
+        const lockHtml = p.locked ? 
+          `<span style="color:var(--danger);font-weight:600;"><i class="bi bi-lock"></i> 已锁定</span>` : 
+          '<span style="color:var(--text-muted);">—</span>';
+        const customerText = p.customer || '—';
+        const isShipped = p.status === '已发货';
+        const lockCheckbox = p.locked || isShipped ? 
+          `<input type="checkbox" class="product-checkbox" data-idx="${idx}" data-type="${productType}" disabled title="${isShipped ? '已发货，无法操作' : '已锁定，无法操作'}">` :
+          `<input type="checkbox" class="product-checkbox" data-idx="${idx}" data-type="${productType}">`;
+        
+        return `
+        <tr data-shipped="${isShipped}">
+          <td style="width:40px;">${lockCheckbox}</td>
+          <td style="font-weight:600;">${p.batchNo}</td>
+          <td><span style="background:${p.status==='已发货'?'var(--info)':p.status==='在库'?'var(--success)':p.status==='产线中'?'var(--warning)':'var(--text-muted)'};color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">${p.status}</span></td>
+          <td><span style="color:${fqcColor};font-weight:600;">${fqcText}</span></td>
+          <td>${customerText}</td>
+          <td>${lockHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="renderProductDetailByType('${productType}', ${idx})">详情</button></td>
+        </tr>`;
+      }).join('');
+      
+      const unshippedCount = products.filter(p => p.status !== '已发货').length;
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">整机清单</div>
+          
+          ${unshippedCount > 0 ? `
+          <div id="product-batch-actions" style="display:flex;margin-bottom:12px;gap:8px;align-items:center;">
+            <button class="btn-sm-custom" style="background:var(--danger);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="batchLockProducts('${productType}')">
+              <i class="bi bi-lock"></i> 批量锁定
+            </button>
+            <button class="btn-sm-custom" style="background:var(--success);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="batchUnlockProducts('${productType}')">
+              <i class="bi bi-unlock"></i> 批量解锁
+            </button>
+            <span id="selected-count" style="margin-left:8px;font-size:12px;color:var(--text-muted);">已选择 0 台</span>
+          </div>
+          ` : ''}
+          
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;"><input type="checkbox" id="select-all-products" onchange="toggleSelectAllProducts(this.checked, '${productType}')"></th>
+                  <th>整机S/N码</th>
+                  <th>状态</th>
+                  <th>FQC结论</th>
+                  <th>客户</th>
+                  <th>锁定状态</th>
+                  <th style="width:80px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body">${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>`;
+      
+      setTimeout(() => {
+        document.querySelectorAll('.product-checkbox').forEach(cb => {
+          cb.addEventListener('change', updateSelectedCount);
+        });
+      }, 100);
+    }
+    
+    // 根据类型渲染整机详情
+    function renderProductDetailByType(type, idx) {
+      const products = type === 'assembled' ? d.assembledProducts : d.sameOrderProducts;
+      if (!products || !products[idx]) return;
+      renderProductDetail({ products: products }, idx);
+    }
+    
+    // 渲染整机信息一览表（保留兼容）
+    function renderProductsOverview(d) {
+      if (!d.products || d.products.length === 0) {
+        detailBody.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);">暂无整机信息</div>';
+        return;
+      }
+      
+      // 统计数据
+      const stats = {
+        total: d.products.length,
+        shipped: d.products.filter(p => p.status === '已发货').length,
+        unshipped: d.products.filter(p => p.status !== '已发货').length
+      };
+      
+      // Tab切换
+      const tabsHtml = `
+        <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border-color);">
+          <div class="product-tab active" onclick="switchProductTab('all', this)">全部(${stats.total})</div>
+          <div class="product-tab" onclick="switchProductTab('shipped', this)">已发货(${stats.shipped})</div>
+          <div class="product-tab" onclick="switchProductTab('unshipped', this)">未发货(${stats.unshipped})</div>
+        </div>
+      `;
+      
+      // 表格行
+      const rowsHtml = d.products.map((p, idx) => {
+        const fqcColor = p.fqcConclusion === '合格' ? 'var(--success)' : 'var(--danger)';
+        const fqcText = p.fqcConclusion === '合格' ? '✓ 合格' : '✗ 不合格';
+        const lockHtml = p.locked ? 
+          `<span style="color:var(--danger);font-weight:600;"><i class="bi bi-lock"></i> 已锁定</span>` : 
+          '<span style="color:var(--text-muted);">—</span>';
+        const customerText = p.customer || '—';
+        const isShipped = p.status === '已发货';
+        const lockCheckbox = p.locked || isShipped ? 
+          `<input type="checkbox" class="product-checkbox" data-idx="${idx}" disabled title="${isShipped ? '已发货，无法操作' : '已锁定，无法操作'}">` :
+          `<input type="checkbox" class="product-checkbox" data-idx="${idx}">`;
+        
+        // 首次检验信息
+        const firstInspectInfo = p.firstInspection ? 
+          `<span style="font-size:12px;">${p.firstInspection.inspectDate}</span><br><span style="font-size:11px;color:var(--text-muted);">${p.firstInspection.inspector}</span>` : 
+          '<span style="color:var(--text-muted);">—</span>';
+        
+        // 复检/处置信息
+        let secondInfo = '<span style="color:var(--text-muted);">—</span>';
+        if (p.reInspection) {
+          secondInfo = `<span style="font-size:12px;">${p.reInspection.inspectDate}</span><br><span style="font-size:11px;color:var(--text-muted);">${p.reInspection.inspector}</span>`;
+        } else if (p.disposition) {
+          const dispColor = p.disposition.method === '现场处置' ? 'var(--warning)' : 'var(--danger)';
+          secondInfo = `<span style="font-size:12px;color:${dispColor};">${p.disposition.method}</span>`;
+        }
+        
+        return `
+        <tr data-shipped="${isShipped}">
+          <td style="width:40px;">${lockCheckbox}</td>
+          <td style="font-weight:600;">${p.batchNo}</td>
+          <td><span style="background:${p.status==='已发货'?'var(--info)':p.status==='在库'?'var(--success)':p.status==='产线中'?'var(--warning)':'var(--text-muted)'};color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;">${p.status}</span></td>
+          <td><span style="color:${fqcColor};font-weight:600;">${fqcText}</span></td>
+          <td style="font-size:12px;">${firstInspectInfo}</td>
+          <td style="font-size:12px;">${secondInfo}</td>
+          <td>${customerText}</td>
+          <td>${lockHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="renderProductDetail(d, ${idx})">详情</button></td>
+        </tr>`;
+      }).join('');
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">整机信息总览</div>
+          ${tabsHtml}
+          
+          <!-- 批量操作按钮（仅未发货Tab显示） -->
+          <div id="product-batch-actions" style="display:none;margin-bottom:12px;gap:8px;align-items:center;">
+            <button class="btn-sm-custom" style="background:var(--danger);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="batchLockProducts()">
+              <i class="bi bi-lock"></i> 批量锁定
+            </button>
+            <button class="btn-sm-custom" style="background:var(--success);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-weight:600;" onclick="batchUnlockProducts()">
+              <i class="bi bi-unlock"></i> 批量解锁
+            </button>
+            <span id="selected-count" style="margin-left:8px;font-size:12px;color:var(--text-muted);">已选择 0 台</span>
+          </div>
+          
+          <!-- 整机清单表格 -->
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th style="width:40px;"><input type="checkbox" id="select-all-products" onchange="toggleSelectAllProducts(this.checked)"></th>
+                  <th>整机S/N码</th>
+                  <th>状态</th>
+                  <th>FQC结论</th>
+                  <th>首次检验<br><span style="font-size:11px;font-weight:400;">时间/人员</span></th>
+                  <th>复检/处置<br><span style="font-size:11px;font-weight:400;">时间/人员/方式</span></th>
+                  <th>客户</th>
+                  <th>锁定状态</th>
+                  <th style="width:80px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body">
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      
+      // 绑定复选框事件
+      setTimeout(() => {
+        document.querySelectorAll('.product-checkbox').forEach(cb => {
+          cb.addEventListener('change', updateSelectedCount);
+        });
+      }, 100);
+    }
+    
+    // 切换整机信息Tab
+    function switchProductTab(tab, el) {
+      document.querySelectorAll('.product-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      
+      const rows = document.querySelectorAll('#products-table-body tr');
+      const batchActions = document.getElementById('product-batch-actions');
+      const selectAll = document.getElementById('select-all-products');
+      
+      rows.forEach(row => {
+        const isShipped = row.dataset.shipped === 'true';
+        if (tab === 'all') {
+          row.style.display = '';
+        } else if (tab === 'shipped') {
+          row.style.display = isShipped ? '' : 'none';
+        } else if (tab === 'unshipped') {
+          row.style.display = !isShipped ? '' : 'none';
+        }
+      });
+      
+      // 仅未发货Tab显示批量操作按钮和全选
+      batchActions.style.display = tab === 'unshipped' ? 'flex' : 'none';
+      selectAll.style.display = tab === 'unshipped' ? '' : 'none';
+    }
+    
+    // 全选/取消全选
+    function toggleSelectAllProducts(checked, productType) {
+      document.querySelectorAll(`.product-checkbox[data-type="${productType}"]:not(:disabled)`).forEach(cb => {
+        cb.checked = checked;
+      });
+      updateSelectedCount();
+    }
+    
+    // 更新已选择数量
+    function updateSelectedCount() {
+      const count = document.querySelectorAll('.product-checkbox:checked').length;
+      const countEl = document.getElementById('selected-count');
+      if (countEl) {
+        countEl.textContent = `已选择 ${count} 台`;
+      }
+    }
+    
+    // 批量锁定
+    function batchLockProducts(productType) {
+      const selected = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => parseInt(cb.dataset.idx));
+      if (selected.length === 0) {
+        alert('请先选择要锁定的整机');
+        return;
+      }
+      
+      const reason = prompt(`请输入锁定原因（将锁定 ${selected.length} 台整机）：`);
+      if (reason === null) return;
+      if (!reason.trim()) {
+        alert('锁定原因不能为空');
+        return;
+      }
+      
+      const products = productType === 'assembled' ? d.assembledProducts : d.sameOrderProducts;
+      selected.forEach(idx => {
+        products[idx].locked = true;
+        products[idx].lockReason = reason.trim();
+      });
+      
+      alert(`已成功锁定 ${selected.length} 台整机`);
+      renderProductGroupTable(products, productType);
+    }
+    
+    // 批量解锁
+    function batchUnlockProducts(productType) {
+      const selected = Array.from(document.querySelectorAll('.product-checkbox:checked')).map(cb => parseInt(cb.dataset.idx));
+      if (selected.length === 0) {
+        alert('请先选择要解锁的整机');
+        return;
+      }
+      
+      const products = productType === 'assembled' ? d.assembledProducts : d.sameOrderProducts;
+      selected.forEach(idx => {
+        products[idx].locked = false;
+        products[idx].lockReason = "";
+      });
+      
+      alert(`已成功解锁 ${selected.length} 台整机`);
+      renderProductGroupTable(products, productType);
+    }
+    
+    // 单台整机详情
+    // 显示MRB详情
+    function showMrbDetail(mrbNo) {
+      // 模拟MRB详情数据
+      const mrbData = {
+        mrbNo: mrbNo,
+        createTime: "2026-04-30 10:00",
+        reporter: "刘工",
+        partName: "G01产品",
+        partNo: "CR6-100",
+        batchNo: "CR6-20260428-003",
+        defectDesc: "负载测试不达标，实测负载85kg，标准要求≥100kg",
+        reviewTeam: "质量部、生产部、技术部",
+        reviewDate: "2026-04-30",
+        conclusion: "返工",
+        actionPlan: "重新进行负载测试，检查电机输出扭矩",
+        executor: "孙八",
+        executeDate: "2026-05-01",
+        executeResult: "返工完成，复测合格",
+        status: "已关闭"
+      };
+      
+      const detailBody = $('detailBody');
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title" style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> MRB详情</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">MRB编号</span><span class="value highlight-err">${mrbData.mrbNo}</span></div>
+            <div class="detail-item"><span class="label">创建时间</span><span class="value">${mrbData.createTime}</span></div>
+            <div class="detail-item"><span class="label">报告人</span><span class="value">${mrbData.reporter}</span></div>
+            <div class="detail-item"><span class="label">产品名称</span><span class="value">${mrbData.partName}</span></div>
+            <div class="detail-item"><span class="label">产品编号</span><span class="value">${mrbData.partNo}</span></div>
+            <div class="detail-item"><span class="label">批次号</span><span class="value">${mrbData.batchNo}</span></div>
+            <div class="detail-item" style="grid-column:span 2;"><span class="label">不合格描述</span><span class="value">${mrbData.defectDesc}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">MRB评审</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">评审团队</span><span class="value">${mrbData.reviewTeam}</span></div>
+            <div class="detail-item"><span class="label">评审日期</span><span class="value">${mrbData.reviewDate}</span></div>
+            <div class="detail-item"><span class="label">评审结论</span><span class="value highlight-err">${mrbData.conclusion}</span></div>
+            <div class="detail-item" style="grid-column:span 2;"><span class="label">处置方案</span><span class="value">${mrbData.actionPlan}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">执行结果</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">执行人</span><span class="value">${mrbData.executor}</span></div>
+            <div class="detail-item"><span class="label">执行日期</span><span class="value">${mrbData.executeDate}</span></div>
+            <div class="detail-item"><span class="label">执行结果</span><span class="value" style="color:var(--success);">${mrbData.executeResult}</span></div>
+            <div class="detail-item"><span class="label">MRB状态</span><span class="value" style="color:var(--success);">${mrbData.status}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#" onclick="renderProductDetail(d, ${parseInt(idx)}); return false;"><i class="bi bi-arrow-left"></i> 返回整机详情</a>
+        </div>`;
+    }
+    
+    function renderProductDetail(d, idx) {
+      if (idx === undefined || idx === null || !d.products || !d.products[idx]) return;
+      const p = d.products[idx];
+      const fqcColor = p.fqcConclusion === "合格" ? "var(--success)" : "var(--danger)";
+      
+      // 首次检验信息
+      const firstInspectionHtml = p.firstInspection ? `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-1-circle"></i> 首次检验</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">检验编号</span><span class="value">${p.firstInspection.inspectNo}</span></div>
+            <div class="detail-item"><span class="label">检验时间</span><span class="value">${p.firstInspection.inspectDate}</span></div>
+            <div class="detail-item"><span class="label">检验员</span><span class="value">${p.firstInspection.inspector}</span></div>
+            <div class="detail-item"><span class="label">检验结论</span><span class="value" style="color:${p.firstInspection.conclusion === '合格' ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${p.firstInspection.conclusion === '合格' ? '✓ 合格' : '✗ 不合格'}</span></div>
+          </div>
+        </div>
+      ` : '';
+      
+      // 复检信息（首次检验合格时显示）
+      const reInspectionHtml = p.reInspection ? `
+        <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px dashed var(--border-color);">
+          <div class="section-title"><i class="bi bi-arrow-repeat"></i> 复检记录</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">复检编号</span><span class="value">${p.reInspection.reInspectNo}</span></div>
+            <div class="detail-item"><span class="label">复检时间</span><span class="value">${p.reInspection.inspectDate}</span></div>
+            <div class="detail-item"><span class="label">复检人员</span><span class="value">${p.reInspection.inspector}</span></div>
+            <div class="detail-item"><span class="label">复检结论</span><span class="value" style="color:${p.reInspection.conclusion === '合格' ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${p.reInspection.conclusion === '合格' ? '✓ 合格' : '✗ 不合格'}</span></div>
+          </div>
+        </div>
+      ` : '';
+      
+      // 不合格处置信息（首次检验不合格时显示）
+      const dispositionHtml = p.disposition ? `
+        <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px dashed var(--border-color);">
+          <div class="section-title" style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> 不合格处置</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">处置方式</span><span class="value" style="color:var(--danger);font-weight:600;">${p.disposition.method}</span></div>
+            ${p.disposition.method === '现场处置' ? `
+            <div class="detail-item"><span class="label">处置班组长</span><span class="value">${p.disposition.handler}</span></div>
+            <div class="detail-item"><span class="label">要求完成时间</span><span class="value">${p.disposition.requiredTime}</span></div>
+            <div class="detail-item"><span class="label">处置结果</span><span class="value" style="color:var(--success);font-weight:600;">${p.disposition.result}</span></div>
+            <div class="detail-item" style="grid-column:span 2;"><span class="label">缺陷描述</span><span class="value">${p.disposition.defectDesc}</span></div>
+            ${p.disposition.disposePerson ? `
+            <div style="grid-column:span 2; margin-top:16px; padding-top:16px; border-top:2px dashed var(--border-color);">
+              <div style="font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:12px;"><i class="bi bi-check-circle" style="color:var(--success);"></i> 处置结果记录</div>
+              <div class="detail-grid">
+                <div class="detail-item"><span class="label">处置人员</span><span class="value">${p.disposition.disposePerson}</span></div>
+                <div class="detail-item"><span class="label">处置时间</span><span class="value">${p.disposition.disposeTime}</span></div>
+                <div class="detail-item" style="grid-column:span 2;"><span class="label">处置措施</span><span class="value">${p.disposition.disposeMeasure}</span></div>
+                ${p.disposition.attachments ? `
+                <div class="detail-item" style="grid-column:span 2;">
+                  <span class="label">上传附件</span>
+                  <div style="margin-top:4px;">
+                    ${p.disposition.attachments.map(att => `<span style="display:inline-block; background:#e6f7ff; color:var(--primary); padding:2px 10px; border-radius:4px; font-size:12px; margin-right:8px; margin-bottom:4px;"><i class="bi bi-paperclip"></i> ${att}</span>`).join('')}
+                  </div>
+                </div>` : ''}
+                ${p.disposition.remark ? `
+                <div class="detail-item" style="grid-column:span 2;"><span class="label">备注说明</span><span class="value">${p.disposition.remark}</span></div>` : ''}
+              </div>
+            </div>` : ''}
+            ` : `
+            <div class="detail-item"><span class="label">MRB编号</span><span class="value highlight-err">${p.disposition.mrbNo}</span></div>
+            <div class="detail-item"><span class="label">评审团队</span><span class="value">${p.disposition.reviewTeam}</span></div>
+            <div class="detail-item"><span class="label">评审日期</span><span class="value">${p.disposition.reviewDate}</span></div>
+            <div class="detail-item"><span class="label">处置意见</span><span class="value highlight-err">${p.disposition.mrbOpinion}</span></div>
+            <div class="detail-item"><span class="label">处置方案</span><span class="value">${p.disposition.actionPlan}</span></div>
+            <div class="detail-item"><span class="label">MRB状态</span><span class="value" style="color:${p.disposition.status === '处置中' ? 'var(--warning)' : 'var(--success)'}; font-weight:600;">${p.disposition.status}</span></div>
+            `}
+          </div>
+          ${p.disposition.method === 'MRB处理' ? `
+          <div style="margin-top:12px;">
+            <a class="detail-link-btn" href="#" onclick="showMrbDetail('${p.disposition.mrbNo}'); return false;" style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> 查看MRB流程 →</a>
+          </div>` : ''}
+        </div>
+      ` : '';
+      
+      // 旧的MRB HTML（兼容）
+      const mrbHtml = p.hasMrb && !p.disposition ? `
+        <div class="detail-section">
+          <div class="section-title">MRB/处置记录</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">MRB编号</span><span class="value highlight-err">${p.mrbNo}</span></div>
+            <div class="detail-item"><span class="label">不合格描述</span><span class="value">${p.mrbDesc}</span></div>
+            <div class="detail-item"><span class="label">处置意见</span><span class="value highlight-err">${p.mrbOpinion}</span></div>
+            <div class="detail-item"><span class="label">执行人员</span><span class="value">孙八</span></div>
+            <div class="detail-item"><span class="label">执行结果</span><span class="value">执行中</span></div>
+          </div>
+        </div>` : "";
+      
+      const lockHtml = p.locked ? `
+        <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border-color);">
+          <div class="section-title" style="color:var(--danger);">
+            <i class="bi bi-lock"></i> 锁定信息
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">锁定状态</span><span class="value highlight-err">已锁定</span></div>
+            <div class="detail-item"><span class="label">锁定原因</span><span class="value">${p.lockReason}</span></div>
+          </div>
+        </div>` : '';
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">成品详情</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">成品编号</span><span class="value">${p.code}</span></div>
+            <div class="detail-item"><span class="label">成品名称</span><span class="value">${p.name}</span></div>
+            <div class="detail-item"><span class="label">整机S/N码</span><span class="value">${p.batchNo}</span></div>
+            <div class="detail-item"><span class="label">生产日期</span><span class="value">2026-04-28</span></div>
+            <div class="detail-item"><span class="label">状态</span><span class="value">${p.status}${p.customer ? ' → ' + p.customer : ''}</span></div>
+          </div>
+        </div>
+        ${firstInspectionHtml}
+        ${reInspectionHtml}
+        ${dispositionHtml}
+        ${mrbHtml}
+        ${lockHtml}
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#"><i class="bi bi-box-arrow-up-right"></i> 查看FQC详情 →</a>
+        </div>
+        ${p.fqcConclusion === '不合格' && p.hasMrb && !p.disposition ? `
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#" onclick="showMrbDetail('${p.mrbNo}'); return false;" style="color:var(--danger);"><i class="bi bi-exclamation-triangle"></i> 查看MRB详情 →</a>
+        </div>` : ''}`;
+    }
+    
+    // 显示首次检验详情
+    function showFirstInspectionDetail(idx) {
+      const p = d.products[idx];
+      if (!p || !p.firstInspection) return;
+      
+      const detailBody = $('detailBody');
+      const defectsHtml = p.firstInspection.defectItems ? 
+        p.firstInspection.defectItems.map((item, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${item}</td>
+            <td>标准要求</td>
+            <td>实测不合格</td>
+            <td><span style="color:var(--danger);font-weight:600;">✗ 不合格</span></td>
+          </tr>
+        `).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">无不合格项目</td></tr>';
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-1-circle"></i> 首次检验详情</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">检验编号</span><span class="value">${p.firstInspection.inspectNo}</span></div>
+            <div class="detail-item"><span class="label">检验时间</span><span class="value">${p.firstInspection.inspectDate}</span></div>
+            <div class="detail-item"><span class="label">检验员</span><span class="value">${p.firstInspection.inspector}</span></div>
+            <div class="detail-item"><span class="label">检验结论</span><span class="value" style="color:${p.firstInspection.conclusion === '合格' ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${p.firstInspection.conclusion === '合格' ? '✓ 合格' : '✗ 不合格'}</span></div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-title">检验项目明细</div>
+          <div style="overflow-x:auto;">
+            <table class="detail-table">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>不合格项目</th>
+                  <th>标准要求</th>
+                  <th>实测结果</th>
+                  <th>判定</th>
+                </tr>
+              </thead>
+              <tbody>${defectsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#" onclick="renderProductDetail(d, ${idx}); return false;"><i class="bi bi-arrow-left"></i> 返回整机详情</a>
+        </div>`;
+    }
+    
+    // ========== 逆向追溯辅助函数 ==========
+    
+    // 同批次整机Tab切换
+    function switchSameBatchTab(tab, el) {
+      document.querySelectorAll('.product-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      
+      const rows = document.querySelectorAll('#reverse-products-table-body tr');
+      const batchActions = document.getElementById('reverse-product-batch-actions');
+      const selectAll = document.getElementById('select-all-reverse-products');
+      
+      rows.forEach(row => {
+        const isShipped = row.dataset.shipped === 'true';
+        if (tab === 'all') {
+          row.style.display = '';
+        } else if (tab === 'shipped') {
+          row.style.display = isShipped ? '' : 'none';
+        } else if (tab === 'instock') {
+          row.style.display = !isShipped ? '' : 'none';
+        }
+      });
+      
+      batchActions.style.display = tab === 'instock' ? 'flex' : 'none';
+      selectAll.style.display = tab === 'instock' ? '' : 'none';
+    }
+    
+    // 全选/取消全选
+    function toggleReverseSelectAll(checked) {
+      document.querySelectorAll('.reverse-product-checkbox:not(:disabled)').forEach(cb => {
+        cb.checked = checked;
+      });
+      updateReverseSelectedCount();
+    }
+    
+    // 更新已选择数量
+    function updateReverseSelectedCount() {
+      const count = document.querySelectorAll('.reverse-product-checkbox:checked').length;
+      const countEl = document.getElementById('reverse-selected-count');
+      if (countEl) countEl.textContent = `已选择 ${count} 台`;
+    }
+    
+    // 批量锁定
+    function reverseBatchLock() {
+      const selected = Array.from(document.querySelectorAll('.reverse-product-checkbox:checked')).map(cb => parseInt(cb.dataset.idx));
+      if (selected.length === 0) { alert('请先选择要锁定的整机'); return; }
+      const reason = prompt(`请输入锁定原因（将锁定 ${selected.length} 台整机）：`);
+      if (!reason) return;
+      selected.forEach(idx => {
+        d.sameBatchProducts[idx].locked = true;
+        d.sameBatchProducts[idx].lockReason = reason.trim();
+      });
+      alert(`已成功锁定 ${selected.length} 台整机`);
+      renderSameBatchProducts(d);
+    }
+    
+    // 批量解锁
+    function reverseBatchUnlock() {
+      const selected = Array.from(document.querySelectorAll('.reverse-product-checkbox:checked')).map(cb => parseInt(cb.dataset.idx));
+      if (selected.length === 0) { alert('请先选择要解锁的整机'); return; }
+      selected.forEach(idx => {
+        d.sameBatchProducts[idx].locked = false;
+        d.sameBatchProducts[idx].lockReason = '';
+      });
+      alert(`已成功解锁 ${selected.length} 台整机`);
+      renderSameBatchProducts(d);
+    }
+    
+    // 追溯其他整机
+    function traceReverseProduct(sn) {
+      document.getElementById('reverse-sn').value = sn;
+      traceReverse();
+    }
+    
+    // 正向追溯物料
+    function traceMaterialForward(code) {
+      document.getElementById('forward-part-no').value = code;
+      document.getElementById('forward-batch-no').value = code;
+      // 切换到正向追溯Tab
+      document.querySelectorAll('.trace-mode-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector('.trace-mode-tab').classList.add('active');
+      document.querySelectorAll('.trace-mode-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('trace-forward').classList.add('active');
+      traceForward();
+    }
+    
+    // 逆向追溯渲染函数
+    
+    function renderFqcDetail(d) {
+      const f = d.fqc;
+      if (!f) return;
+      
+      const first = f.firstInspection;
+      const reInspect = f.reInspection;
+      
+      const firstHtml = first ? `
+        <div class="detail-section">
+          <div class="section-title"><i class="bi bi-1-circle"></i> 首次检验</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">检验编号</span><span class="value">${first.inspectNo}</span></div>
+            <div class="detail-item"><span class="label">检验时间</span><span class="value">${first.inspectDate}</span></div>
+            <div class="detail-item"><span class="label">检验员</span><span class="value">${first.inspector}</span></div>
+            <div class="detail-item"><span class="label">检验结论</span><span class="value" style="color:${first.conclusion === '合格' ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${first.conclusion === '合格' ? '✓ 合格' : '✗ 不合格'}</span></div>
+          </div>
+        </div>
+      ` : '';
+      
+      const reHtml = reInspect ? `
+        <div class="detail-section" style="margin-top:16px;padding-top:16px;border-top:2px dashed var(--border-color);">
+          <div class="section-title"><i class="bi bi-arrow-repeat"></i> 复检记录</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">复检编号</span><span class="value">${reInspect.reInspectNo}</span></div>
+            <div class="detail-item"><span class="label">复检时间</span><span class="value">${reInspect.inspectDate}</span></div>
+            <div class="detail-item"><span class="label">复检人员</span><span class="value">${reInspect.inspector}</span></div>
+            <div class="detail-item"><span class="label">复检结论</span><span class="value" style="color:${reInspect.conclusion === '合格' ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${reInspect.conclusion === '合格' ? '✓ 合格' : '✗ 不合格'}</span></div>
+          </div>
+        </div>
+      ` : '';
+      
+      detailBody.innerHTML = `
+        ${firstHtml}
+        ${reHtml}
+        <div class="detail-section">
+          <a class="detail-link-btn" href="#"><i class="bi bi-box-arrow-up-right"></i> 查看FQC详情 →</a>
+        </div>`;
+    }
+    
+    function renderWorkorderReverseDetail(d) {
+      const w = d.workorder;
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">工单信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">工单号</span><span class="value">${w.wo}</span></div>
+            <div class="detail-item"><span class="label">产线</span><span class="value">${w.line}</span></div>
+            <div class="detail-item"><span class="label">计划数量</span><span class="value">${w.planned}</span></div>
+            <div class="detail-item"><span class="label">完成数量</span><span class="value">${w.actual}</span></div>
+            <div class="detail-item"><span class="label">合格数量</span><span class="value">${w.qualified}</span></div>
+            <div class="detail-item"><span class="label">工单状态</span><span class="value">${w.status}</span></div>
+            <div class="detail-item"><span class="label">开始日期</span><span class="value">${w.start}</span></div>
+            <div class="detail-item"><span class="label">完成日期</span><span class="value">${w.end}</span></div>
+          </div>
+        </div>`;
+    }
+    
+    function renderIpqcReverseDetail(d) {
+      const ipqc = d.ipqcRecords;
+      const firstArticles = ipqc.firstArticles || [];
+      const patrolRecords = ipqc.patrolRecords || [];
+      
+      // 首件检验列表HTML
+      const firstArticleRowsHtml = firstArticles.length > 0 ? firstArticles.map((fa, idx) => {
+        const resultColor = fa.conclusion === '合格' ? 'var(--success)' : 'var(--danger)';
+        const resultText = fa.conclusion === '合格' ? '✓ 合格' : '✗ 不合格';
+        const mrbHtml = fa.hasMrb ? 
+          `<a class="table-link" onclick="showMrbDetail('${fa.mrbNo}')" style="color:var(--primary);cursor:pointer;">${fa.mrbNo}</a>` : 
+          '—';
+        return `
+        <tr>
+          <td>${fa.process}</td>
+          <td style="font-weight:600;">${fa.no}</td>
+          <td>${fa.inspector}</td>
+          <td>${fa.inspectTime}</td>
+          <td><span style="color:${resultColor};font-weight:600;">${resultText}</span></td>
+          <td>${mrbHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="showFirstArticleDetail(${idx})">查看详情</button></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">暂无首件检验记录</td></tr>';
+      
+      // 过程巡检列表HTML
+      const patrolRowsHtml = patrolRecords.length > 0 ? patrolRecords.map((r, idx) => {
+        const resultColor = r.result === '合格' ? 'var(--success)' : 'var(--danger)';
+        const resultText = r.result === '合格' ? '✓ 合格' : '✗ 不合格';
+        const mrbHtml = r.hasMrb ? 
+          `<a class="table-link" onclick="showMrbDetail('${r.mrbNo}')" style="color:var(--primary);cursor:pointer;">${r.mrbNo}</a>` : 
+          '—';
+        return `
+        <tr>
+          <td>${r.no}</td>
+          <td style="font-weight:600;">${r.processNo}</td>
+          <td>${r.inspector}</td>
+          <td>${r.period}</td>
+          <td>${r.inspectTime}</td>
+          <td><span style="color:${resultColor};font-weight:600;">${resultText}</span></td>
+          <td>${mrbHtml}</td>
+          <td><button class="btn-sm-custom" style="background:var(--primary);color:#fff;border:none;padding:3px 10px;border-radius:4px;cursor:pointer;" onclick="showPatrolRecordDetail(${idx})">查看详情</button></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px;">暂无过程巡检记录</td></tr>';
+      
+      // 统计异常数量
+      const abnormalFirstCount = firstArticles.filter(fa => fa.conclusion !== '合格').length;
+      const abnormalPatrolCount = patrolRecords.filter(r => r.hasMrb).length;
+      
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">IPQC过程检验记录</div>
+          
+          <!-- Tab切换 -->
+          <div class="ipqc-tabs">
+            <div class="ipqc-tab active" onclick="switchIpqcTab('first-article')">
+              <i class="bi bi-1-circle"></i>首件检验
+              <span class="tab-badge">${firstArticles.length}</span>
+            </div>
+            <div class="ipqc-tab" onclick="switchIpqcTab('patrol')">
+              <i class="bi bi-arrow-repeat"></i>过程巡检
+              <span class="tab-badge">${patrolRecords.length}</span>
+            </div>
+          </div>
+          
+          <!-- 首件检验内容 -->
+          <div id="ipqc-first-article" class="ipqc-tab-content active">
+            <div style="overflow-x:auto;">
+              <table class="detail-table">
+                <thead>
+                  <tr>
+                    <th>工序名称</th>
+                    <th>检验单号</th>
+                    <th>检验人员</th>
+                    <th>检验时间</th>
+                    <th style="width:100px;">检验结果</th>
+                    <th>MRB单号</th>
+                    <th style="width:100px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>${firstArticleRowsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- 过程巡检内容 -->
+          <div id="ipqc-patrol" class="ipqc-tab-content">
+            <div style="overflow-x:auto;">
+              <table class="detail-table">
+                <thead>
+                  <tr>
+                    <th style="width:60px;">序号</th>
+                    <th>检验单号</th>
+                    <th>巡检人员</th>
+                    <th>巡检时段</th>
+                    <th>巡检时间</th>
+                    <th style="width:100px;">检验结果</th>
+                    <th>MRB单号</th>
+                    <th style="width:100px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>${patrolRowsHtml}</tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">
+            <i class="bi bi-info-circle"></i> 
+            首件检验：共 ${firstArticles.length} 条记录，其中 ${abnormalFirstCount} 条存在质量异常 | 
+            过程巡检：共 ${patrolRecords.length} 次记录，其中 ${abnormalPatrolCount} 次存在质量异常
+          </div>
+        </div>`;
+    }
+    
+    function renderMaterialDetail(d, idx) {
+      const mat = d.materials[idx];
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">装配物料信息</div>
+          <div class="detail-grid">
+            <div class="detail-item"><span class="label">物料编码</span><span class="value">${mat.code}</span></div>
+            <div class="detail-item"><span class="label">物料名称</span><span class="value">${mat.name}</span></div>
+            <div class="detail-item"><span class="label">供应商</span><span class="value">${mat.supplier}</span></div>
+            <div class="detail-item"><span class="label">批次号</span><span class="value">${mat.batchNo}</span></div>
+            <div class="detail-item"><span class="label">来料日期</span><span class="value">${mat.receiptDate}</span></div>
+            <div class="detail-item"><span class="label">IQC检验结果</span><span class="value" style="color:var(--success);font-weight:600;">✓ ${mat.iqcResult}</span></div>
+          </div>
+        </div>`;
+    }
+    
+    function renderDefaultDetail(node) {
+      detailBody.innerHTML = `
+        <div class="detail-section">
+          <div class="section-title">${node.label}</div>
+          <div style="padding:20px;text-align:center;color:var(--text-muted);">
+            <i class="bi bi-info-circle" style="font-size:24px;display:block;margin-bottom:8px;"></i>
+            <p>详情内容开发中...</p>
+          </div>
+        </div>`;
+    }
+    
+    // Expand/Collapse all
+    function expandAll() {
+      document.querySelectorAll('.tree-children').forEach(el => el.classList.remove('collapsed'));
+      document.querySelectorAll('.tree-toggle:not(.hidden)').forEach(el => el.classList.add('expanded'));
+    }
+    
+    function collapseAll() {
+      document.querySelectorAll('.tree-children').forEach(el => el.classList.add('collapsed'));
+      document.querySelectorAll('.tree-toggle:not(.hidden)').forEach(el => el.classList.remove('expanded'));
+    }
+    
+    // 追溯模式切换
+    function switchTraceMode(mode) {
+      // 切换Tab样式
+      document.querySelectorAll('.trace-mode-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // 切换内容显示
+      document.querySelectorAll('.trace-mode-content').forEach(content => content.classList.remove('active'));
+      document.getElementById('trace-' + mode).classList.add('active');
+    }
+    
+    // 设置正向追溯演示数据
+    function setForwardDemo(type) {
+      if (type === 'SM') {
+        document.getElementById('forward-part-no').value = 'SM-202604001';
+        document.getElementById('forward-batch-no').value = 'SM-202604001';
+      } else if (type === 'HR') {
+        document.getElementById('forward-part-no').value = 'HR-202604001';
+        document.getElementById('forward-batch-no').value = 'HR-202604001';
+      }
+      traceForward();
+    }
+    
+    // 点击同组零部件进行追溯
+    function traceSiblingMaterial(code) {
+      document.getElementById('forward-part-no').value = code;
+      document.getElementById('forward-batch-no').value = code;
+      traceForward();
+    }
+    
+    // 设置逆向追溯演示数据
+    function setReverseDemo() {
+      document.getElementById('reverse-sn').value = 'CR6-20260428-001';
+      traceReverse();
+    }
+    
+    // 正向追溯查询
+    function traceForward() {
+      const partNo = document.getElementById('forward-part-no').value.trim();
+      const batchNo = document.getElementById('forward-batch-no').value.trim();
+      
+      if (!partNo && !batchNo) {
+        alert('请输入零件号或批次号');
+        return;
+      }
+      
+      // 优先使用零件号，如果没有则使用批次号
+      const searchValue = partNo || batchNo;
+      
+      // 根据输入的零部件号匹配数据
+      if (searchValue.includes('SM')) {
+        d = JSON.parse(JSON.stringify(MOCK.forward));
+      } else if (searchValue.includes('HR')) {
+        d = JSON.parse(JSON.stringify(MOCK.forwardReducer));
+      } else {
+        d = JSON.parse(JSON.stringify(MOCK.forward)); // 默认显示伺服电机
+      }
+      
+      initTree();
+      renderImpactAnalysis(d);
+      
+      document.getElementById('detailBody').innerHTML = `
+        <div class="empty-state">
+          <i class="bi bi-arrow-left-circle"></i>
+          <p>请点击左侧追溯树节点查看详情</p>
+        </div>`;
+    }
+    
+    // 逆向追溯查询
+    function traceReverse() {
+      const sn = document.getElementById('reverse-sn').value.trim();
+      if (!sn) {
+        alert('请输入整机S/N码');
+        return;
+      }
+      
+      // 加载逆向追溯数据
+      d = JSON.parse(JSON.stringify(MOCK.reverse));
+      initTree();
+      renderReverseImpactAnalysis(d);
+      
+      document.getElementById('detailBody').innerHTML = `
+        <div class="empty-state">
+          <i class="bi bi-arrow-left-circle"></i>
+          <p>请点击左侧追溯树节点查看详情</p>
+        </div>`;
+    }
+    
+    // 渲染正向追溯影响范围分析
+    function renderImpactAnalysis(data) {
+      const impactDiv = document.getElementById('impactAnalysis');
+      const infoDiv = document.getElementById('impactInfo');
+      const statsDiv = document.getElementById('impactStats');
+      const alertDiv = document.getElementById('impactAlert');
+      
+      // 计算统计数据
+      const products = data.products || [];
+      const shipped = products.filter(p => p.status === '已发货').length;
+      const inStock = products.filter(p => p.status === '在库').length;
+      const abnormal = products.filter(p => p.fqcConclusion === '不合格' || p.hasMrb).length;
+      
+      // 设置信息
+      infoDiv.innerHTML = `零部件：<strong>${data.materialName || '伺服电机'} / 批次：${data.batchNo}</strong> / 供应商：<strong>${data.supplier.name}</strong>`;
+      
+      // 设置统计数据
+      statsDiv.innerHTML = `
+        <div class="impact-stat-item shipped">
+          <span class="stat-num">${shipped}</span>
+          <span class="stat-text">已发货</span>
+        </div>
+        <div class="impact-stat-item instock">
+          <span class="stat-num">${inStock}</span>
+          <span class="stat-text">在库</span>
+        </div>
+        <div class="impact-stat-item abnormal">
+          <span class="stat-num">${abnormal}</span>
+          <span class="stat-text">异常</span>
+        </div>
+        <div class="impact-stat-item">
+          <span class="stat-text">共涉及 <strong>1</strong> 张工单 · <strong>${products.length}</strong> 台整机</span>
+        </div>
+      `;
+      
+      // 设置异常提醒
+      const abnormalProducts = products.filter(p => p.fqcConclusion === '不合格' || p.hasMrb);
+      if (abnormalProducts.length > 0) {
+        const firstAbnormal = abnormalProducts[0];
+        alertDiv.style.display = 'flex';
+        alertDiv.innerHTML = `<i class="bi bi-info-circle"></i> 其中 <strong>${abnormalProducts.length}</strong> 个成品存在质量异常：成品 ${firstAbnormal.batchNo} FQC不合格、${firstAbnormal.mrbNo || 'MRB'} 处置中`;
+      } else {
+        alertDiv.style.display = 'none';
+      }
+      
+      // 显示影响范围分析
+      impactDiv.style.display = 'block';
+    }
+    
+    // 渲染逆向追溯影响范围分析
+    function renderReverseImpactAnalysis(data) {
+      const impactDiv = document.getElementById('impactAnalysis');
+      const infoDiv = document.getElementById('impactInfo');
+      const statsDiv = document.getElementById('impactStats');
+      const alertDiv = document.getElementById('impactAlert');
+      
+      // 逆向追溯的影响范围分析简化显示
+      infoDiv.innerHTML = `整机：<strong>${data.productName} ${data.productSN}</strong> / 客户：<strong>${data.customer}</strong>`;
+      
+      statsDiv.innerHTML = `
+        <div class="impact-stat-item">
+          <span class="stat-text">状态：<strong>${data.status}</strong></span>
+        </div>
+        <div class="impact-stat-item">
+          <span class="stat-text">发货日期：<strong>${data.shipDate}</strong></span>
+        </div>
+        <div class="impact-stat-item">
+          <span class="stat-text">装配物料：<strong>${(data.materials || []).length}</strong> 种</span>
+        </div>
+      `;
+      
+      alertDiv.style.display = 'none';
+      impactDiv.style.display = 'block';
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      initTree();
+    });
+  </script>
+</body>
+</html>

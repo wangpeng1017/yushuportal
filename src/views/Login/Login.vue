@@ -76,8 +76,29 @@ const codeLogin = async () => {
   }
 }
 
+// Mock 演示模式：直接调 loginByUsername 拿 token 进入系统，跳过 SSO
+const mockLogin = async () => {
+  loadingText.value = '正在以 Demo 模式登录...'
+  try {
+    authUtil.setTenantId(1)
+    const res = await LoginApi.loginByUsername({ username: 'admin' })
+    if (res) {
+      authUtil.setToken(res)
+      const redirect = (currentRoute.value.query.redirect as string) || '/'
+      window.location.href = redirect
+    }
+  } catch (e) {
+    console.error('mock login failed', e)
+    loadingText.value = 'Mock 登录失败'
+  }
+}
+
 onMounted(() => {
-  codeLogin()
+  if (import.meta.env.VITE_MOCK_MODE === 'true') {
+    mockLogin()
+  } else {
+    codeLogin()
+  }
 })
 </script>
 

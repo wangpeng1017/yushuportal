@@ -80,11 +80,11 @@
         </template>
       </el-table-column>
       <el-table-column label="访问地址" width="200" align="center" prop="redirectUri" />
-      <el-table-column label="内部/外部" width="100" align="center" prop="umcInternalFlag">
+      <!-- <el-table-column label="内部/外部" width="100" align="center" prop="umcInternalFlag">
         <template #default="scope">
           <dict-tag :type="DICT_TYPE.COMMON_STATUS" :value="scope.row.umcInternalFlag ? 1 : 0" />
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         label="创建时间"
         align="center"
@@ -92,7 +92,7 @@
         width="180"
         :formatter="dateFormatter"
       />
-      <el-table-column label="操作" align="center" width="200" fixed="right">
+      <el-table-column label="操作" align="center" width="260" fixed="right">
         <template #default="scope">
           <el-button
             link

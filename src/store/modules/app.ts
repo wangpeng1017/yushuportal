@@ -10,6 +10,18 @@ import { store } from '../index'
 
 const { wsCache } = useCache()
 
+// === UniTree 主题版本：版本变化时强制清掉用户 localStorage 里的旧 theme，
+// 防止旧风格通过缓存阴魂不散。版本号本身写死即可。 ===
+const UNITREE_THEME_VERSION = 'unitree-2026-05-08'
+try {
+  if (wsCache.get('UNITREE_THEME_VERSION') !== UNITREE_THEME_VERSION) {
+    wsCache.delete(CACHE_KEY.THEME)
+    wsCache.set('UNITREE_THEME_VERSION', UNITREE_THEME_VERSION)
+  }
+} catch (_) {
+  /* no-op */
+}
+
 interface AppState {
   breadcrumb: boolean
   breadcrumbIcon: boolean
@@ -72,20 +84,20 @@ export const useAppStore = defineStore('app', {
       isDark: wsCache.get(CACHE_KEY.IS_DARK) || false, // 是否是暗黑模式
       currentSize: wsCache.get('default') || 'default', // 组件尺寸
       theme: wsCache.get(CACHE_KEY.THEME) || {
-        // 主题色
-        elColorPrimary: '#0097BA',
+        // 主题色（UniTree 蓝）
+        elColorPrimary: '#1677FF',
         // 左侧菜单边框颜色
         leftMenuBorderColor: 'inherit',
-        // 左侧菜单背景颜色
-        leftMenuBgColor: '#003D56',
+        // 左侧菜单背景颜色（UniTree 深灰）
+        leftMenuBgColor: '#3B3F48',
         // 左侧菜单浅色背景颜色
-        leftMenuBgLightColor: '#00334A',
-        // 左侧菜单选中背景颜色
-        leftMenuBgActiveColor: '#005670',
+        leftMenuBgLightColor: '#4A4F58',
+        // 左侧菜单选中背景颜色（UniTree 主色蓝）
+        leftMenuBgActiveColor: '#1677FF',
         // 左侧菜单收起选中背景颜色
-        leftMenuCollapseBgActiveColor: '#00405C',
+        leftMenuCollapseBgActiveColor: '#1677FF',
         // 左侧菜单字体颜色
-        leftMenuTextColor: 'rgba(255, 255, 255, 0.75)',
+        leftMenuTextColor: 'rgba(255, 255, 255, 0.85)',
         // 左侧菜单选中字体颜色
         leftMenuTextActiveColor: '#ffffff',
         // logo字体颜色

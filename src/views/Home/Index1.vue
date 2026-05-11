@@ -329,8 +329,7 @@
               type="primary"
               link
               @click="refreshShortcut"
-              :loading="shortcutLoading"
-            >
+              :loading="shortcutLoading">
               <Icon icon="ep:refresh" :size="16" />
             </el-button>
           </div>
@@ -609,6 +608,7 @@ interface HelpDoc {
 
 import { pieOptions, barOptions } from './echarts-data'
 import { useRouter } from 'vue-router'
+import { getOauth2AccessToken, getTenantId } from '@/utils/auth'
 import * as TaskApi from '@/api/bpm/task'
 import * as ProcessInstanceApi from '@/api/bpm/processInstance'
 defineOptions({ name: 'Index' })
@@ -668,139 +668,12 @@ const getProject = async () => {
     projectLoading.value = false
   }
 }
-// const getProject = async () => {
-//   const data = [
-//     {
-//       name: '设备管理',
-//       icon: 'icon-park-outline:mall-bag',
-//       message: 'github.com/yudaocode/yudao-ui-mall-uniapp',
-//       personal: 'Vue3 + uniapp 商城手机端',
-//       time: new Date('2025-03-04'),
-//       color: '#ff4d4f'
-//     },
-//     {
-//       name: '仓储物流',
-//       icon: 'material-symbols:cloud-outline',
-//       message: 'github.com/YunaiV/yudao-cloud',
-//       personal: 'Spring Cloud 微服务架构',
-//       time: new Date('2025-04-05'),
-//       color: '#1890ff'
-//     },
-//     {
-//       name: '智能制造',
-//       icon: 'devicon:antdesign',
-//       message: 'github.com/yudaocode/yudao-ui-admin-vben',
-//       personal: 'Vue3 + vben5(antd) 管理后台',
-//       time: new Date('2025-05-06'),
-//       color: '#e18525'
-//     },
-//     {
-//       name: '质量管理',
-//       icon: 'ant-design:mobile',
-//       message: 'github.com/yudaocode/yudao-ui-admin-uniapp',
-//       personal: 'Vue3 + uniapp 管理手机端',
-//       time: new Date('2025-06-01'),
-//       color: '#2979ff'
-//     },
-//     {
-//       name: '订单管理',
-//       icon: 'simple-icons:springboot',
-//       message: 'github.com/YunaiV/ruoyi-vue-pro',
-//       personal: 'Spring Boot 单体架构',
-//       time: new Date('2025-01-02'),
-//       color: '#6DB33F'
-//     },
-//     {
-//       name: '物联平台',
-//       icon: 'ep:element-plus',
-//       message: 'github.com/yudaocode/yudao-ui-admin-vue3',
-//       personal: 'Vue3 + element-plus 管理后台',
-//       time: new Date('2025-02-03'),
-//       color: '#409EFF'
-//     },
-//     {
-//       name: '智慧月台',
-//       icon: 'icon-park-outline:mall-bag',
-//       message: 'github.com/yudaocode/yudao-ui-mall-uniapp',
-//       personal: 'Vue3 + uniapp 商城手机端',
-//       time: new Date('2025-03-04'),
-//       color: '#ff4d4f'
-//     },
-//     {
-//       name: '智能排产',
-//       icon: 'material-symbols:cloud-outline',
-//       message: 'github.com/YunaiV/yudao-cloud',
-//       personal: 'Spring Cloud 微服务架构',
-//       time: new Date('2025-04-05'),
-//       color: '#1890ff'
-//     },
-//     {
-//       name: '供应商协同',
-//       icon: 'devicon:antdesign',
-//       message: 'github.com/yudaocode/yudao-ui-admin-vben',
-//       personal: 'Vue3 + vben5(antd) 管理后台',
-//       time: new Date('2025-05-06'),
-//       color: '#e18525'
-//     },
-//     {
-//       name: '采购中心',
-//       icon: 'ant-design:mobile',
-//       message: 'github.com/yudaocode/yudao-ui-admin-uniapp',
-//       personal: 'Vue3 + uniapp 管理手机端',
-//       time: new Date('2025-06-01'),
-//       color: '#2979ff'
-//     },
-//   ]
-//   projects = Object.assign(projects, data)
-// }
 
 // 获取帮助文档
 let helpDocList = reactive<HelpDoc[]>([])
 
 const getHelpDoc = async () => {
   const data = [
-    // {
-    //   title: '快速入门指南',
-    //   description: '了解系统基本操作流程,帮助您快速上手使用各项功能',
-    //   icon: 'ep:guide',
-    //   color: '#0097BA',
-    //   url: '/help/quick-start'
-    // },
-    // {
-    //   title: '设备管理操作手册',
-    //   description: '设备台账管理、设备维护保养、设备巡检等功能的详细使用说明',
-    //   icon: 'ep:setting',
-    //   color: '#0097BA',
-    //   url: '/help/equipment'
-    // },
-    // {
-    //   title: '生产管理指南',
-    //   description: '生产计划、工单管理、生产执行等模块的操作流程和注意事项',
-    //   icon: 'ep:data-line',
-    //   color: '#0097BA',
-    //   url: '/help/production'
-    // },
-    // {
-    //   title: '质量管理手册',
-    //   description: '质量检验、不合格品处理、质量追溯等功能的使用方法',
-    //   icon: 'ep:document-checked',
-    //   color: '#0097BA',
-    //   url: '/help/quality'
-    // },
-    // {
-    //   title: '常见问题解答',
-    //   description: '汇总用户常见问题和解决方案,快速解决使用中遇到的问题',
-    //   icon: 'ep:question-filled',
-    //   color: '#0097BA',
-    //   url: '/help/faq'
-    // },
-    // {
-    //   title: '系统更新日志',
-    //   description: '查看系统最新功能更新、优化改进和问题修复记录',
-    //   icon: 'ep:refresh',
-    //   color: '#0097BA',
-    //   url: '/help/changelog'
-    // }
   ]
   helpDocList = Object.assign(helpDocList, data)
 }
@@ -868,55 +741,10 @@ const getNotice = async () => {
       noticeType: 'system' as const,
       date: new Date('2025-12-01 10:00:00')
     }
-    // {
-    //   title: '关于调整工作时间的通知,自下周一起执行新作息时间',
-    //   noticeType: 'company' as const,
-    //   date: new Date('2025-12-04 09:00:00')
-    // },
-    // {
-    //   title: '生产部门设备维护保养计划已更新,请各车间主管查阅',
-    //   noticeType: 'company' as const,
-    //   date: new Date('2025-12-03 16:20:00')
-    // },
-    // {
-    //   title: '质量管理体系认证审核将于下月15日进行,请做好准备',
-    //   noticeType: 'company' as const,
-    //   date: new Date('2025-12-02 11:00:00')
-    // },
-    // {
-    //   title: '12月份安全生产培训将于下周二开展,请各部门组织参加',
-    //   noticeType: 'company' as const,
-    //   date: new Date('2025-12-01 10:00:00')
-    // }
   ]
 
   // 系统公告
   const systemData = [
-    // {
-    //   title: '维护通知：2025-12-01 系统凌晨维护',
-    //   noticeType: 'system' as const,
-    //   date: new Date('2025-12-01 10:00:00')
-    // },
-    // {
-    //   title: '新增智能排产模块,支持自动排程和产能分析',
-    //   noticeType: 'system' as const,
-    //   date: new Date('2025-12-04 15:30:00')
-    // },
-    // {
-    //   title: '移动端APP已上线,支持iOS和Android平台',
-    //   noticeType: 'system' as const,
-    //   date: new Date('2025-12-03 09:20:00')
-    // },
-    // {
-    //   title: '系统性能优化完成,页面加载速度提升50%',
-    //   noticeType: 'system' as const,
-    //   date: new Date('2025-12-01 14:00:00')
-    // },
-    // {
-    //   title: '新增数据导出功能,支持Excel和PDF格式',
-    //   noticeType: 'system' as const,
-    //   date: new Date('2025-11-30 16:00:00')
-    // }
   ]
 
   // 消息列表
@@ -1298,16 +1126,44 @@ const refreshProject = async () => {
   await getProject()
 }
 
-const handleProjectClick = (redirectUri: string, code: string, umcInternalFlag: boolean) => {
-  if (umcInternalFlag) {
-    // 内部应用，使用router跳转
-    router.push(redirectUri)
-  } else {
-    // 外部应用，使用window.open打开
-    if (redirectUri) {
-      // 使用code作为浏览器页签的唯一标识
-      const windowName = code ? `_${code}` : '_blank'
-      window.open(redirectUri, windowName)
+// 缓存已打开的窗口引用，key 为 code
+const openedWindows = new Map<string, Window>()
+
+const handleProjectClick = (redirectUri: string, code: string, umcInternalFlag?: boolean) => {
+  if (redirectUri) {
+    let url = redirectUri
+    // umcInternalFlag 为 true 时才拼接 accessToken 和 tenantId
+    if (umcInternalFlag) {
+      const separator = redirectUri.includes('?') ? '&' : '?'
+      const accessToken = getOauth2AccessToken() || ''
+      url = `${redirectUri}${separator}accessToken=${encodeURIComponent(accessToken)}`
+      // 判断是否支持租户
+      const tenantEnable = import.meta.env.VITE_APP_TENANT_ENABLE === 'true'
+      if (tenantEnable) {
+        const tenantId = getTenantId() || ''
+        url += `&tenantId=${encodeURIComponent(tenantId)}`
+      }
+    }
+
+    // 如果有 code 且之前已打开过，尝试复用该页签
+    if (code && openedWindows.has(code)) {
+      const win = openedWindows.get(code)
+      try {
+        if (win && !win.closed) {
+          win.focus()
+          win.location.href = url
+          return
+        }
+      } catch {
+        // 跨域或窗口异常时，fallback 到 _blank 重新打开
+      }
+      openedWindows.delete(code)
+    }
+
+    // 第一次打开或窗口已关闭，用 _blank 新开页签
+    const newWin = window.open(url, '_blank')
+    if (code && newWin) {
+      openedWindows.set(code, newWin)
     }
   }
 }
@@ -1361,7 +1217,6 @@ const handleIndicatorClick = (index: number) => {
 }
 
 getAllApi()
-// getProject()
 </script>
 
 <style lang="scss" scoped>

@@ -46,6 +46,40 @@ const service: AxiosInstance = axios.create({
   }
 })
 
+// ── Mock 拦截器（mock 模式下生效，匹配则用 adapter 短路返回 mock 数据）──
+import { tryMatchMock } from '@/mock-bridge'
+
+service.interceptors.request.use((cfg) => {
+  let url = cfg.url || ''
+  const method = cfg.method || 'get'
+  const headers: Record<string, string> = {}
+  if (cfg.headers) {
+    Object.keys(cfg.headers).forEach((k) => {
+      headers[k.toLowerCase()] = String((cfg.headers as any)[k])
+    })
+  }
+  if (cfg.params && Object.keys(cfg.params).length > 0) {
+    const qstr = Object.entries(cfg.params)
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+      .join('&')
+    if (qstr) url = url + (url.includes('?') ? '&' : '?') + qstr
+  }
+  const mockData = tryMatchMock(url, method, cfg.data, headers)
+  if (mockData) {
+    cfg.adapter = () =>
+      Promise.resolve({
+        data: mockData,
+        status: 200,
+        statusText: 'OK',
+        headers: { 'content-type': 'application/json' },
+        config: cfg,
+        request: { responseType: 'json' }
+      } as any)
+  }
+  return cfg
+})
+
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {

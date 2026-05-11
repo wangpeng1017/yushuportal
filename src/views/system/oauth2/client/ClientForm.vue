@@ -8,27 +8,26 @@
       label-width="160px"
     >
       <el-form-item label="客户端编号" prop="secret">
-        <el-input v-model="formData.clientId" placeholder="请输入客户端编号" />
+        <el-input v-model="formData.clientId" :disabled="formType === 'update'" placeholder="请输入客户端编号" />
       </el-form-item>
       <el-form-item label="客户端密钥" prop="secret">
-        <el-input v-model="formData.secret" placeholder="请输入客户端密钥" />
+        <el-input v-model="formData.secret" :disabled="formType === 'update'" placeholder="请输入客户端密钥" />
       </el-form-item>
-      <el-form-item label="应用名" prop="name">
-        <el-input v-model="formData.name" placeholder="请输入应用名" />
+      <el-form-item label="客户端名称" prop="name">
+        <el-input v-model="formData.name" placeholder="请输入客户端名称" />
       </el-form-item>
-      <el-form-item label="应用图标">
+      <el-form-item label="客户端图标">
         <UploadImg v-model="formData.logo" :limit="1" />
       </el-form-item>
-      <el-form-item label="应用描述">
-        <el-input v-model="formData.description" placeholder="请输入应用名" type="textarea" />
+      <el-form-item label="客户端描述">
+        <el-input v-model="formData.description" placeholder="请输入客户端描述" type="textarea" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="formData.status">
           <el-radio
             v-for="dict in getIntDictOptions(DICT_TYPE.COMMON_STATUS)"
             :key="dict.value"
-            :value="dict.value"
-          >
+            :value="dict.value">
             {{ dict.label }}
           </el-radio>
         </el-radio-group>
