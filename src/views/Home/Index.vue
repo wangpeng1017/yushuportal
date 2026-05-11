@@ -159,7 +159,7 @@ const apps = [
   { name: 'WMS仓储管理', desc: '智能仓储物流', icon: 'ep:office-building', bg: 'linear-gradient(135deg,#5F72BD,#9B23EA)', url: 'http://zjx.iampmer.com/wms/' },
   { name: 'QMS质量管理', desc: '全流程质量管控', icon: 'ep:medal', bg: 'linear-gradient(135deg,#43E97B,#38F9D7)', url: 'http://8.130.182.148:3011/qms/IQC.html' },
   { name: 'EAM设备管理', desc: '设备资产全生命周期', icon: 'ep:tools', bg: 'linear-gradient(135deg,#FA709A,#FEE140)', url: 'http://8.130.182.148:3010/index?v=20260508' },
-  { name: '全流程追溯', desc: '生产质量全链路追溯', icon: 'ep:connection', bg: 'linear-gradient(135deg,#3B82F6,#6366F1)', url: '/quality-trace.html?v=20260511' },
+  { name: '全流程追溯', desc: '生产质量全链路追溯', icon: 'ep:connection', bg: 'linear-gradient(135deg,#3B82F6,#6366F1)', url: '/quality-trace.html?v=20260511b' },
   { name: 'EHS安环管理', desc: '安全环保健康', icon: 'ep:lock', bg: 'linear-gradient(135deg,#11998E,#38EF7D)', url: 'http://zjx.iampmer.com/ehs/' },
   { name: 'MDM主数据管理', desc: '企业主数据治理', icon: 'ep:files', bg: 'linear-gradient(135deg,#667EEA,#764BA2)' },
   { name: 'IoT平台', desc: '设备互联互通', icon: 'ep:link', bg: 'linear-gradient(135deg,#FF6A00,#EE0979)' },
