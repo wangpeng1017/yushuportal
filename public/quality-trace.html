@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>质量追溯系统 Demo</title>
+  <title>质量追溯系统</title>
   <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <style>
@@ -212,8 +212,8 @@
     .empty-state p { font-size: 14px; }
 
     /* ===== AI Analysis Drawer ===== */
-    .ai-trigger { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#fff; padding:6px 14px; border-radius:4px; cursor:pointer; background:linear-gradient(135deg,#6366f1 0%,#a855f7 100%); border:none; margin-right:8px; transition:var(--transition); box-shadow:0 1px 4px rgba(99,102,241,0.35); }
-    .ai-trigger:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(99,102,241,0.5); }
+    .ai-trigger { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#fff; padding:6px 14px; border-radius:4px; cursor:pointer; background:linear-gradient(135deg,#1890ff 0%,#003a8c 100%); border:none; margin-right:8px; transition:var(--transition); box-shadow:0 1px 4px rgba(24,144,255,0.35); }
+    .ai-trigger:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(24,144,255,0.5); }
     .ai-trigger i { font-size:14px; }
     .ai-trigger .ai-badge { background:rgba(255,255,255,0.25); padding:1px 6px; border-radius:8px; font-size:10px; }
 
@@ -223,7 +223,7 @@
     .ai-drawer { position:fixed; top:0; right:0; bottom:0; width:460px; background:#fff; z-index:1000; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:-4px 0 16px rgba(0,0,0,0.1); }
     .ai-drawer.show { transform:translateX(0); }
 
-    .ai-header { padding:16px 20px; background:linear-gradient(135deg,#6366f1 0%,#a855f7 100%); color:#fff; display:flex; align-items:center; justify-content:space-between; }
+    .ai-header { padding:16px 20px; background:linear-gradient(135deg,#1890ff 0%,#003a8c 100%); color:#fff; display:flex; align-items:center; justify-content:space-between; }
     .ai-header-title { display:flex; align-items:center; gap:10px; }
     .ai-header-title .ai-avatar { width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:16px; }
     .ai-header-title h3 { font-size:15px; font-weight:600; line-height:1.2; }
@@ -238,14 +238,14 @@
     .ai-quick-title { font-size:11px; color:var(--text-muted); font-weight:600; margin:10px 0 6px; text-transform:uppercase; letter-spacing:0.5px; }
     .ai-quick { display:flex; flex-direction:column; gap:8px; }
     .ai-quick-btn { text-align:left; padding:10px 12px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; font-size:12px; color:var(--text-primary); cursor:pointer; transition:var(--transition); line-height:1.5; }
-    .ai-quick-btn:hover { border-color:#6366f1; background:#eef2ff; }
-    .ai-quick-btn .ai-q-tag { display:inline-block; background:#eef2ff; color:#6366f1; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:600; margin-right:6px; }
+    .ai-quick-btn:hover { border-color:#1890ff; background:#e6f4ff; }
+    .ai-quick-btn .ai-q-tag { display:inline-block; background:#e6f4ff; color:#1890ff; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:600; margin-right:6px; }
 
     .ai-msg { margin-bottom:14px; display:flex; gap:8px; align-items:flex-start; }
     .ai-msg.user { flex-direction:row-reverse; }
     .ai-msg-avatar { width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; }
     .ai-msg.user .ai-msg-avatar { background:#e0f2fe; color:#0369a1; }
-    .ai-msg.bot .ai-msg-avatar { background:linear-gradient(135deg,#6366f1,#a855f7); color:#fff; }
+    .ai-msg.bot .ai-msg-avatar { background:linear-gradient(135deg,#1890ff,#003a8c); color:#fff; }
     .ai-msg-bubble { max-width:78%; padding:10px 12px; border-radius:10px; font-size:13px; line-height:1.6; }
     .ai-msg.user .ai-msg-bubble { background:#3b82f6; color:#fff; border-bottom-right-radius:2px; }
     .ai-msg.bot .ai-msg-bubble { background:#fff; border:1px solid #e2e8f0; color:var(--text-primary); border-bottom-left-radius:2px; }
@@ -253,8 +253,8 @@
     .ai-msg-bubble h4:first-child { margin-top:0; }
     .ai-msg-bubble ul { padding-left:18px; margin:4px 0; }
     .ai-msg-bubble li { margin:2px 0; }
-    .ai-msg-bubble strong { color:#6366f1; }
-    .ai-msg-bubble code { background:#f1f5f9; padding:1px 5px; border-radius:3px; font-size:11px; color:#7c3aed; font-family:Consolas,Monaco,monospace; }
+    .ai-msg-bubble strong { color:#1890ff; }
+    .ai-msg-bubble code { background:#f1f5f9; padding:1px 5px; border-radius:3px; font-size:11px; color:#0958d9; font-family:Consolas,Monaco,monospace; }
     .ai-msg-bubble .ai-tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; margin:2px 4px 2px 0; }
     .ai-msg-bubble .ai-tag.danger { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
     .ai-msg-bubble .ai-tag.warning { background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; }
@@ -263,15 +263,15 @@
     .ai-msg-bubble table { width:100%; border-collapse:collapse; margin:6px 0; font-size:12px; }
     .ai-msg-bubble th, .ai-msg-bubble td { border:1px solid #e2e8f0; padding:5px 8px; text-align:left; }
     .ai-msg-bubble th { background:#f8fafc; font-weight:600; }
-    .ai-typing::after { content:'▋'; color:#6366f1; animation:blink 1s infinite; }
+    .ai-typing::after { content:'▋'; color:#1890ff; animation:blink 1s infinite; }
     @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
 
     .ai-footer { padding:12px 16px; background:#fff; border-top:1px solid #e2e8f0; }
     .ai-input-row { display:flex; gap:8px; align-items:center; }
     .ai-input { flex:1; padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px; font-size:13px; outline:none; transition:var(--transition); }
-    .ai-input:focus { border-color:#6366f1; box-shadow:0 0 0 2px rgba(99,102,241,0.15); }
-    .ai-send { background:linear-gradient(135deg,#6366f1,#a855f7); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; transition:var(--transition); }
-    .ai-send:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(99,102,241,0.35); }
+    .ai-input:focus { border-color:#1890ff; box-shadow:0 0 0 2px rgba(24,144,255,0.15); }
+    .ai-send { background:linear-gradient(135deg,#1890ff,#003a8c); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; transition:var(--transition); }
+    .ai-send:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(24,144,255,0.35); }
     .ai-send:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; }
     .ai-disclaimer { font-size:10px; color:var(--text-muted); margin-top:6px; text-align:center; }
   </style>
@@ -2950,7 +2950,7 @@
 <tr><td>FQC 检验</td><td>10%</td><td>抽检合格率偏低</td></tr>
 </tbody>
 </table>
-<p style="font-size:11px; color:var(--text-muted); margin-top:10px;">📥 完整报告可<a href="javascript:void(0)" style="color:#6366f1;">导出 PDF</a> | <a href="javascript:void(0)" style="color:#6366f1;">发送钉钉</a></p>`
+<p style="font-size:11px; color:var(--text-muted); margin-top:10px;">📥 完整报告可<a href="javascript:void(0)" style="color:#1890ff;">导出 PDF</a> | <a href="javascript:void(0)" style="color:#1890ff;">发送钉钉</a></p>`
       }
     };
 
