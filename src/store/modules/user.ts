@@ -69,6 +69,13 @@ export const useUserStore = defineStore('admin-user', {
       this.isSetUser = true
       wsCache.set(CACHE_KEY.USER, userInfo)
       wsCache.set(CACHE_KEY.ROLE_ROUTERS, userInfo.menus)
+      // 给子页面（如 quality-trace.html）读取的裸 JSON 用户身份
+      try {
+        localStorage.setItem('portal-user-info', JSON.stringify({
+          id: userInfo.user?.id,
+          nickname: userInfo.user?.nickname || userInfo.user?.username || '用户'
+        }))
+      } catch (e) {}
     },
     async setUserAvatarAction(avatar: string) {
       const userInfo = wsCache.get(CACHE_KEY.USER)
@@ -92,7 +99,8 @@ export const useUserStore = defineStore('admin-user', {
         await loginOut("", "")
       }
       removeToken()
-      deleteUserCache() 
+      deleteUserCache()
+      try { localStorage.removeItem('portal-user-info') } catch (e) {}
       this.resetState()
     },
     resetState() {

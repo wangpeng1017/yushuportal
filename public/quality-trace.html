@@ -220,8 +220,29 @@
     .ai-mask { position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:999; opacity:0; pointer-events:none; transition:opacity 0.25s ease; }
     .ai-mask.show { opacity:1; pointer-events:auto; }
 
-    .ai-drawer { position:fixed; top:0; right:0; bottom:0; width:460px; background:#fff; z-index:1000; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:-4px 0 16px rgba(0,0,0,0.1); }
+    .ai-drawer { position:fixed; top:0; right:0; bottom:0; width:640px; background:#fff; z-index:1000; display:flex; flex-direction:column; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4,0,0.2,1); box-shadow:-4px 0 16px rgba(0,0,0,0.1); }
     .ai-drawer.show { transform:translateX(0); }
+    .ai-main { flex:1; display:flex; overflow:hidden; }
+
+    /* Session list (left column) */
+    .ai-sessions { width:180px; background:#f8fafc; border-right:1px solid #e2e8f0; display:flex; flex-direction:column; }
+    .ai-sessions-header { padding:10px 12px; border-bottom:1px solid #e2e8f0; }
+    .ai-new-btn { width:100%; padding:7px 10px; background:#fff; border:1px solid #d1d5db; border-radius:6px; font-size:12px; color:var(--text-primary); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; transition:var(--transition); }
+    .ai-new-btn:hover { border-color:#1890ff; color:#1890ff; background:#e6f4ff; }
+    .ai-sessions-list { flex:1; overflow-y:auto; padding:6px; }
+    .ai-sess-item { padding:8px 10px; border-radius:6px; cursor:pointer; font-size:12px; color:var(--text-secondary); margin-bottom:2px; position:relative; transition:var(--transition); display:flex; align-items:center; gap:6px; }
+    .ai-sess-item:hover { background:#fff; }
+    .ai-sess-item.active { background:#e6f4ff; color:#1890ff; font-weight:600; }
+    .ai-sess-item .ai-sess-title { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ai-sess-item .ai-sess-actions { display:none; gap:2px; }
+    .ai-sess-item:hover .ai-sess-actions { display:flex; }
+    .ai-sess-act { background:none; border:none; padding:2px 4px; cursor:pointer; color:var(--text-muted); border-radius:3px; font-size:11px; }
+    .ai-sess-act:hover { background:rgba(0,0,0,0.08); color:var(--text-primary); }
+    .ai-sess-empty { padding:20px 10px; text-align:center; font-size:11px; color:var(--text-muted); }
+    .ai-sessions-footer { padding:8px 12px; border-top:1px solid #e2e8f0; font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+    .ai-sessions-footer i { color:#1890ff; }
+
+    .ai-chat { flex:1; display:flex; flex-direction:column; min-width:0; }
 
     .ai-header { padding:16px 20px; background:linear-gradient(135deg,#1890ff 0%,#003a8c 100%); color:#fff; display:flex; align-items:center; justify-content:space-between; }
     .ai-header-title { display:flex; align-items:center; gap:10px; }
@@ -301,29 +322,42 @@
         <div class="ai-avatar"><i class="bi bi-stars"></i></div>
         <div>
           <h3>AI 质量分析助手</h3>
-          <div class="ai-sub">基于追溯数据的归因分析 · Qwen 3</div>
+          <div class="ai-sub" id="aiSubLine">基于追溯数据的归因分析 · Qwen 3</div>
         </div>
       </div>
       <button class="ai-close" onclick="closeAIDrawer()"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="ai-body" id="aiBody">
-      <div class="ai-welcome" id="aiWelcome">
-        <p>👋 您好王老师，我是 <strong>质量追溯 AI 助手</strong>。我可以基于当前追溯数据，帮您完成：</p>
-        <p style="margin-top:6px; font-size:12px; color:var(--text-muted);">• 共因归因分析 &nbsp; • 自然语言查询 &nbsp; • 质量报告生成</p>
-        <div class="ai-quick-title">试试这些问题</div>
-        <div class="ai-quick">
-          <button class="ai-quick-btn" onclick="askPreset('cause')"><span class="ai-q-tag">共因分析</span>这批整机 CR6-20260428-001 至 005 都有客户反馈漏油，分析共同点</button>
-          <button class="ai-quick-btn" onclick="askPreset('query')"><span class="ai-q-tag">自然语言</span>查 4 月份发往华南、装配了 SM-2025-V2 电机的整机</button>
-          <button class="ai-quick-btn" onclick="askPreset('report')"><span class="ai-q-tag">生成报告</span>把伺服电机 SM-202604001 的追溯结果整理成质量分析报告</button>
+    <div class="ai-main">
+      <!-- 左侧：会话列表 -->
+      <div class="ai-sessions">
+        <div class="ai-sessions-header">
+          <button class="ai-new-btn" onclick="createNewSession()"><i class="bi bi-plus-lg"></i>新建会话</button>
+        </div>
+        <div class="ai-sessions-list" id="aiSessList"></div>
+        <div class="ai-sessions-footer" id="aiSessFooter"><i class="bi bi-person-circle"></i><span id="aiUserLabel">游客</span></div>
+      </div>
+      <!-- 右侧：主聊天区 -->
+      <div class="ai-chat">
+        <div class="ai-body" id="aiBody">
+          <div class="ai-welcome" id="aiWelcome">
+            <p>👋 您好<span id="aiGreetName">王老师</span>，我是 <strong>质量追溯 AI 助手</strong>。我可以基于当前追溯数据，帮您完成：</p>
+            <p style="margin-top:6px; font-size:12px; color:var(--text-muted);">• 共因归因分析 &nbsp; • 自然语言查询 &nbsp; • 质量报告生成</p>
+            <div class="ai-quick-title">试试这些问题</div>
+            <div class="ai-quick">
+              <button class="ai-quick-btn" onclick="askPreset('cause')"><span class="ai-q-tag">共因分析</span>这批整机 CR6-20260428-001 至 005 都有客户反馈漏油，分析共同点</button>
+              <button class="ai-quick-btn" onclick="askPreset('query')"><span class="ai-q-tag">自然语言</span>查 4 月份发往华南、装配了 SM-2025-V2 电机的整机</button>
+              <button class="ai-quick-btn" onclick="askPreset('report')"><span class="ai-q-tag">生成报告</span>把伺服电机 SM-202604001 的追溯结果整理成质量分析报告</button>
+            </div>
+          </div>
+        </div>
+        <div class="ai-footer">
+          <div class="ai-input-row">
+            <input class="ai-input" id="aiInput" placeholder="问我任何关于质量追溯的问题..." onkeydown="if(event.key==='Enter')sendAIMsg()">
+            <button class="ai-send" id="aiSendBtn" onclick="sendAIMsg()"><i class="bi bi-send"></i> 发送</button>
+          </div>
+          <div class="ai-disclaimer">AI 分析仅供参考，关键决策请结合人工复核</div>
         </div>
       </div>
-    </div>
-    <div class="ai-footer">
-      <div class="ai-input-row">
-        <input class="ai-input" id="aiInput" placeholder="问我任何关于质量追溯的问题..." onkeydown="if(event.key==='Enter')sendAIMsg()">
-        <button class="ai-send" id="aiSendBtn" onclick="sendAIMsg()"><i class="bi bi-send"></i> 发送</button>
-      </div>
-      <div class="ai-disclaimer">AI 分析仅供参考，关键决策请结合人工复核</div>
     </div>
   </div>
 
@@ -2848,7 +2882,55 @@
     });
 
     /* ============== AI Analysis Drawer ============== */
+    let aiUser = { id: 'guest', nickname: '游客' };
+    let aiSessions = [];     // [{id, title, updatedAt}]
+    let aiCurrentSid = null;
+    let aiCurrentMsgs = [];  // 当前会话消息 [{role, content, ts}]
+
+    function loadAIUser() {
+      try {
+        const raw = localStorage.getItem('portal-user-info');
+        if (raw) {
+          const u = JSON.parse(raw);
+          if (u && u.id != null) aiUser = { id: String(u.id), nickname: u.nickname || '用户' };
+        }
+      } catch (e) {}
+      const lab = document.getElementById('aiUserLabel'); if (lab) lab.textContent = aiUser.nickname;
+      const greet = document.getElementById('aiGreetName'); if (greet) greet.textContent = aiUser.nickname;
+      const sub = document.getElementById('aiSubLine'); if (sub) sub.textContent = `基于追溯数据的归因分析 · ${aiUser.nickname} 的对话`;
+    }
+    function aiKey(suffix) { return `ai-chat-${suffix}:${aiUser.id}`; }
+    function loadSessions() {
+      try {
+        const raw = localStorage.getItem(aiKey('sessions'));
+        aiSessions = raw ? JSON.parse(raw) : [];
+      } catch (e) { aiSessions = []; }
+    }
+    function saveSessions() {
+      try { localStorage.setItem(aiKey('sessions'), JSON.stringify(aiSessions)); } catch (e) {}
+    }
+    function loadMsgs(sid) {
+      try {
+        const raw = localStorage.getItem(`ai-chat-msgs:${aiUser.id}:${sid}`);
+        return raw ? JSON.parse(raw) : [];
+      } catch (e) { return []; }
+    }
+    function saveMsgs(sid, msgs) {
+      try { localStorage.setItem(`ai-chat-msgs:${aiUser.id}:${sid}`, JSON.stringify(msgs)); } catch (e) {}
+    }
+    function deleteMsgs(sid) {
+      try { localStorage.removeItem(`ai-chat-msgs:${aiUser.id}:${sid}`); } catch (e) {}
+    }
+
     function openAIDrawer() {
+      loadAIUser();
+      loadSessions();
+      renderSessions();
+      if (aiSessions.length > 0) {
+        switchSession(aiSessions[0].id);
+      } else {
+        resetToWelcome();
+      }
       document.getElementById('aiMask').classList.add('show');
       document.getElementById('aiDrawer').classList.add('show');
       setTimeout(() => document.getElementById('aiInput').focus(), 300);
@@ -2856,6 +2938,107 @@
     function closeAIDrawer() {
       document.getElementById('aiMask').classList.remove('show');
       document.getElementById('aiDrawer').classList.remove('show');
+    }
+
+    function renderSessions() {
+      const list = document.getElementById('aiSessList');
+      if (!list) return;
+      if (aiSessions.length === 0) {
+        list.innerHTML = '<div class="ai-sess-empty">暂无历史会话<br>点击上方按钮新建</div>';
+        return;
+      }
+      list.innerHTML = aiSessions.map(s => `
+        <div class="ai-sess-item ${s.id === aiCurrentSid ? 'active' : ''}" onclick="switchSession('${s.id}')">
+          <i class="bi bi-chat-left-text" style="font-size:11px;"></i>
+          <span class="ai-sess-title" title="${escapeHtml(s.title)}">${escapeHtml(s.title)}</span>
+          <span class="ai-sess-actions">
+            <button class="ai-sess-act" onclick="event.stopPropagation(); renameSession('${s.id}')" title="重命名"><i class="bi bi-pencil"></i></button>
+            <button class="ai-sess-act" onclick="event.stopPropagation(); deleteSession('${s.id}')" title="删除"><i class="bi bi-trash"></i></button>
+          </span>
+        </div>
+      `).join('');
+    }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function createNewSession() {
+      const sid = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      const sess = { id: sid, title: '新会话', updatedAt: Date.now() };
+      aiSessions.unshift(sess);
+      saveSessions();
+      switchSession(sid);
+    }
+    function switchSession(sid) {
+      if (aiBusy) return;
+      aiCurrentSid = sid;
+      aiCurrentMsgs = loadMsgs(sid);
+      renderSessions();
+      renderMsgs();
+    }
+    function renderMsgs() {
+      const body = document.getElementById('aiBody');
+      if (aiCurrentMsgs.length === 0) {
+        resetToWelcome();
+        return;
+      }
+      body.innerHTML = '';
+      aiCurrentMsgs.forEach(m => appendMsg(m.role, m.content, false));
+      body.scrollTop = body.scrollHeight;
+    }
+    function resetToWelcome() {
+      document.getElementById('aiBody').innerHTML = `
+        <div class="ai-welcome" id="aiWelcome">
+          <p>👋 您好<span id="aiGreetName">${escapeHtml(aiUser.nickname)}</span>,我是 <strong>质量追溯 AI 助手</strong>。我可以基于当前追溯数据，帮您完成:</p>
+          <p style="margin-top:6px; font-size:12px; color:var(--text-muted);">• 共因归因分析 &nbsp; • 自然语言查询 &nbsp; • 质量报告生成</p>
+          <div class="ai-quick-title">试试这些问题</div>
+          <div class="ai-quick">
+            <button class="ai-quick-btn" onclick="askPreset('cause')"><span class="ai-q-tag">共因分析</span>这批整机 CR6-20260428-001 至 005 都有客户反馈漏油,分析共同点</button>
+            <button class="ai-quick-btn" onclick="askPreset('query')"><span class="ai-q-tag">自然语言</span>查 4 月份发往华南、装配了 SM-2025-V2 电机的整机</button>
+            <button class="ai-quick-btn" onclick="askPreset('report')"><span class="ai-q-tag">生成报告</span>把伺服电机 SM-202604001 的追溯结果整理成质量分析报告</button>
+          </div>
+        </div>`;
+    }
+    function renameSession(sid) {
+      const s = aiSessions.find(x => x.id === sid); if (!s) return;
+      const title = prompt('重命名会话', s.title);
+      if (!title || !title.trim()) return;
+      s.title = title.trim().slice(0, 40);
+      saveSessions();
+      renderSessions();
+    }
+    function deleteSession(sid) {
+      if (!confirm('删除该会话？此操作不可撤销')) return;
+      aiSessions = aiSessions.filter(s => s.id !== sid);
+      deleteMsgs(sid);
+      saveSessions();
+      if (sid === aiCurrentSid) {
+        aiCurrentSid = aiSessions[0] ? aiSessions[0].id : null;
+        if (aiCurrentSid) switchSession(aiCurrentSid);
+        else { aiCurrentMsgs = []; renderSessions(); resetToWelcome(); }
+      } else {
+        renderSessions();
+      }
+    }
+    function ensureSession(firstUserMsg) {
+      if (!aiCurrentSid) {
+        const sid = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+        const title = firstUserMsg.replace(/<[^>]+>/g, '').slice(0, 20);
+        const sess = { id: sid, title: title || '新会话', updatedAt: Date.now() };
+        aiSessions.unshift(sess);
+        aiCurrentSid = sid;
+        saveSessions();
+        renderSessions();
+      } else if (aiCurrentMsgs.length === 0) {
+        const s = aiSessions.find(x => x.id === aiCurrentSid);
+        if (s && (s.title === '新会话' || !s.title)) {
+          s.title = firstUserMsg.replace(/<[^>]+>/g, '').slice(0, 20);
+          saveSessions();
+          renderSessions();
+        }
+      }
+    }
+    function touchSession() {
+      const s = aiSessions.find(x => x.id === aiCurrentSid);
+      if (s) { s.updatedAt = Date.now(); saveSessions(); }
     }
 
     const AI_MOCK = {
@@ -2959,7 +3142,10 @@
       if (aiBusy) return;
       const mock = AI_MOCK[key];
       if (!mock) return;
+      ensureSession(mock.q);
       hideWelcome();
+      aiCurrentMsgs.push({ role:'user', content: mock.q, ts: Date.now() });
+      saveMsgs(aiCurrentSid, aiCurrentMsgs);
       appendMsg('user', mock.q);
       streamBotReply(mock.a);
     }
@@ -2969,7 +3155,10 @@
       const q = input.value.trim();
       if (!q) return;
       input.value = '';
+      ensureSession(q);
       hideWelcome();
+      aiCurrentMsgs.push({ role:'user', content: q, ts: Date.now() });
+      saveMsgs(aiCurrentSid, aiCurrentMsgs);
       appendMsg('user', q);
       const reply = matchFreeForm(q);
       streamBotReply(reply);
@@ -3015,6 +3204,9 @@
           aiBusy = false;
           sendBtn.disabled = false;
           body.scrollTop = body.scrollHeight;
+          aiCurrentMsgs.push({ role:'bot', content: html, ts: Date.now() });
+          saveMsgs(aiCurrentSid, aiCurrentMsgs);
+          touchSession();
           return;
         }
         const step = chars[i] === '<' ? chars.slice(i).join('').indexOf('>') + 1 : 3;
