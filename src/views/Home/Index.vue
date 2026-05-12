@@ -193,11 +193,6 @@ const currentTasks = computed(() => {
   return myTasks
 })
 
-// 通用 Bookmarklet：根据 location.host 自动选择填表逻辑
-const BOOKMARKLET_CODE = `(function(){var h=location.host;var sv=function(el,v){var p=Object.getPrototypeOf(el);var s=Object.getOwnPropertyDescriptor(p,'value').set;s.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};if(h==='123.235.0.227:11916'){var c={u:'lizhengliang@iiglocal.com',p:'lizhengliang'};var t=Date.now();var i=setInterval(function(){if(Date.now()-t>15000){clearInterval(i);return;}var u=document.querySelector('input[formcontrolname="username"],input[id*="username" i],input[type="email"]');var p=document.querySelector('input[formcontrolname="password"],input[id*="password" i],input[type="password"]');var b=document.querySelector('button[type="submit"],button.mat-flat-button,button.tb-login-button');if(!u||!p||!b)return;clearInterval(i);sv(u,c.u);sv(p,c.p);setTimeout(function(){b.click();},300);},300);}else if(h==='218.92.236.114:3001'){var c={u:'admin',p:'Admin123@dtdip!'};var t=Date.now();var i=setInterval(function(){if(Date.now()-t>10000){clearInterval(i);return;}var u=document.querySelector('#username');var p=document.querySelector('#password');if(!u||!p)return;clearInterval(i);u.value=c.u;p.value=c.p;if(typeof window.submitFrom==='function'){setTimeout(function(){try{window.submitFrom();}catch(e){var b=document.querySelector('.btn-login');if(b)b.click();}},200);}else{var b=document.querySelector('.btn-login,button[onclick*="submitFrom"]');setTimeout(function(){if(b)b.click();},200);}},300);}else{alert('当前页面不在自动登录支持列表');}})();`
-
-const BOOKMARKLET_HREF = 'javascript:' + encodeURI(BOOKMARKLET_CODE)
-
 const copyText = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text)
@@ -228,15 +223,7 @@ const onAppClick = (app: any) => {
             <code style="background:#f5f7fa;padding:4px 10px;border-radius:4px;flex:1;font-family:Consolas,Monaco,monospace;">${app.cred.pass}</code>
             <button data-copy="pass" style="padding:4px 12px;border:1px solid #1890ff;color:#1890ff;background:#fff;border-radius:4px;cursor:pointer;">复制</button>
           </div>
-          <div style="margin-top:14px;padding:10px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;font-size:13px;line-height:1.7;">
-            <div style="color:#389e0d;font-weight:600;margin-bottom:6px;">🚀 一键自动登录（推荐）</div>
-            <div style="color:#595959;">把右侧按钮 <strong>拖到浏览器书签栏</strong>（首次操作，30秒）→ 演示时点"前往登录"打开登录页 → 点书签栏书签 → 自动填表自动登录</div>
-            <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-              <a id="bm-drag-link" href="#" draggable="true" style="display:inline-block;padding:6px 14px;background:#1890ff;color:#fff;border-radius:4px;text-decoration:none;font-weight:500;cursor:grab;user-select:none;">📌 演示自动登录</a>
-              <span style="color:#8c8c8c;font-size:12px;">← 拖我到书签栏</span>
-            </div>
-          </div>
-          <div style="margin-top:10px;color:#8c8c8c;font-size:12px;">💡 没拖书签也没事，前往登录后手动复制账号密码粘贴即可</div>
+          <div style="margin-top:12px;color:#8c8c8c;font-size:12px;">💡 点击下方"前往登录"打开登录页，粘贴账号密码即可</div>
         </div>
       `,
       confirmButtonText: '前往登录',
@@ -248,7 +235,7 @@ const onAppClick = (app: any) => {
         }
       }
     }).then(() => {})
-    // 给弹窗里的复制按钮绑事件 + 设置 bookmarklet 链接
+    // 给弹窗里的复制按钮绑事件
     setTimeout(() => {
       document.querySelectorAll('[data-copy]').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -256,8 +243,6 @@ const onAppClick = (app: any) => {
           copyText(key === 'user' ? app.cred.user : app.cred.pass)
         })
       })
-      const bm = document.getElementById('bm-drag-link') as HTMLAnchorElement | null
-      if (bm) bm.href = BOOKMARKLET_HREF
     }, 100)
     return
   }
