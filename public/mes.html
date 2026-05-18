@@ -2108,13 +2108,15 @@ main.content table {
                 <div class="submenu-item" onclick="switchModule('quality-report')">生产报检单</div>
                 <div class="submenu-item" onclick="switchModule('quality-inspection')">生产检验单</div>
                 <div class="submenu-item" onclick="switchModule('rework-notice')">质量返工通知单</div>
-                <div class="submenu-item" onclick="switchModule('repair-record')">返修记录</div>
+                <div class="submenu-item" onclick="switchModule('repair-record')">产线返修</div>
                 <div class="submenu-item" onclick="switchModule('production-return')">生产退料</div>
                 <div class="submenu-item" onclick="switchModule('production-storage')">生产入库</div>
                 <div class="submenu-item" onclick="switchModule('rework-management')">改制管理</div>
                 <div class="submenu-item" onclick="switchModule('exception-management')">异常管理</div>
                 <div class="submenu-item" onclick="switchModule('time-report')">工时汇报</div>
                 <div class="submenu-item" onclick="switchModule('five-s-check')">5S点检</div>
+                <div class="submenu-item" onclick="switchModule('batch-code-management')">批次码管理</div>
+                <div class="submenu-item" onclick="switchModule('assembly-disassembly')">组装拆卸管理</div>
             </div>
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <span><i class="fas fa-vial"></i> 测试管理</span>
@@ -2136,6 +2138,29 @@ main.content table {
                 <div class="submenu-item" onclick="switchModule('sn-reprint')">SN码补打</div>
                 <div class="submenu-item" onclick="switchModule('product-replace')">产品换件</div>
                 <div class="submenu-item" onclick="switchModule('repair-inspection')">维修报检单</div>
+            </div>
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <span><i class="fas fa-chart-bar"></i> 统计报表</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="submenu">
+                <div class="submenu-item" onclick="switchModule('wip-statistics')">WIP统计表</div>
+                <div class="submenu-item" onclick="switchModule('process-balance-statistics')">工序件结余统计表</div>
+                <div class="submenu-item" onclick="switchModule('production-replenish-summary')">生产补料汇总单</div>
+                <div class="submenu-item" onclick="switchModule('work-order-material-shortage')">工单缺料汇总表</div>
+                <div class="submenu-item" onclick="switchModule('work-order-material-consumption')">工单材料消耗表</div>
+                <div class="submenu-item" onclick="switchModule('work-order-labor-cost')">工单人工成本统计表</div>
+                <div class="submenu-item" onclick="switchModule('work-order-input-output-warning')">工单投入产出预警表</div>
+                <div class="submenu-item" onclick="switchModule('work-order-labor-efficiency')">工单人工效率表</div>
+                <div class="submenu-item" onclick="switchModule('work-order-absentee-rate')">工单人员离岗比例统计表</div>
+                <div class="submenu-item" onclick="switchModule('team-absentee-rate')">班组人员离岗比例统计表</div>
+                <div class="submenu-item" onclick="switchModule('exception-handling-time')">异常处理执行时间统计表</div>
+                <div class="submenu-item" onclick="switchModule('equipment-usage')">设备使用统计表</div>
+                <div class="submenu-item" onclick="switchModule('work-order-progress')">工单进度统计表</div>
+                <div class="submenu-item" onclick="switchModule('fault-analysis')">故障分析表</div>
+                <div class="submenu-item" onclick="switchModule('test-yield-statistics')">测试合格率统计表</div>
+                <div class="submenu-item" onclick="switchModule('rework-statistics')">返工统计表</div>
+                <div class="submenu-item" onclick="switchModule('absentee-warning')">离岗异常警报表</div>
             </div>
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <span><i class="fas fa-monitor"></i> 产线终端</span>
@@ -2691,6 +2716,56 @@ main.content table {
         </div>
     </div>
 
+    <!-- 工序派工模态框 -->
+    <div class="modal" id="process-dispatch-modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title">工序派工</h3>
+                <button onclick="closeProcessDispatchModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="dispatch-info" id="process-dispatch-info"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="closeProcessDispatchModal()">取消</button>
+                <button class="btn btn-success" onclick="confirmProcessDispatch()" style="margin-left: 10px;">确认派工</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批次码变更历史模态框 -->
+    <div class="modal" id="batch-code-history-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">批次码变更历史</h3>
+                <button onclick="closeBatchCodeHistoryModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="batch-code-history-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="closeBatchCodeHistoryModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 组装拆卸明细模态框 -->
+    <div class="modal" id="assembly-detail-modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title">组装拆卸明细</h3>
+                <button onclick="closeAssemblyDetailModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="assembly-detail-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-gray" onclick="closeAssemblyDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // 切换子菜单
         function toggleSubmenu(element) {
@@ -2789,13 +2864,15 @@ main.content table {
                 'quality-report': '生产报检单',
                 'quality-inspection': '生产检验单',
                 'rework-notice': '质量返工通知单',
-                'repair-record': '返修记录',
+                'repair-record': '产线返修',
                 'production-return': '生产退料',
                 'production-storage': '生产入库',
                 'rework-management': '改制管理',
                 'exception-management': '异常管理',
                 'time-report': '工时汇报',
                 'five-s-check': '5S点检',
+                'batch-code-management': '批次码管理',
+                'assembly-disassembly': '组装拆卸管理',
                 'test-order': '测试工单',
                 'repair-transfer': '维修调拨',
                 'package-check': '打包检查',
@@ -2805,6 +2882,23 @@ main.content table {
                 'sn-reprint': 'SN码补打',
                 'product-replace': '产品换件',
                 'repair-inspection': '维修报检单',
+                'wip-statistics': 'WIP统计表',
+                'process-balance-statistics': '工序件结余统计表',
+                'production-replenish-summary': '生产补料汇总单',
+                'work-order-material-shortage': '工单缺料汇总表',
+                'work-order-material-consumption': '工单材料消耗表',
+                'work-order-labor-cost': '工单人工成本统计表',
+                'work-order-input-output-warning': '工单投入产出预警表',
+                'work-order-labor-efficiency': '工单人工效率表',
+                'work-order-absentee-rate': '工单人员离岗比例统计表',
+                'team-absentee-rate': '班组人员离岗比例统计表',
+                'exception-handling-time': '异常处理执行时间统计表',
+                'equipment-usage': '设备使用统计表',
+                'work-order-progress': '工单进度统计表',
+                'fault-analysis': '故障分析表',
+                'test-yield-statistics': '测试合格率统计表',
+                'rework-statistics': '返工统计表',
+                'absentee-warning': '离岗异常警报表',
                 'terminal-home': '终端主页'
             };
             document.getElementById('module-title').textContent = moduleTitles[module];
@@ -2998,6 +3092,45 @@ main.content table {
                 editBtn.style.display = 'none';
                 deleteBtn.style.display = 'none';
                 confirmBtn.style.display = 'inline-block';
+            }
+            // 批次码管理：默认按钮全显
+            else if (module === 'batch-code-management') {
+                addBtn.style.display = 'inline-block';
+                editBtn.style.display = 'inline-block';
+                deleteBtn.style.display = 'inline-block';
+                confirmBtn.style.display = 'none';
+            }
+            // 组装拆卸管理：隐藏新增，显示确认
+            else if (module === 'assembly-disassembly') {
+                addBtn.style.display = 'none';
+                editBtn.style.display = 'inline-block';
+                deleteBtn.style.display = 'inline-block';
+                confirmBtn.style.display = 'inline-block';
+            }
+            // 统计报表（17 个）：全部隐藏增删改确认按钮
+            else if (
+                module === 'wip-statistics' ||
+                module === 'process-balance-statistics' ||
+                module === 'production-replenish-summary' ||
+                module === 'work-order-material-shortage' ||
+                module === 'work-order-material-consumption' ||
+                module === 'work-order-labor-cost' ||
+                module === 'work-order-input-output-warning' ||
+                module === 'work-order-labor-efficiency' ||
+                module === 'work-order-absentee-rate' ||
+                module === 'team-absentee-rate' ||
+                module === 'exception-handling-time' ||
+                module === 'equipment-usage' ||
+                module === 'work-order-progress' ||
+                module === 'fault-analysis' ||
+                module === 'test-yield-statistics' ||
+                module === 'rework-statistics' ||
+                module === 'absentee-warning'
+            ) {
+                addBtn.style.display = 'none';
+                editBtn.style.display = 'none';
+                deleteBtn.style.display = 'none';
+                confirmBtn.style.display = 'none';
             }
             // 其他模块：显示所有按钮
             else {
@@ -4483,6 +4616,323 @@ main.content table {
                         </div>
                     `;
                     break;
+                                case 'batch-code-management':
+                    headerHTML = `
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th>批次码</th>
+                            <th>数量</th>
+                            <th>工单号</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>生产订单号</th>
+                            <th>蓝牙号</th>
+                            <th>打印模板</th>
+                            <th>创建人</th>
+                            <th>创建时间</th>
+                            <th>修改人</th>
+                            <th>修改时间</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    `;
+                    break;
+                case 'assembly-disassembly':
+                    headerHTML = `
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th>组装拆卸单号</th>
+                            <th>业务类型</th>
+                            <th>审核状态</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>仓库</th>
+                            <th>数量</th>
+                            <th>单位</th>
+                            <th>创建人</th>
+                            <th>创建时间</th>
+                            <th>修改人</th>
+                            <th>修改时间</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    `;
+                    break;
+                case 'wip-statistics':
+                    headerHTML = `
+                        <tr>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>工序序号</th>
+                            <th>工序名称</th>
+                            <th>在制数量</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'process-balance-statistics':
+                    headerHTML = `
+                        <tr>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>工序序号</th>
+                            <th>工序名称</th>
+                            <th>结余数量</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'production-replenish-summary':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>开工日期</th>
+                            <th>成品物料编码</th>
+                            <th>成品物料名称</th>
+                            <th>成品规格</th>
+                            <th>成品数量</th>
+                            <th>子件物料编码</th>
+                            <th>子件物料名称</th>
+                            <th>子件规格</th>
+                            <th>子件常规数量</th>
+                            <th>子件补料数量</th>
+                            <th>补料比例</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-material-shortage':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>开工日期</th>
+                            <th>成品物料编码</th>
+                            <th>成品物料名称</th>
+                            <th>成品规格</th>
+                            <th>成品数量</th>
+                            <th>子件物料编码</th>
+                            <th>子件物料名称</th>
+                            <th>子件规格</th>
+                            <th>子件需求数量</th>
+                            <th>子件库存数量</th>
+                            <th>缺料数量</th>
+                            <th>子件仓库</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-material-consumption':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>开工日期</th>
+                            <th>成品物料编码</th>
+                            <th>成品物料名称</th>
+                            <th>成品规格型号</th>
+                            <th>成品数量</th>
+                            <th>子件物料编码</th>
+                            <th>子件物料名称</th>
+                            <th>子件规格型号</th>
+                            <th>子件数量</th>
+                            <th>单位</th>
+                            <th>消耗类型</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-labor-cost':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>开工日期</th>
+                            <th>成品物料编码</th>
+                            <th>成品物料名称</th>
+                            <th>成品规格型号</th>
+                            <th>成品数量</th>
+                            <th>工时类型</th>
+                            <th>工时</th>
+                            <th>单位</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-input-output-warning':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>开工日期</th>
+                            <th>成品物料编码</th>
+                            <th>成品物料名称</th>
+                            <th>成品规格型号</th>
+                            <th>工单计划数量</th>
+                            <th>投入比例</th>
+                            <th>产出比例</th>
+                            <th>投产差额</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-labor-efficiency':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                            <th>产品编码</th>
+                            <th>产品名称</th>
+                            <th>产品规格</th>
+                            <th>计划数量</th>
+                            <th>完工数量</th>
+                            <th>单件工时</th>
+                            <th>理论总工时</th>
+                            <th>生产工时</th>
+                            <th>管理工时</th>
+                            <th>维修工时</th>
+                            <th>测试工时</th>
+                            <th>实际总工时</th>
+                            <th>人工效率</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-absentee-rate':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                            <th>产品编码</th>
+                            <th>产品名称</th>
+                            <th>产品规格</th>
+                            <th>生产工时</th>
+                            <th>测试工时</th>
+                            <th>维修工时</th>
+                            <th>管理工时</th>
+                            <th>离岗工时</th>
+                            <th>离岗比例</th>
+                        </tr>
+                    `;
+                    break;
+                case 'team-absentee-rate':
+                    headerHTML = `
+                        <tr>
+                            <th>班组</th>
+                            <th>生产工时</th>
+                            <th>测试工时</th>
+                            <th>维修工时</th>
+                            <th>管理工时</th>
+                            <th>离岗工时</th>
+                            <th>离岗比例</th>
+                        </tr>
+                    `;
+                    break;
+                case 'exception-handling-time':
+                    headerHTML = `
+                        <tr>
+                            <th>异常等级</th>
+                            <th>异常分类</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                            <th>时长</th>
+                            <th>单位</th>
+                        </tr>
+                    `;
+                    break;
+                case 'equipment-usage':
+                    headerHTML = `
+                        <tr>
+                            <th>设备编码</th>
+                            <th>设备名称</th>
+                            <th>设备类型</th>
+                            <th>日期</th>
+                            <th>设备工时</th>
+                        </tr>
+                    `;
+                    break;
+                case 'work-order-progress':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>开工日期</th>
+                            <th>计划数量</th>
+                            <th>完成数量</th>
+                            <th>生产进度</th>
+                        </tr>
+                    `;
+                    break;
+                case 'fault-analysis':
+                    headerHTML = `
+                        <tr>
+                            <th>产品编码</th>
+                            <th>产品名称</th>
+                            <th>产品型号</th>
+                            <th>测试类型</th>
+                            <th>测试项目</th>
+                            <th>测试数量</th>
+                            <th>不合格数量</th>
+                            <th>故障率</th>
+                        </tr>
+                    `;
+                    break;
+                case 'test-yield-statistics':
+                    headerHTML = `
+                        <tr>
+                            <th>产品编码</th>
+                            <th>产品名称</th>
+                            <th>产品型号</th>
+                            <th>测试数量</th>
+                            <th>合格数量</th>
+                            <th>合格率</th>
+                        </tr>
+                    `;
+                    break;
+                case 'rework-statistics':
+                    headerHTML = `
+                        <tr>
+                            <th>工单号</th>
+                            <th>车间</th>
+                            <th>产线</th>
+                            <th>产品编码</th>
+                            <th>产品名称</th>
+                            <th>产品规格</th>
+                            <th>返工数量</th>
+                            <th>完成数量</th>
+                            <th>返工工时</th>
+                            <th>返工原因</th>
+                        </tr>
+                    `;
+                    break;
+                case 'absentee-warning':
+                    headerHTML = `
+                        <tr>
+                            <th>车间</th>
+                            <th>产线</th>
+                            <th>人员</th>
+                            <th>日期</th>
+                            <th>离岗时长</th>
+                            <th>单位</th>
+                            <th>工单号</th>
+                            <th>产品编码</th>
+                            <th>产品名称</th>
+                            <th>产品规格</th>
+                        </tr>
+                    `;
+                    break;
                 default:
                     headerHTML = `
                         <tr>
@@ -4631,6 +5081,63 @@ main.content table {
                     break;
                 case 'repair-inspection':
                     generateRepairInspectionTable(tbody);
+                    break;
+                case 'batch-code-management':
+                    generateBatchCodeManagementTable(tbody);
+                    break;
+                case 'assembly-disassembly':
+                    generateAssemblyDisassemblyTable(tbody);
+                    break;
+                case 'wip-statistics':
+                    generateWIPStatisticsTable(tbody);
+                    break;
+                case 'process-balance-statistics':
+                    generateProcessBalanceStatisticsTable(tbody);
+                    break;
+                case 'production-replenish-summary':
+                    generateProductionReplenishSummaryTable(tbody);
+                    break;
+                case 'work-order-material-shortage':
+                    generateWorkOrderMaterialShortageTable(tbody);
+                    break;
+                case 'work-order-material-consumption':
+                    generateWorkOrderMaterialConsumptionTable(tbody);
+                    break;
+                case 'work-order-labor-cost':
+                    generateWorkOrderLaborCostTable(tbody);
+                    break;
+                case 'work-order-input-output-warning':
+                    generateWorkOrderInputOutputWarningTable(tbody);
+                    break;
+                case 'work-order-labor-efficiency':
+                    generateWorkOrderLaborEfficiencyTable(tbody);
+                    break;
+                case 'work-order-absentee-rate':
+                    generateWorkOrderAbsenteeRateTable(tbody);
+                    break;
+                case 'team-absentee-rate':
+                    generateTeamAbsenteeRateTable(tbody);
+                    break;
+                case 'exception-handling-time':
+                    generateExceptionHandlingTimeTable(tbody);
+                    break;
+                case 'equipment-usage':
+                    generateEquipmentUsageTable(tbody);
+                    break;
+                case 'work-order-progress':
+                    generateWorkOrderProgressTable(tbody);
+                    break;
+                case 'fault-analysis':
+                    generateFaultAnalysisTable(tbody);
+                    break;
+                case 'test-yield-statistics':
+                    generateTestYieldStatisticsTable(tbody);
+                    break;
+                case 'rework-statistics':
+                    generateReworkStatisticsTable(tbody);
+                    break;
+                case 'absentee-warning':
+                    generateAbsenteeWarningTable(tbody);
                     break;
                 default:
                     generateDefaultTable(tbody, module);
@@ -10609,6 +11116,665 @@ main.content table {
             // 加载终端主页
             generateTerminalHomePage();
         });
+    
+        // ==================== Mace 新版迁移的业务函数（29 个）====================
+
+        // ---- addInputSubItem ----
+        function addInputSubItem() {
+            const tbody = document.getElementById('input-sub-items-table').querySelector('tbody');
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td><input type="text" class="sub-item-input" placeholder="子件编码"></td>
+                    <td><input type="text" class="sub-item-input" placeholder="子件名称"></td>
+                    <td><input type="text" class="sub-item-input" placeholder="子件规格"></td>
+                    <td><input type="number" class="sub-item-input" placeholder="数量"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeSubItem(this)">删除</button></td>
+                </tr>
+            `);
+        }
+
+        // ---- addReturnSubItem ----
+        function addReturnSubItem() {
+            const tbody = document.getElementById('return-sub-items-table').querySelector('tbody');
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td><input type="text" class="sub-item-input" placeholder="子件编码"></td>
+                    <td><input type="text" class="sub-item-input" placeholder="子件名称"></td>
+                    <td><input type="text" class="sub-item-input" placeholder="子件规格"></td>
+                    <td><input type="number" class="sub-item-input" placeholder="数量"></td>
+                    <td><input type="text" class="sub-item-input" placeholder="批次码"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removeSubItem(this)">删除</button></td>
+                </tr>
+            `);
+        }
+
+        // ---- removeSubItem ----
+        function removeSubItem(btn) {
+            btn.closest('tr').remove();
+        }
+
+        // ---- openProcessDispatchModal ----
+        function openProcessDispatchModal(index) {
+            currentDispatchPlan = productionPlans[index];
+            const modal = document.getElementById('process-dispatch-modal');
+            const infoDiv = document.getElementById('process-dispatch-info');
+
+            const processData = [
+                {processNo: 'PROC001', processName: '机加工', equipment: 'EQP001', dailyHours: '6.5', qty: '', team: '', startDate: '', endDate: ''},
+                {processNo: 'PROC002', processName: '热处理', equipment: 'EQP002', dailyHours: '4.2', qty: '', team: '', startDate: '', endDate: ''},
+                {processNo: 'PROC003', processName: '装配', equipment: 'EQP003', dailyHours: '8.0', qty: '', team: '', startDate: '', endDate: ''},
+                {processNo: 'PROC004', processName: '检测', equipment: 'EQP004', dailyHours: '3.5', qty: '', team: '', startDate: '', endDate: ''}
+            ];
+
+            let processTable = `
+                <table class="data-table" style="margin-top: 15px;">
+                    <thead>
+                        <tr>
+                            <th>工序编号</th>
+                            <th>工序名称</th>
+                            <th>设备</th>
+                            <th>当日设备工时</th>
+                            <th>派工数量</th>
+                            <th>班组</th>
+                            <th>开工日期</th>
+                            <th>完工日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            processData.forEach((process, idx) => {
+                processTable += `
+                    <tr>
+                        <td>${process.processNo}</td>
+                        <td>${process.processName}</td>
+                        <td>${process.equipment}</td>
+                        <td><label>${process.dailyHours}小时</label></td>
+                        <td><input type="number" class="process-qty" value="${parseInt(currentDispatchPlan.planQty) - parseInt(currentDispatchPlan.dispatchedQty)}" style="width: 80px;"></td>
+                        <td>
+                            <select class="process-team" style="width: 100px;">
+                                <option value="TEAM001">A班</option>
+                                <option value="TEAM002">B班</option>
+                                <option value="TEAM003">C班</option>
+                            </select>
+                        </td>
+                        <td><input type="date" class="process-start" value="${currentDispatchPlan.startDate}"></td>
+                        <td><input type="date" class="process-end" value="${currentDispatchPlan.endDate}"></td>
+                    </tr>
+                `;
+            });
+
+            processTable += `
+                    </tbody>
+                </table>
+            `;
+
+            infoDiv.innerHTML = `
+                <div class="dispatch-header">
+                    <h4>计划信息</h4>
+                </div>
+                <div class="dispatch-row">
+                    <div class="dispatch-item">
+                        <label>计划单号：</label>
+                        <span>${currentDispatchPlan.planNo}</span>
+                    </div>
+                    <div class="dispatch-item">
+                        <label>生产订单号：</label>
+                        <span>${currentDispatchPlan.orderNo}</span>
+                    </div>
+                    <div class="dispatch-item">
+                        <label>物料编码：</label>
+                        <span>${currentDispatchPlan.materialCode}</span>
+                    </div>
+                </div>
+                <div class="dispatch-row">
+                    <div class="dispatch-item">
+                        <label>物料名称：</label>
+                        <span>${currentDispatchPlan.materialName}</span>
+                    </div>
+                    <div class="dispatch-item">
+                        <label>规格型号：</label>
+                        <span>${currentDispatchPlan.spec}</span>
+                    </div>
+                    <div class="dispatch-item">
+                        <label>生产车间：</label>
+                        <span>${currentDispatchPlan.workshop}</span>
+                    </div>
+                </div>
+                <div class="dispatch-row">
+                    <div class="dispatch-item">
+                        <label>计划数量：</label>
+                        <span>${currentDispatchPlan.planQty} ${currentDispatchPlan.unit}</span>
+                    </div>
+                    <div class="dispatch-item">
+                        <label>已派工数量：</label>
+                        <span>${currentDispatchPlan.dispatchedQty} ${currentDispatchPlan.unit}</span>
+                    </div>
+                    <div class="dispatch-item">
+                        <label>可派工数量：</label>
+                        <span>${parseInt(currentDispatchPlan.planQty) - parseInt(currentDispatchPlan.dispatchedQty)} ${currentDispatchPlan.unit}</span>
+                    </div>
+                </div>
+                <div class="dispatch-form">
+                    <h4>派工工序</h4>
+                    ${processTable}
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // ---- closeProcessDispatchModal ----
+        function closeProcessDispatchModal() {
+            const modal = document.getElementById('process-dispatch-modal');
+            modal.classList.remove('show');
+            currentDispatchPlan = null;
+        }
+
+        // ---- confirmProcessDispatch ----
+        function confirmProcessDispatch() {
+            if (!currentDispatchPlan) return;
+
+            const qtyInputs = document.querySelectorAll('.process-qty');
+            let totalQty = 0;
+            qtyInputs.forEach(input => {
+                totalQty += parseInt(input.value) || 0;
+            });
+
+            // 更新已派工数量
+            const newDispatchedQty = parseInt(currentDispatchPlan.dispatchedQty) + totalQty;
+            const index = productionPlans.indexOf(currentDispatchPlan);
+            productionPlans[index] = {
+                ...currentDispatchPlan,
+                dispatchedQty: newDispatchedQty,
+                dispatchStatus: newDispatchedQty >= parseInt(currentDispatchPlan.planQty) ? '已派工' : '部分派工',
+                modifier: 'admin',
+                modifyTime: new Date().toLocaleString()
+            };
+
+            // 刷新表格
+            const tableBody = document.querySelector('#data-table tbody');
+            tableBody.innerHTML = '';
+            generateProductionPlanTable(tableBody);
+
+            alert(`工序派工成功！共派工 ${totalQty} ${currentDispatchPlan.unit}`);
+            closeProcessDispatchModal();
+        }
+
+        // ---- generateBatchCodeManagementTable ----
+        function generateBatchCodeManagementTable(tbody) {
+            const batchCodes = [
+                {batchCode: 'BATCH001', qty: '100', workOrderNo: 'WO001', materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', productionOrderNo: 'SCDD001', bluetoothNo: 'BT001', printTemplate: '标准模板', creator: 'admin', createTime: '2026-04-25 10:00:00', modifier: 'admin', modifyTime: '2026-04-25 10:00:00', remark: ''},
+                {batchCode: 'BATCH002', qty: '200', workOrderNo: 'WO002', materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', productionOrderNo: 'SCDD002', bluetoothNo: 'BT002', printTemplate: '标准模板', creator: 'admin', createTime: '2026-04-25 10:30:00', modifier: 'admin', modifyTime: '2026-04-25 10:30:00', remark: ''},
+                {batchCode: 'BATCH003', qty: '50', workOrderNo: 'WO003', materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', productionOrderNo: 'FGDD001', bluetoothNo: 'BT003', printTemplate: '定制模板', creator: 'admin', createTime: '2026-04-25 11:00:00', modifier: 'admin', modifyTime: '2026-04-26 09:00:00', remark: '已变更一次'}
+            ];
+
+            batchCodes.forEach(item => {
+                const row = `
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td onclick="openBatchCodeHistoryModal('${item.batchCode}')" style="cursor: pointer; color: #0066cc;">${item.batchCode}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.workOrderNo}</td>
+                        <td>${item.materialCode}</td>
+                        <td>${item.materialName}</td>
+                        <td>${item.spec}</td>
+                        <td>${item.productionOrderNo}</td>
+                        <td>${item.bluetoothNo}</td>
+                        <td>${item.printTemplate}</td>
+                        <td>${item.creator}</td>
+                        <td>${item.createTime}</td>
+                        <td>${item.modifier}</td>
+                        <td>${item.modifyTime}</td>
+                        <td>${item.remark}</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px; margin-right: 4px;" onclick="openModal('edit')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // ---- openBatchCodeHistoryModal ----
+        function openBatchCodeHistoryModal(batchCode) {
+            const modal = document.getElementById('batch-code-history-modal');
+            const contentDiv = document.getElementById('batch-code-history-content');
+
+            const historyData = [
+                {batchCode: batchCode, changeTime: '2026-04-25 10:00:00', changer: 'admin', reason: '创建批次码'},
+                {batchCode: batchCode, changeTime: '2026-04-26 09:00:00', changer: 'admin', reason: '调整数量'},
+                {batchCode: batchCode, changeTime: '2026-04-26 14:30:00', changer: 'user1', reason: '更新蓝牙号'}
+            ];
+
+            let tableHTML = `
+                <table class="data-table" style="margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th>批次码</th>
+                            <th>变更时间</th>
+                            <th>变更人</th>
+                            <th>变更原因</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            historyData.forEach(item => {
+                tableHTML += `
+                    <tr>
+                        <td>${item.batchCode}</td>
+                        <td>${item.changeTime}</td>
+                        <td>${item.changer}</td>
+                        <td>${item.reason}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            contentDiv.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h4>批次码 ${batchCode} 变更历史记录</h4>
+                </div>
+                ${tableHTML}
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // ---- closeBatchCodeHistoryModal ----
+        function closeBatchCodeHistoryModal() {
+            const modal = document.getElementById('batch-code-history-modal');
+            modal.classList.remove('show');
+        }
+
+        // ---- generateAssemblyDisassemblyTable ----
+        function generateAssemblyDisassemblyTable(tbody) {
+            const records = [
+                {code: 'AZCX001', type: '组装', confirmStatus: '已审核', materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', warehouse: '成品仓', qty: '100', unit: '台', creator: 'admin', createTime: '2026-04-25 10:00:00', modifier: 'admin', modifyTime: '2026-04-25 10:00:00', remark: ''},
+                {code: 'AZCX002', type: '拆卸', confirmStatus: '待审核', materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', warehouse: '半成品仓', qty: '50', unit: '个', creator: 'admin', createTime: '2026-04-25 11:00:00', modifier: 'admin', modifyTime: '2026-04-25 11:00:00', remark: '质量问题需拆卸返修'},
+                {code: 'AZCX003', type: '组装', confirmStatus: '已审核', materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', warehouse: '成品仓', qty: '80', unit: '个', creator: 'admin', createTime: '2026-04-26 09:00:00', modifier: 'admin', modifyTime: '2026-04-26 09:30:00', remark: ''}
+            ];
+
+            records.forEach(item => {
+                const confirmStatusClass = item.confirmStatus === '已审核' ? 'status-success' : 'status-warning';
+                const typeClass = item.type === '组装' ? 'status-success' : 'status-danger';
+                
+                const row = `
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td onclick="openAssemblyDetailModal('${item.code}')" style="cursor: pointer; color: #0066cc;">${item.code}</td>
+                        <td><span class="status-tag ${typeClass}">${item.type}</span></td>
+                        <td><span class="status-tag ${confirmStatusClass}">${item.confirmStatus}</span></td>
+                        <td>${item.materialCode}</td>
+                        <td>${item.materialName}</td>
+                        <td>${item.spec}</td>
+                        <td>${item.warehouse}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.creator}</td>
+                        <td>${item.createTime}</td>
+                        <td>${item.modifier}</td>
+                        <td>${item.modifyTime}</td>
+                        <td>${item.remark}</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding: 4px 8px; font-size: 12px; margin-right: 4px;" onclick="openModal('edit')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 12px; margin-right: 4px;"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-success" style="padding: 4px 8px; font-size: 12px;">审核</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // ---- openAssemblyDetailModal ----
+        function openAssemblyDetailModal(code) {
+            const modal = document.getElementById('assembly-detail-modal');
+            const contentDiv = document.getElementById('assembly-detail-content');
+
+            const detailData = {
+                code: code,
+                type: '组装',
+                confirmStatus: '已审核',
+                materialCode: 'MAT001',
+                materialName: '电机组件',
+                spec: 'DX-2026-001',
+                warehouse: '成品仓',
+                qty: '100',
+                unit: '台'
+            };
+
+            const materials = [
+                {subCode: 'MAT001-01', subName: '定子', subSpec: 'DZ-2026-001', qty: '100', unit: '个', warehouse: '原材料仓'},
+                {subCode: 'MAT001-02', subName: '转子', subSpec: 'ZZ-2026-001', qty: '100', unit: '个', warehouse: '原材料仓'},
+                {subCode: 'MAT001-03', subName: '外壳', subSpec: 'WK-2026-001', qty: '100', unit: '个', warehouse: '原材料仓'}
+            ];
+
+            const transactions = [
+                {type: '领料', materialCode: 'MAT001-01', materialName: '定子', spec: 'DZ-2026-001', batchCode: 'BATCH001', qty: '100', unit: '个', warehouse: '原材料仓'},
+                {type: '领料', materialCode: 'MAT001-02', materialName: '转子', spec: 'ZZ-2026-001', batchCode: 'BATCH002', qty: '100', unit: '个', warehouse: '原材料仓'},
+                {type: '产出', materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', batchCode: 'BATCH003', qty: '100', unit: '台', warehouse: '成品仓'}
+            ];
+
+            let materialsTable = `
+                <table class="data-table" style="margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th>子件物料编码</th>
+                            <th>子件物料名称</th>
+                            <th>子件规格型号</th>
+                            <th>数量</th>
+                            <th>单位</th>
+                            <th>仓库</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            materials.forEach(item => {
+                materialsTable += `
+                    <tr>
+                        <td>${item.subCode}</td>
+                        <td>${item.subName}</td>
+                        <td>${item.subSpec}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.warehouse}</td>
+                    </tr>
+                `;
+            });
+
+            materialsTable += `
+                    </tbody>
+                </table>
+            `;
+
+            let transactionsTable = `
+                <table class="data-table" style="margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>批次码</th>
+                            <th>数量</th>
+                            <th>单位</th>
+                            <th>仓库</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            transactions.forEach(item => {
+                const typeClass = item.type === '领料' ? 'status-warning' : 'status-success';
+                transactionsTable += `
+                    <tr>
+                        <td><span class="status-tag ${typeClass}">${item.type}</span></td>
+                        <td>${item.materialCode}</td>
+                        <td>${item.materialName}</td>
+                        <td>${item.spec}</td>
+                        <td>${item.batchCode}</td>
+                        <td>${item.qty}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.warehouse}</td>
+                    </tr>
+                `;
+            });
+
+            transactionsTable += `
+                    </tbody>
+                </table>
+            `;
+
+            contentDiv.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <h4>组装拆卸单信息</h4>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                        <div><label>组装拆卸单号：</label><span>${detailData.code}</span></div>
+                        <div><label>业务类型：</label><span>${detailData.type}</span></div>
+                        <div><label>审核状态：</label><span>${detailData.confirmStatus}</span></div>
+                        <div><label>物料编码：</label><span>${detailData.materialCode}</span></div>
+                        <div><label>物料名称：</label><span>${detailData.materialName}</span></div>
+                        <div><label>规格型号：</label><span>${detailData.spec}</span></div>
+                        <div><label>仓库：</label><span>${detailData.warehouse}</span></div>
+                        <div><label>数量：</label><span>${detailData.qty} ${detailData.unit}</span></div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h4>用料清单</h4>
+                    ${materialsTable}
+                </div>
+                <div>
+                    <h4>领料和产出信息</h4>
+                    ${transactionsTable}
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // ---- closeAssemblyDetailModal ----
+        function closeAssemblyDetailModal() {
+            const modal = document.getElementById('assembly-detail-modal');
+            modal.classList.remove('show');
+        }
+
+        // ---- generateWIPStatisticsTable ----
+        function generateWIPStatisticsTable(tbody) {
+            const wipData = [
+                {materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', processSeq: '1', processName: '定子装配', wipQty: 150, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', processSeq: '2', processName: '转子装配', wipQty: 120, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', processSeq: '3', processName: '总装', wipQty: 80, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', processSeq: '1', processName: '机加工', wipQty: 200, workshop: 'B端生产车间', line: 'B端装配线'},
+                {materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', processSeq: '2', processName: '热处理', wipQty: 180, workshop: 'B端生产车间', line: 'B端装配线'},
+                {materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', processSeq: '3', processName: '总装', wipQty: 100, workshop: 'B端生产车间', line: 'B端装配线'},
+                {materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', processSeq: '1', processName: '焊接', wipQty: 90, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', processSeq: '2', processName: '测试', wipQty: 60, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT004', materialName: '控制模块', spec: 'KZ-2026-001', processSeq: '1', processName: '贴片', wipQty: 250, workshop: '机加工车间', line: '机加工线'},
+                {materialCode: 'MAT004', materialName: '控制模块', spec: 'KZ-2026-001', processSeq: '2', processName: '焊接', wipQty: 200, workshop: '机加工车间', line: '机加工线'}
+            ];
+
+            wipData.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.materialCode}</td>
+                        <td>${item.materialName}</td>
+                        <td>${item.spec}</td>
+                        <td>${item.processSeq}</td>
+                        <td>${item.processName}</td>
+                        <td>${item.wipQty}</td>
+                        <td>${item.workshop}</td>
+                        <td>${item.line}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // ---- generateProcessBalanceStatisticsTable ----
+        function generateProcessBalanceStatisticsTable(tbody) {
+            const balanceData = [
+                {materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', processSeq: '1', processName: '定子装配', balanceQty: 50, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', processSeq: '2', processName: '转子装配', balanceQty: 30, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', processSeq: '1', processName: '机加工', balanceQty: 80, workshop: 'B端生产车间', line: 'B端装配线'},
+                {materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', processSeq: '2', processName: '热处理', balanceQty: 60, workshop: 'B端生产车间', line: 'B端装配线'},
+                {materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', processSeq: '1', processName: '焊接', balanceQty: 40, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', processSeq: '2', processName: '测试', balanceQty: 25, workshop: 'C端生产车间', line: 'C端装配线'},
+                {materialCode: 'MAT004', materialName: '控制模块', spec: 'KZ-2026-001', processSeq: '1', processName: '贴片', balanceQty: 100, workshop: '机加工车间', line: '机加工线'},
+                {materialCode: 'MAT004', materialName: '控制模块', spec: 'KZ-2026-001', processSeq: '2', processName: '焊接', balanceQty: 75, workshop: '机加工车间', line: '机加工线'}
+            ];
+
+            balanceData.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.materialCode}</td>
+                        <td>${item.materialName}</td>
+                        <td>${item.spec}</td>
+                        <td>${item.processSeq}</td>
+                        <td>${item.processName}</td>
+                        <td>${item.balanceQty}</td>
+                        <td>${item.workshop}</td>
+                        <td>${item.line}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // ---- generateProductionReplenishSummaryTable ----
+        function generateProductionReplenishSummaryTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', finishedQty: '100', subCode: 'MAT001-01', subName: '定子', subSpec: 'DZ-2026-001', normalQty: '100', replenishQty: '5', replenishRate: '5%', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', finishedQty: '100', subCode: 'MAT001-02', subName: '转子', subSpec: 'ZZ-2026-001', normalQty: '100', replenishQty: '3', replenishRate: '3%', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO002', startDate: '2026-04-26', finishedCode: 'MAT002', finishedName: '减速器组件', finishedSpec: 'JS-2026-001', finishedQty: '200', subCode: 'MAT002-01', subName: '齿轮', subSpec: 'CL-2026-001', normalQty: '200', replenishQty: '10', replenishRate: '5%', workshop: 'B端生产车间', line: 'B端装配线'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.startDate}</td><td>${item.finishedCode}</td><td>${item.finishedName}</td><td>${item.finishedSpec}</td><td>${item.finishedQty}</td><td>${item.subCode}</td><td>${item.subName}</td><td>${item.subSpec}</td><td>${item.normalQty}</td><td>${item.replenishQty}</td><td>${item.replenishRate}</td><td>${item.workshop}</td><td>${item.line}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderMaterialShortageTable ----
+        function generateWorkOrderMaterialShortageTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO003', startDate: '2026-04-27', finishedCode: 'MAT003', finishedName: '传感器组件', finishedSpec: 'CG-2026-001', finishedQty: '50', subCode: 'MAT003-01', subName: '芯片', subSpec: 'XP-2026-001', demandQty: '50', stockQty: '30', shortageQty: '20', warehouse: '原材料仓', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO004', startDate: '2026-04-28', finishedCode: 'MAT004', finishedName: '控制模块', finishedSpec: 'KZ-2026-001', finishedQty: '150', subCode: 'MAT004-01', subName: 'PCB板', subSpec: 'PCB-2026-001', demandQty: '150', stockQty: '0', shortageQty: '150', warehouse: '原材料仓', workshop: '机加工车间', line: '机加工线'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.startDate}</td><td>${item.finishedCode}</td><td>${item.finishedName}</td><td>${item.finishedSpec}</td><td>${item.finishedQty}</td><td>${item.subCode}</td><td>${item.subName}</td><td>${item.subSpec}</td><td>${item.demandQty}</td><td>${item.stockQty}</td><td style="color: red;">${item.shortageQty}</td><td>${item.warehouse}</td><td>${item.workshop}</td><td>${item.line}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderMaterialConsumptionTable ----
+        function generateWorkOrderMaterialConsumptionTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', finishedQty: '100', subCode: 'MAT001-01', subName: '定子', subSpec: 'DZ-2026-001', subQty: '105', unit: '个', consumeType: '正常消耗', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', finishedQty: '100', subCode: 'MAT001-02', subName: '转子', subSpec: 'ZZ-2026-001', subQty: '103', unit: '个', consumeType: '正常消耗', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO002', startDate: '2026-04-26', finishedCode: 'MAT002', finishedName: '减速器组件', finishedSpec: 'JS-2026-001', finishedQty: '200', subCode: 'MAT002-01', subName: '齿轮', subSpec: 'CL-2026-001', subQty: '210', unit: '个', consumeType: '补料消耗', workshop: 'B端生产车间', line: 'B端装配线'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.startDate}</td><td>${item.finishedCode}</td><td>${item.finishedName}</td><td>${item.finishedSpec}</td><td>${item.finishedQty}</td><td>${item.subCode}</td><td>${item.subName}</td><td>${item.subSpec}</td><td>${item.subQty}</td><td>${item.unit}</td><td>${item.consumeType}</td><td>${item.workshop}</td><td>${item.line}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderLaborCostTable ----
+        function generateWorkOrderLaborCostTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', finishedQty: '100', laborType: '生产工时', hours: '80', unit: '小时', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', finishedQty: '100', laborType: '管理工时', hours: '10', unit: '小时', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO002', startDate: '2026-04-26', finishedCode: 'MAT002', finishedName: '减速器组件', finishedSpec: 'JS-2026-001', finishedQty: '200', laborType: '生产工时', hours: '150', unit: '小时', workshop: 'B端生产车间', line: 'B端装配线'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.startDate}</td><td>${item.finishedCode}</td><td>${item.finishedName}</td><td>${item.finishedSpec}</td><td>${item.finishedQty}</td><td>${item.laborType}</td><td>${item.hours}</td><td>${item.unit}</td><td>${item.workshop}</td><td>${item.line}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderInputOutputWarningTable ----
+        function generateWorkOrderInputOutputWarningTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', startDate: '2026-04-25', finishedCode: 'MAT001', finishedName: '电机组件', finishedSpec: 'DX-2026-001', planQty: '100', inputRate: '100%', outputRate: '95%', diff: '-5%', workshop: 'C端生产车间', line: 'C端装配线'},
+                {workOrderNo: 'WO002', startDate: '2026-04-26', finishedCode: 'MAT002', finishedName: '减速器组件', finishedSpec: 'JS-2026-001', planQty: '200', inputRate: '100%', outputRate: '85%', diff: '-15%', workshop: 'B端生产车间', line: 'B端装配线'},
+                {workOrderNo: 'WO003', startDate: '2026-04-27', finishedCode: 'MAT003', finishedName: '传感器组件', finishedSpec: 'CG-2026-001', planQty: '50', inputRate: '60%', outputRate: '0%', diff: '-60%', workshop: 'C端生产车间', line: 'C端装配线'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.startDate}</td><td>${item.finishedCode}</td><td>${item.finishedName}</td><td>${item.finishedSpec}</td><td>${item.planQty}</td><td>${item.inputRate}</td><td>${item.outputRate}</td><td>${item.diff}</td><td>${item.workshop}</td><td>${item.line}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderLaborEfficiencyTable ----
+        function generateWorkOrderLaborEfficiencyTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', workshop: 'C端生产车间', line: 'C端装配线', productCode: 'MAT001', productName: '电机组件', productSpec: 'DX-2026-001', planQty: '100', finishQty: '95', unitHours: '0.8', theoryHours: '80', productionHours: '85', managementHours: '10', repairHours: '5', testHours: '8', actualHours: '108', efficiency: '74%'},
+                {workOrderNo: 'WO002', workshop: 'B端生产车间', line: 'B端装配线', productCode: 'MAT002', productName: '减速器组件', productSpec: 'JS-2026-001', planQty: '200', finishQty: '170', unitHours: '0.75', theoryHours: '150', productionHours: '165', managementHours: '15', repairHours: '10', testHours: '12', actualHours: '202', efficiency: '74%'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.workshop}</td><td>${item.line}</td><td>${item.productCode}</td><td>${item.productName}</td><td>${item.productSpec}</td><td>${item.planQty}</td><td>${item.finishQty}</td><td>${item.unitHours}</td><td>${item.theoryHours}</td><td>${item.productionHours}</td><td>${item.managementHours}</td><td>${item.repairHours}</td><td>${item.testHours}</td><td>${item.actualHours}</td><td>${item.efficiency}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderAbsenteeRateTable ----
+        function generateWorkOrderAbsenteeRateTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', workshop: 'C端生产车间', line: 'C端装配线', productCode: 'MAT001', productName: '电机组件', productSpec: 'DX-2026-001', productionHours: '85', testHours: '8', repairHours: '5', managementHours: '10', absentHours: '5', absentRate: '5%'},
+                {workOrderNo: 'WO002', workshop: 'B端生产车间', line: 'B端装配线', productCode: 'MAT002', productName: '减速器组件', productSpec: 'JS-2026-001', productionHours: '165', testHours: '12', repairHours: '10', managementHours: '15', absentHours: '8', absentRate: '4%'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.workshop}</td><td>${item.line}</td><td>${item.productCode}</td><td>${item.productName}</td><td>${item.productSpec}</td><td>${item.productionHours}</td><td>${item.testHours}</td><td>${item.repairHours}</td><td>${item.managementHours}</td><td>${item.absentHours}</td><td>${item.absentRate}</td></tr>`));
+        }
+
+        // ---- generateTeamAbsenteeRateTable ----
+        function generateTeamAbsenteeRateTable(tbody) {
+            const data = [
+                {team: 'A班', productionHours: '420', testHours: '40', repairHours: '25', managementHours: '50', absentHours: '25', absentRate: '5%'},
+                {team: 'B班', productionHours: '380', testHours: '35', repairHours: '30', managementHours: '45', absentHours: '30', absentRate: '6%'},
+                {team: 'C班', productionHours: '400', testHours: '38', repairHours: '20', managementHours: '48', absentHours: '12', absentRate: '2%'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.team}</td><td>${item.productionHours}</td><td>${item.testHours}</td><td>${item.repairHours}</td><td>${item.managementHours}</td><td>${item.absentHours}</td><td>${item.absentRate}</td></tr>`));
+        }
+
+        // ---- generateExceptionHandlingTimeTable ----
+        function generateExceptionHandlingTimeTable(tbody) {
+            const data = [
+                {level: '紧急', category: '设备故障', workshop: '机加工车间', line: '机加工线', duration: '2.5', unit: '小时'},
+                {level: '重要', category: '质量异常', workshop: 'C端生产车间', line: 'C端装配线', duration: '4.0', unit: '小时'},
+                {level: '一般', category: '物料短缺', workshop: 'B端生产车间', line: 'B端装配线', duration: '1.5', unit: '小时'},
+                {level: '紧急', category: '设备故障', workshop: 'C端生产车间', line: 'C端装配线', duration: '1.0', unit: '小时'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.level}</td><td>${item.category}</td><td>${item.workshop}</td><td>${item.line}</td><td>${item.duration}</td><td>${item.unit}</td></tr>`));
+        }
+
+        // ---- generateEquipmentUsageTable ----
+        function generateEquipmentUsageTable(tbody) {
+            const data = [
+                {equipmentCode: 'EQP001', equipmentName: 'CNC加工中心', equipmentType: '加工设备', date: '2026-04-25', hours: '8.5'},
+                {equipmentCode: 'EQP002', equipmentName: '焊接机器人', equipmentType: '焊接设备', date: '2026-04-25', hours: '7.8'},
+                {equipmentCode: 'EQP003', equipmentName: '装配线', equipmentType: '装配设备', date: '2026-04-25', hours: '10.2'},
+                {equipmentCode: 'EQP001', equipmentName: 'CNC加工中心', equipmentType: '加工设备', date: '2026-04-26', hours: '9.0'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.equipmentCode}</td><td>${item.equipmentName}</td><td>${item.equipmentType}</td><td>${item.date}</td><td>${item.hours}</td></tr>`));
+        }
+
+        // ---- generateWorkOrderProgressTable ----
+        function generateWorkOrderProgressTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', workshop: 'C端生产车间', line: 'C端装配线', materialCode: 'MAT001', materialName: '电机组件', spec: 'DX-2026-001', startDate: '2026-04-25', planQty: '100', finishQty: '95', progress: '95%'},
+                {workOrderNo: 'WO002', workshop: 'B端生产车间', line: 'B端装配线', materialCode: 'MAT002', materialName: '减速器组件', spec: 'JS-2026-001', startDate: '2026-04-26', planQty: '200', finishQty: '170', progress: '85%'},
+                {workOrderNo: 'WO003', workshop: 'C端生产车间', line: 'C端装配线', materialCode: 'MAT003', materialName: '传感器组件', spec: 'CG-2026-001', startDate: '2026-04-27', planQty: '50', finishQty: '0', progress: '0%'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.workshop}</td><td>${item.line}</td><td>${item.materialCode}</td><td>${item.materialName}</td><td>${item.spec}</td><td>${item.startDate}</td><td>${item.planQty}</td><td>${item.finishQty}</td><td>${item.progress}</td></tr>`));
+        }
+
+        // ---- generateFaultAnalysisTable ----
+        function generateFaultAnalysisTable(tbody) {
+            const data = [
+                {productCode: 'MAT001', productName: '电机组件', productModel: 'DX-2026-001', testType: '性能测试', testItem: '绝缘测试', testQty: '100', failQty: '2', faultRate: '2%'},
+                {productCode: 'MAT001', productName: '电机组件', productModel: 'DX-2026-001', testType: '性能测试', testItem: '耐压测试', testQty: '100', failQty: '1', faultRate: '1%'},
+                {productCode: 'MAT002', productName: '减速器组件', productModel: 'JS-2026-001', testType: '性能测试', testItem: '噪音测试', testQty: '200', failQty: '5', faultRate: '2.5%'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.productCode}</td><td>${item.productName}</td><td>${item.productModel}</td><td>${item.testType}</td><td>${item.testItem}</td><td>${item.testQty}</td><td>${item.failQty}</td><td>${item.faultRate}</td></tr>`));
+        }
+
+        // ---- generateTestYieldStatisticsTable ----
+        function generateTestYieldStatisticsTable(tbody) {
+            const data = [
+                {productCode: 'MAT001', productName: '电机组件', productModel: 'DX-2026-001', testQty: '100', passQty: '97', yieldRate: '97%'},
+                {productCode: 'MAT002', productName: '减速器组件', productModel: 'JS-2026-001', testQty: '200', passQty: '190', yieldRate: '95%'},
+                {productCode: 'MAT003', productName: '传感器组件', productModel: 'CG-2026-001', testQty: '50', passQty: '48', yieldRate: '96%'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.productCode}</td><td>${item.productName}</td><td>${item.productModel}</td><td>${item.testQty}</td><td>${item.passQty}</td><td>${item.yieldRate}</td></tr>`));
+        }
+
+        // ---- generateReworkStatisticsTable ----
+        function generateReworkStatisticsTable(tbody) {
+            const data = [
+                {workOrderNo: 'WO001', workshop: 'C端生产车间', line: 'C端装配线', productCode: 'MAT001', productName: '电机组件', productSpec: 'DX-2026-001', reworkQty: '5', finishQty: '95', reworkHours: '10', reason: '绝缘不良'},
+                {workOrderNo: 'WO002', workshop: 'B端生产车间', line: 'B端装配线', productCode: 'MAT002', productName: '减速器组件', productSpec: 'JS-2026-001', reworkQty: '10', finishQty: '170', reworkHours: '25', reason: '噪音超标'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workOrderNo}</td><td>${item.workshop}</td><td>${item.line}</td><td>${item.productCode}</td><td>${item.productName}</td><td>${item.productSpec}</td><td>${item.reworkQty}</td><td>${item.finishQty}</td><td>${item.reworkHours}</td><td>${item.reason}</td></tr>`));
+        }
+
+        // ---- generateAbsenteeWarningTable ----
+        function generateAbsenteeWarningTable(tbody) {
+            const data = [
+                {workshop: 'C端生产车间', line: 'C端装配线', person: '张三', date: '2026-04-25', absentDuration: '2.5', unit: '小时', workOrderNo: 'WO001', productCode: 'MAT001', productName: '电机组件', productSpec: 'DX-2026-001'},
+                {workshop: 'B端生产车间', line: 'B端装配线', person: '李四', date: '2026-04-25', absentDuration: '3.0', unit: '小时', workOrderNo: 'WO002', productCode: 'MAT002', productName: '减速器组件', productSpec: 'JS-2026-001'}
+            ];
+            data.forEach(item => tbody.insertAdjacentHTML('beforeend', `<tr><td>${item.workshop}</td><td>${item.line}</td><td>${item.person}</td><td>${item.date}</td><td>${item.absentDuration}</td><td>${item.unit}</td><td>${item.workOrderNo}</td><td>${item.productCode}</td><td>${item.productName}</td><td>${item.productSpec}</td></tr>`));
+        }
+
     </script>
 </body>
 </html>
