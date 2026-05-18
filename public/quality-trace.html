@@ -295,6 +295,7 @@
     .ai-send:hover { transform:translateY(-1px); box-shadow:0 2px 8px rgba(24,144,255,0.35); }
     .ai-send:disabled { opacity:0.5; cursor:not-allowed; transform:none; box-shadow:none; }
     .ai-disclaimer { font-size:10px; color:var(--text-muted); margin-top:6px; text-align:center; }
+
   </style>
 </head>
 <body>
@@ -369,7 +370,7 @@
         <div class="trace-mode-tab active" onclick="switchTraceMode('forward')">正向追溯</div>
         <div class="trace-mode-tab" onclick="switchTraceMode('reverse')">逆向追溯</div>
       </div>
-      
+
       <!-- 正向追溯输入 -->
       <div id="trace-forward" class="trace-mode-content active">
         <div class="trace-input-row">
@@ -412,7 +413,7 @@
       <div class="impact-alert" id="impactAlert" style="display:none;"></div>
     </div>
     
-    <div class="main-layout">
+    <div class="main-layout" id="mainLayout">
       <div class="tree-panel">
         <div class="tree-header">
           <h3><i class="bi bi-diagram-3"></i>追溯树</h3>
@@ -2714,15 +2715,15 @@
     
     // 追溯模式切换
     function switchTraceMode(mode) {
-      // 切换Tab样式
+      currentMode = mode;
       document.querySelectorAll('.trace-mode-tab').forEach(tab => tab.classList.remove('active'));
-      event.target.classList.add('active');
-      
-      // 切换内容显示
+      if (typeof event !== 'undefined' && event && event.target) event.target.classList.add('active');
+
       document.querySelectorAll('.trace-mode-content').forEach(content => content.classList.remove('active'));
       document.getElementById('trace-' + mode).classList.add('active');
     }
-    
+
+
     // 设置正向追溯演示数据
     function setForwardDemo(type) {
       if (type === 'SM') {
