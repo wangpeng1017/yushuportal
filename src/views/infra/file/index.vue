@@ -97,6 +97,13 @@
             target="_blank"
             >预览</el-link
           >
+          <el-link
+            v-else-if="isDocx(row)"
+            type="primary"
+            :underline="false"
+            @click="handlePreviewDocx(row)"
+            >预览</el-link
+          >
           <el-link v-else type="primary" download :href="row.url" :underline="false" target="_blank"
             >下载</el-link
           >
@@ -111,9 +118,7 @@
       />
       <el-table-column label="操作" align="center" min-width="130" fixed="right">
         <template #default="scope">
-          <el-button link type="primary" @click="copyToClipboard(scope.row.url)">
-            复制链接
-          </el-button>
+          <el-button link type="primary" @click="handleDownload(scope.row)"> 下载 </el-button>
           <el-button
             link
             type="danger"
@@ -136,12 +141,15 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <FileForm ref="formRef" @success="getList" />
+  <!-- Word 预览弹窗 -->
+  <DocxPreview v-model="docxPreviewVisible" :url="docxPreviewUrl" :name="docxPreviewName" />
 </template>
 <script lang="ts" setup>
 import { fileSizeFormatter } from '@/utils'
 import { dateFormatter } from '@/utils/formatTime'
 import * as FileApi from '@/api/infra/file'
 import FileForm from './FileForm.vue'
+import DocxPreview from './DocxPreview.vue'
 
 defineOptions({ name: 'InfraFile' })
 
@@ -191,11 +199,31 @@ const openForm = () => {
   formRef.value.open()
 }
 
-/** 复制到剪贴板方法 */
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text).then(() => {
-    message.success('复制成功')
-  })
+/** Word 预览（仅 .docx，.doc 旧格式走下载） */
+const docxPreviewVisible = ref(false)
+const docxPreviewUrl = ref('')
+const docxPreviewName = ref('')
+const isDocx = (row: any): boolean => {
+  const name = (row?.name || '').toLowerCase()
+  const type = (row?.type || '').toLowerCase()
+  return name.endsWith('.docx') || type.includes('wordprocessingml')
+}
+const handlePreviewDocx = (row: any) => {
+  docxPreviewUrl.value = row.url
+  docxPreviewName.value = row.name
+  docxPreviewVisible.value = true
+}
+
+/** 下载文件（用 a[download] 触发浏览器下载，保留原文件名） */
+const handleDownload = (row: any) => {
+  const a = document.createElement('a')
+  a.href = row.url
+  a.download = row.name || ''
+  a.target = '_blank'
+  a.rel = 'noopener'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
 }
 
 /** 删除按钮操作 */

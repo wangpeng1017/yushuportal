@@ -28,6 +28,8 @@ export function tryMatchMock(
   data?: any,
   headers?: Record<string, string>
 ): any | null {
+  // /infra/file/ 走真后端（Node.js 轻量服务），不走 mock
+  if (url.includes('/infra/file/')) return null
   const m = (method || 'get').toLowerCase()
   for (const mock of allMocks) {
     const mm = (mock.method || 'get').toLowerCase()

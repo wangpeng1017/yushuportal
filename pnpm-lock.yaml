@@ -26,6 +26,9 @@ importers:
       '@videojs-player/vue':
         specifier: ^1.0.0
         version: 1.0.0(@types/video.js@7.3.58)(video.js@7.21.7)(vue@3.5.12(typescript@5.3.3))
+      '@vue-office/docx':
+        specifier: ^1.6.3
+        version: 1.6.3(vue-demi@0.14.10(vue@3.5.12(typescript@5.3.3)))(vue@3.5.12(typescript@5.3.3))
       '@vueuse/core':
         specifier: ^10.9.0
         version: 10.11.1(vue@3.5.12(typescript@5.3.3))
@@ -152,6 +155,9 @@ importers:
       vue:
         specifier: 3.5.12
         version: 3.5.12(typescript@5.3.3)
+      vue-demi:
+        specifier: ^0.14.10
+        version: 0.14.10(vue@3.5.12(typescript@5.3.3))
       vue-dompurify-html:
         specifier: ^4.1.4
         version: 4.1.4(vue@3.5.12(typescript@5.3.3))
@@ -2250,6 +2256,16 @@ packages:
 
   '@volar/typescript@1.11.1':
     resolution: {integrity: sha512-iU+t2mas/4lYierSnoFOeRFQUhAEMgsFuQxoxvwn5EdQopw43j+J27a4lt9LMInx1gLJBC6qL14WYGlgymaSMQ==}
+
+  '@vue-office/docx@1.6.3':
+    resolution: {integrity: sha512-Cs+3CAaRBOWOiW4XAhTwwxJ0dy8cPIf6DqfNvYcD3YACiLwO4kuawLF2IAXxyijhbuOeoFsfvoVbOc16A/4bZA==}
+    peerDependencies:
+      '@vue/composition-api': ^1.7.1
+      vue: ^2.0.0 || >=3.0.0
+      vue-demi: ^0.14.6
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
 
   '@vue/babel-helper-vue-transform-on@1.5.0':
     resolution: {integrity: sha512-0dAYkerNhhHutHZ34JtTl2czVQHUNWv6xEbkdF5W+Yrv5pCWsqjeORdOgbtW2I9gWlt+wBmVn+ttqN9ZxR5tzA==}
@@ -7581,6 +7597,11 @@ snapshots:
     dependencies:
       '@volar/language-core': 1.11.1
       path-browserify: 1.0.1
+
+  '@vue-office/docx@1.6.3(vue-demi@0.14.10(vue@3.5.12(typescript@5.3.3)))(vue@3.5.12(typescript@5.3.3))':
+    dependencies:
+      vue: 3.5.12(typescript@5.3.3)
+      vue-demi: 0.14.10(vue@3.5.12(typescript@5.3.3))
 
   '@vue/babel-helper-vue-transform-on@1.5.0': {}
 
