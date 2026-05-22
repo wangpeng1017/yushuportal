@@ -162,7 +162,7 @@ const apps = [
   { name: 'EAM设备管理', desc: '设备资产全生命周期', icon: 'ep:tools', bg: 'linear-gradient(135deg,#FA709A,#FEE140)', url: 'http://8.130.182.148:3010/index?v=20260508' },
   { name: '全流程追溯', desc: '生产质量全链路追溯', icon: 'ep:connection', bg: 'linear-gradient(135deg,#3B82F6,#6366F1)', url: '/quality-trace.html?v=20260511b' },
   { name: 'EHS安环管理', desc: '安全环保健康', icon: 'ep:lock', bg: 'linear-gradient(135deg,#11998E,#38EF7D)', url: 'http://zjx.iampmer.com/ehs/' },
-  { name: 'MDM主数据管理', desc: '企业主数据治理', icon: 'ep:files', bg: 'linear-gradient(135deg,#667EEA,#764BA2)' },
+  { name: 'MDM主数据管理', desc: '企业主数据治理', icon: 'ep:files', bg: 'linear-gradient(135deg,#667EEA,#764BA2)', url: '/mdm' },
   { name: 'IoT平台', desc: '设备互联互通', icon: 'ep:link', bg: 'linear-gradient(135deg,#FF6A00,#EE0979)', url: 'http://123.235.0.227:11916/login', cred: { user: 'lizhengliang@iiglocal.com', pass: 'lizhengliang' } },
   { name: '数据集成平台', desc: '异构系统数据集成', icon: 'ep:share', bg: 'linear-gradient(135deg,#13547A,#80D0C7)', url: 'https://218.92.236.114:3001/login.html', cred: { user: 'admin', pass: 'Admin123@dtdip!' } },
   { name: 'AI智能体', desc: '智能决策与对话', icon: 'ep:promotion', bg: 'linear-gradient(135deg,#A18CD1,#FBC2EB)' }
@@ -205,8 +205,11 @@ const copyText = async (text: string) => {
   }
 }
 
+const router = useRouter()
+
 const onAppClick = (app: any) => {
   if (!app.url) return
+  // 所有应用一律在新标签页打开（独立应用体验，参考 EAM 模式）
   if (app.cred) {
     ElMessageBox({
       title: `${app.name} · 演示账号`,

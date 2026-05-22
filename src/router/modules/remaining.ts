@@ -71,6 +71,17 @@ const remainingRouter: AppRouteRecordRaw[] = [
     ]
   },
   {
+    path: '/mdm',
+    component: () => import('@/views/mdm/index.vue'),
+    name: 'MdmApp',
+    meta: {
+      hidden: true,
+      canTo: true,
+      noTagsView: true,
+      title: 'MDM 主数据管理'
+    }
+  },
+  {
     path: '/user',
     component: Layout,
     name: 'UserInfo',
