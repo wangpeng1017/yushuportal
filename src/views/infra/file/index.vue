@@ -116,19 +116,6 @@
         width="180"
         :formatter="dateFormatter"
       />
-      <el-table-column label="操作" align="center" min-width="130" fixed="right">
-        <template #default="scope">
-          <el-button link type="primary" @click="handleDownload(scope.row)"> 下载 </el-button>
-          <el-button
-            link
-            type="danger"
-            @click="handleDelete(scope.row.id)"
-            v-hasPermi="['infra:file:delete']"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
     </el-table>
     <!-- 分页 -->
     <Pagination
