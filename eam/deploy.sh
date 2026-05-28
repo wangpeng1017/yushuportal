@@ -5,7 +5,7 @@
 
 set -e
 
-PROJECT_DIR="/Users/wangpeng/Downloads/yushu/xitong/iimake-eam-console-rebuild"
+PROJECT_DIR="/Users/wangpeng/Downloads/0201yushu/xitong/iimake-made-portal/iimake-made-portal/eam"
 SERVER="root@8.130.182.148"
 REMOTE_PATH="/var/www/yushu-eam"
 PORT=3010
