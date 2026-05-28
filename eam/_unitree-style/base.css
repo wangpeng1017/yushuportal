@@ -1,0 +1,180 @@
+/*!
+ * UniTree Base CSS
+ * 全局 reset + 字体 + 排版规则
+ * 依赖: tokens.css
+ */
+
+/* ========== Reset ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--u-font);
+  font-size: var(--u-fs-body);
+  font-weight: var(--u-fw-regular);
+  line-height: var(--u-lh-normal);
+  color: var(--u-text-2);
+  background-color: var(--u-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========== Typography ========== */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--u-fw-bold);
+  line-height: var(--u-lh-tight);
+  color: var(--u-text-1);
+}
+
+h1 { font-size: var(--u-fs-h1); }
+h2 { font-size: var(--u-fs-h2); }
+h3 { font-size: var(--u-fs-h3); font-weight: var(--u-fw-medium); }
+h4, h5, h6 { font-size: var(--u-fs-body); }
+
+p { margin: 0; }
+
+a {
+  color: var(--u-primary);
+  text-decoration: none;
+  transition: color var(--u-transition-fast);
+}
+a:hover { color: var(--u-primary-hover); }
+a:active { color: var(--u-primary-active); }
+
+small { font-size: var(--u-fs-sm); }
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--u-font-mono);
+  font-size: 0.9em;
+}
+
+/* ========== Lists ========== */
+ul, ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ========== Forms (基础元素 reset) ========== */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+input,
+textarea,
+select {
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--u-text-3);
+}
+
+/* ========== Tables ========== */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+/* ========== Images / Media ========== */
+img,
+svg,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+/* ========== Scrollbar (WebKit) ========== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ========== Selection ========== */
+::selection {
+  background: var(--u-primary-bg);
+  color: var(--u-primary-active);
+}
+
+/* ========== Utility 通用工具类 ========== */
+.u-clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.u-text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.u-text-center { text-align: center; }
+.u-text-right { text-align: right; }
+.u-text-left { text-align: left; }
+
+.u-text-success { color: var(--u-success); }
+.u-text-warning { color: var(--u-warning); }
+.u-text-danger  { color: var(--u-danger);  }
+.u-text-info    { color: var(--u-info);    }
+.u-text-muted   { color: var(--u-text-3);  }
+
+.u-flex { display: flex; }
+.u-flex-1 { flex: 1; }
+.u-flex-center { display: flex; align-items: center; justify-content: center; }
+.u-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.u-items-center { align-items: center; }
+.u-justify-end { justify-content: flex-end; }
+.u-gap-2 { gap: var(--u-space-2); }
+.u-gap-3 { gap: var(--u-space-3); }
+.u-gap-4 { gap: var(--u-space-4); }

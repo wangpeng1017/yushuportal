@@ -1,0 +1,69 @@
+/* —— ListPage 卡片 —— */
+.eam-list-page {
+  background: var(--eam-bg-card);
+  border-radius: var(--eam-radius-card);
+  box-shadow: var(--eam-shadow-card);
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 24px;
+    min-height: 56px;
+    border-bottom: 1px solid #F3F4F6;
+  }
+
+  &__body {
+    padding: 0;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 24px;
+  }
+}
+
+/* —— Element Plus 表格风格化 —— */
+.eam-list-page .el-table {
+  --el-table-header-bg-color: var(--eam-table-header-bg);
+  --el-table-header-text-color: var(--eam-table-header-color);
+  --el-table-row-hover-bg-color: var(--eam-table-row-hover);
+  --el-table-tr-bg-color: #FFFFFF;
+
+  thead th.el-table__cell {
+    background: var(--eam-table-header-bg);
+    color: var(--eam-table-header-color);
+    font-weight: 600;
+    height: 48px;
+  }
+
+  tbody tr td.el-table__cell {
+    height: var(--eam-table-row-height);
+    padding: 8px 0;
+  }
+
+  &.el-table--striped tbody tr.el-table__row--striped td {
+    background: var(--eam-table-stripe-bg);
+  }
+}
+
+/* —— 行内操作按钮颜色 —— */
+.eam-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  .ra-detail { color: var(--eam-action-detail); }
+  .ra-edit   { color: var(--eam-action-edit); }
+  .ra-delete { color: var(--eam-action-delete); }
+  .ra-more   { color: var(--eam-action-more); }
+
+  .el-button.is-link {
+    padding: 0;
+    height: auto;
+    font-weight: 500;
+  }
+}

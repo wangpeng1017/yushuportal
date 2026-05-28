@@ -1,0 +1,3100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QMS系统 - IPQC不合格品管理模块</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* ============ IPQC Design System ============ */
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background-color: #f0f2f5; font-size: 14px; }
+        
+        /* Sidebar */
+        .sidebar { height: 100vh; background-color: #001529; color: #a6adb4; position: fixed; width: 220px; z-index: 100; overflow-y: auto; padding-top: 0; }
+        .sidebar .menu-header { padding: 16px 20px 12px; border-bottom: 1px solid #1f2d3d; }
+        .sidebar .menu-header h5 { color: #fff; font-weight: 700; font-size: 16px; letter-spacing: 1px; margin: 0; }
+        .sidebar .menu-header .badge { font-size: 11px; font-weight: 500; background-color: #1890ff; margin-top: 4px; }
+        .sidebar .menu-title { font-size: 13px; color: #fff; padding: 9px 20px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .sidebar .menu-title:hover { color: #1890ff; }
+        .sidebar .sub-menu { display: none; }
+        .sidebar .sub-menu.open { display: block; }
+        .sidebar .sub-menu a { color: #a6adb4; text-decoration: none; display: block; padding: 8px 20px 8px 42px; cursor: pointer; transition: 0.2s; font-size: 13px; border-left: 3px solid transparent; }
+        .sidebar .sub-menu a:hover { color: #fff; background-color: rgba(24,144,255,0.1); }
+        .sidebar .sub-menu a.active { color: #fff; background-color: rgba(24,144,255,0.18); border-left-color: #1890ff; }
+        .sidebar .menu-icon { font-size: 14px; margin-right: 8px; }
+        .sidebar .chevron { font-size: 10px; transition: transform 0.2s; }
+        .sidebar .chevron.open { transform: rotate(90deg); }
+        
+        /* Main Content */
+        .main-content { margin-left: 220px; padding: 20px; min-height: 100vh; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Cards */
+        .card { border: none; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,.08); margin-bottom: 16px; }
+        .card-header-custom { padding: 14px 20px; font-size: 14px; font-weight: 600; border-bottom: 1px solid #f0f0f0; background: #fff; border-radius: 6px 6px 0 0 !important; }
+        
+        /* Tables */
+        .table th { background-color: #f8f9fa; font-weight: 600; font-size: 12px; color: #666; border-bottom-width: 1px; }
+        .table td { font-size: 13px; vertical-align: middle; }
+        .table th, .table td { padding: 10px 12px; white-space: nowrap; }
+        .table-hover tbody tr:hover { background-color: #f5f8ff; }
+        
+        /* Badges */
+        .badge-status { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-pending { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .badge-active { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+        .badge-completed { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+        .badge-rejected { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+        .badge-reviewing { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        .badge-warning { background: #fffbe6; color: #ad8b00; border: 1px solid #ffe58f; }
+        .badge-info { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+        
+        /* Severity */
+        .severity-cr { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+        .severity-maj { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .severity-min { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+        
+        /* Buttons */
+        .btn-op { font-size: 12px !important; padding: 4px 10px !important; border-radius: 4px !important; }
+        .btn-primary { background-color: #1890ff; border-color: #1890ff; }
+        .btn-primary:hover { background-color: #40a9ff; border-color: #40a9ff; }
+        
+        /* Search Form */
+        .search-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+        .form-control, .form-select { font-size: 13px; }
+        .form-control:focus, .form-select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+        
+        /* Stats Card */
+        .stat-card { background: #fff; border-radius: 6px; border: 1px solid #f0f0f0; padding: 16px 20px; transition: box-shadow 0.2s; }
+        .stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+        .stat-card .stat-num { font-size: 28px; font-weight: 700; line-height: 1.2; }
+        .stat-card .stat-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+        
+        /* Modal */
+        .modal-backdrop { background-color: rgba(0,0,0,0.45); }
+        .modal-content { border: none; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+        .modal-header { border-bottom: 1px solid #f0f0f0; padding: 16px 24px; }
+        .modal-header .modal-title { font-size: 15px; font-weight: 600; }
+        .modal-body { padding: 20px 24px; max-height: 70vh; overflow-y: auto; }
+        .modal-footer { border-top: 1px solid #f0f0f0; padding: 12px 24px; }
+        
+        /* Step Wizard */
+        .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 24px; }
+        .step-item { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .step-item:last-child { flex: 0; }
+        .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .step-circle.active { background: #1890ff; color: #fff; }
+        .step-circle.done { background: #52c41a; color: #fff; }
+        .step-circle.pending { background: #f0f0f0; color: #999; }
+        .step-label { font-size: 13px; font-weight: 500; white-space: nowrap; }
+        .step-label.active { color: #1890ff; }
+        .step-label.pending { color: #999; }
+        .step-connector { flex: 1; height: 1px; background: #e8e8e8; margin: 0 12px; }
+        .step-connector.done { background: #52c41a; }
+        
+        /* Tag Selector */
+        .tag-btn { display: inline-block; padding: 4px 14px; border-radius: 14px; font-size: 12px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #666; transition: all 0.2s; margin: 2px; }
+        .tag-btn:hover { border-color: #1890ff; color: #1890ff; }
+        .tag-btn.selected { background: #1890ff; color: #fff; border-color: #1890ff; }
+        
+        /* Vote Options */
+        .vote-btn { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #666; text-align: center; transition: all 0.2s; }
+        .vote-btn:hover { border-color: #1890ff; color: #1890ff; }
+        .vote-btn.selected { background: #e6f7ff; color: #1890ff; border-color: #1890ff; }
+        
+        /* Upload Area */
+        .upload-area { border: 2px dashed #d9d9d9; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .upload-area:hover { border-color: #1890ff; background: #f5f8ff; }
+        
+        /* Progress Bar */
+        .progress-bar-sm { height: 8px; border-radius: 4px; }
+        .progress-bar-sm .bar { height: 100%; border-radius: 4px; transition: width 0.5s; }
+        
+        /* Summary Box */
+        .summary-box { background: #fff9e6; border: 1px solid #ffe58f; border-radius: 6px; padding: 12px 16px; font-size: 13px; }
+        
+        [v-cloak] { display: none; }
+        
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #1f2d3d; border-radius: 2px; }
+        .sidebar::-webkit-scrollbar-track { background: #001529; }
+    </style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<div class="sidebar">
+    <div class="menu-header">
+        <h5>QMS System</h5>
+        <span class="badge">IPQC不合格品视图</span>
+    </div>
+
+    <!-- 1. 不合格品管理 -->
+    <div class="menu-title" onclick="toggleSubMenu(this)">
+        <span><i class="bi bi-exclamation-circle menu-icon"></i>不合格品管理</span>
+        <i class="bi bi-chevron-right chevron open"></i>
+    </div>
+    <div class="sub-menu open">
+        <a class="active" onclick="switchPage('p-ledger', this)">不合格品台账</a>
+        <a onclick="switchPage('p-my-audit', this)">我的审核</a>
+    </div>
+
+    <!-- 2. 不合格品处置 -->
+    <div class="menu-title" onclick="toggleSubMenu(this)">
+        <span><i class="bi bi-box-seam menu-icon"></i>不合格品处置</span>
+        <i class="bi bi-chevron-right chevron"></i>
+    </div>
+    <div class="sub-menu">
+        <a onclick="switchPage('p-disposal', this)">我的处置任务</a>
+    </div>
+</div>
+
+<!-- ============ MAIN CONTENT ============ -->
+<div class="main-content">
+
+<!-- ================================================================ -->
+<!-- PAGE 1: 不合格品台账 -->
+<!-- ================================================================ -->
+<div id="p-ledger" class="page active">
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bold m-0">不合格品台账</h5>
+    </div>
+    <!-- Search -->
+    <div class="card p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-2"><label class="search-label">不合格品编号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产品型号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产线</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">检验类型</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>巡检</option><option>首件检验</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>评审中</option><option>处置中</option><option>已完成</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100">查询</button>
+                <button class="btn btn-outline-secondary btn-sm">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>不合格品单号</th><th>关联检验单号</th><th>检验类型</th><th>工单号</th><th>产线</th>
+                    <th>工序</th><th>产品型号</th><th>发现日期</th><th>不良数量</th>
+                    <th>状态</th><th>创建人</th><th>创建时间</th><th style="width:100px">操作</th>
+                </tr></thead>
+                <tbody id="ledger-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PAGE 2: 我的评审 -->
+<!-- ================================================================ -->
+<div id="p-review" class="page">
+    <div class="d-flex align-items-center mb-3"><h5 class="fw-bold m-0">我的评审</h5></div>
+    <div class="card p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-2"><label class="search-label">不合格品编号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产品型号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产线</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">检验类型</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>巡检</option><option>首件检验</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>评审中</option><option>处置中</option><option>已完成</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100">查询</button>
+                <button class="btn btn-outline-secondary btn-sm">重置</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>不合格品单号</th><th>关联检验单号</th><th>检验类型</th><th>工单号</th><th>产线</th>
+                    <th>工序</th><th>产品型号</th><th>不良数量</th>
+                    <th>状态</th><th>创建人</th><th>创建时间</th><th style="width:150px">操作</th>
+                </tr></thead>
+                <tbody id="review-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PAGE 2: 我的审核 -->
+<!-- ================================================================ -->
+<div id="p-my-audit" class="page">
+    <div class="d-flex align-items-center mb-3"><h5 class="fw-bold m-0">我的审核</h5></div>
+    <div class="card p-3 mb-3">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-2"><label class="search-label">不合格品编号</label><input type="text" class="form-control form-control-sm" id="auditNcmNo" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产品型号</label><input type="text" class="form-control form-control-sm" id="auditProduct" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产线</label><input type="text" class="form-control form-control-sm" id="auditLine" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">检验类型</label>
+                <select class="form-select form-select-sm" id="auditInspType"><option>全部</option><option>巡检</option><option>首件检验</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm" id="auditStatus"><option>全部</option><option>审核中</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100" onclick="filterAuditData()">查询</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="resetAuditFilter()">重置</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>不合格品单号</th><th>关联检验单号</th><th>检验类型</th><th>工单号</th><th>产线</th>
+                    <th>工序</th><th>产品型号</th><th>不良数量</th>
+                    <th>状态</th><th>创建人</th><th>创建时间</th><th style="width:100px">操作</th>
+                </tr></thead>
+                <tbody id="audit-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PAGE 7: 我的处置任务 -->
+<!-- ================================================================ -->
+<div id="p-disposal" class="page">
+    <div class="d-flex align-items-center mb-3"><h5 class="fw-bold m-0">我的处置任务</h5></div>
+    <div class="card p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-2"><label class="search-label">处置编号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">执行方</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>产线</option><option>外部</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">执行人</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>待处置</option><option>已完成</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100">查询</button>
+                <button class="btn btn-outline-secondary btn-sm">重置</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>处置编号</th><th>关联不合格品</th><th>产品型号</th><th>产线</th>
+                    <th>生产数量</th><th>不良数量</th>
+                    <th>处置方式</th><th>处置生产班组长</th><th>状态</th><th>创建日期</th><th style="width:80px">操作</th>
+                </tr></thead>
+                <tbody id="disposal-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MODAL: 发起MRB评审 -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalInitiateMrb" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-play-circle me-2"></i>发起MRB评审</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 不合格品信息 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;" id="init-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;" id="init-iqc"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验类型</span><div style="font-size:13px;font-weight:600;" id="init-inspType"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">工单号</span><div style="font-size:13px;font-weight:600;" id="init-orderNo"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;" id="init-sup"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">工序</span><div style="font-size:13px;font-weight:600;" id="init-matProp"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产品型号</span><div style="font-size:13px;font-weight:600;" id="init-matName"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="init-def"></div></div>
+                </div>
+
+                <!-- 处置意见录入 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-chat-square-text me-1" style="color:#1890ff;"></i>处置意见录入
+                    <span class="text-muted fw-normal" style="font-size:12px;">（线下收集各委员意见后，由专人统一录入）</span>
+                </h6>
+                
+                <p style="font-size:13px;font-weight:600;color:#333;margin-bottom:12px;">委员处置意见</p>
+                <div class="table-responsive mb-3">
+                    <table class="table table-bordered align-middle" style="font-size:13px;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:60px;">序号</th>
+                                <th style="width:180px;">评审人员</th>
+                                <th style="width:160px;">部门</th>
+                                <th style="width:160px;">处置意见</th>
+                                <th>处置说明</th>
+                                <th style="width:70px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="init-opinion-list" style="padding: 8px 0;">
+                            <!-- 动态添加行 -->
+                        </tbody>
+                    </table>
+                    <button class="btn btn-outline-primary btn-sm" onclick="addInitiateOpinionRow()">
+                        <i class="bi bi-plus-circle me-1"></i>添加委员意见
+                    </button>
+                </div>
+
+                <!-- 处置结论 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-star me-1" style="color:#1890ff;"></i>处置结论
+                </h6>
+
+                <!-- MRB评审会议 -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">MRB评审会议</label>
+                        <select class="form-select" id="init-meeting" onchange="onInitMeetingChange()">
+                            <option value="未召开">未召开</option>
+                            <option value="已召开">已召开</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="init-meeting-time-col" style="display:none;">
+                        <label class="form-label fw-semibold" style="font-size:13px;">召开时间</label>
+                        <input type="datetime-local" class="form-control" id="init-meetingTime">
+                    </div>
+                </div>
+
+                <!-- 参会人员及会议概述记录 -->
+                <div id="init-meeting-attendees-section" style="display:none;">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold" style="font-size:13px;">参会人员及会议概述记录</label>
+                            <textarea class="form-control" id="init-meetingAttendees" rows="4" placeholder="请输入参会人员及会议概述记录"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处置方式 -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">处置方式 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="init-disposalType" onchange="onInitDisposalTypeChange()" required>
+                            <option value="">请选择处置方式</option>
+                            <option value="特采">特采</option>
+                            <option value="挑选/返工">挑选/返工</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 特采信息 -->
+                <div id="init-concession-section" style="display:none;">
+                    <div class="row g-3 mb-3 p-3" style="background:#f6ffed;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#52c41a;margin:0 0 8px 0;">
+                                <i class="bi bi-check-circle me-1"></i>特采信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">特采数量</label>
+                            <input type="number" class="form-control" id="init-concessionQty" placeholder="请输入特采数量" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返工执行方信息 -->
+                <div id="init-rework-executor-section" style="display:none;">
+                    <div class="row g-3 mb-3 p-3" style="background:#fff7e6;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#d46b08;margin:0 0 8px 0;">
+                                <i class="bi bi-tools me-1"></i>返工执行信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">生产班组长 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="init-teamLeader">
+                                <option value="">请选择生产班组长</option>
+                                <option value="张班长">张班长（生产一组）</option>
+                                <option value="李班长">李班长（生产二组）</option>
+                                <option value="王班长">王班长（生产三组）</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">执行人员</label>
+                            <input type="text" class="form-control" id="init-reworkPerson" placeholder="由班组长安排，可留空">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处置说明 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">处置说明</label>
+                    <textarea class="form-control" id="init-disposalRemark" rows="3" placeholder="请输入处置说明..."></textarea>
+                </div>
+
+                <!-- 上传附件 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">上传附件</label>
+                    <input type="file" class="form-control" id="init-attachment" multiple>
+                    <div class="form-text">支持上传多个附件</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitInitiateMrb()">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /main-content -->
+
+<!-- ================================================================ -->
+<!-- MODAL: 发起不合格品评审（3步向导） -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalCreateMrb" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">发起不合格品评审申请</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Step Indicator -->
+                <div class="step-indicator" id="mrb-step-indicator">
+                    <div class="step-item"><div class="step-circle active" id="sc1">1</div><span class="step-label active" id="sl1">关联检验单</span></div>
+                    <div class="step-connector" id="conn1"></div>
+                    <div class="step-item"><div class="step-circle pending" id="sc2">2</div><span class="step-label pending" id="sl2">确认不良信息</span></div>
+                    <div class="step-connector" id="conn2"></div>
+                    <div class="step-item"><div class="step-circle pending" id="sc3">3</div><span class="step-label pending" id="sl3">配置评审委员会</span></div>
+                </div>
+
+                <!-- Step 1: Link IPQC -->
+                <div id="mrb-step1">
+                    <p class="text-muted mb-3" style="font-size:13px;">选择需要发起不合格品评审的 IPQC 制程检验单，系统将自动汇总该单下的全部不良信息。</p>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" style="font-size:13px;">IPQC检验单号 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="mrb-iqc-select" onchange="onIqcSelectChange()">
+                                <option value="">请选择</option>
+                                <option value="IPQC20260423">IPQC20260423</option>
+                                <option value="IPQC20260422">IPQC20260422</option>
+                                <option value="IPQC20260420">IPQC20260420</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" style="font-size:13px;">产品型号</label>
+                            <input type="text" class="form-control" id="mrb-material" value="PCB主板 PCB-V3.2" readonly style="background:#f5f5f5;">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" style="font-size:13px;">产线</label>
+                            <input type="text" class="form-control" id="mrb-supplier" value="产线A" readonly style="background:#f5f5f5;">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                        <button class="btn btn-primary btn-sm" onclick="mrbNextStep(2)">下一步 <i class="bi bi-arrow-right ms-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Confirm Defects -->
+                <div id="mrb-step2" style="display:none;">
+                    <p class="text-muted mb-2" style="font-size:13px;">以下为系统自动汇总的不良项，请确认需要纳入不合格品评审的不良信息。</p>
+                    <div class="summary-box mb-3">
+                        <i class="bi bi-info-circle me-1"></i>系统自动带出制程检验任务中发现的全部不良信息。
+                    </div>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered align-middle text-center" style="font-size:13px;">
+                            <thead><tr><th style="width:50px">纳入</th><th>检验项目</th><th>规格要求</th><th>实测值</th><th>结果</th><th>严重程度</th></tr></thead>
+                            <tbody id="mrb-defect-table"></tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="mrbPrevStep(1)"><i class="bi bi-arrow-left me-1"></i>上一步</button>
+                        <button class="btn btn-primary btn-sm" onclick="mrbNextStep(3)">下一步：配置评审委员会 <i class="bi bi-arrow-right ms-1"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Committee Config -->
+                <div id="mrb-step3" style="display:none;">
+                    <p class="text-muted mb-3" style="font-size:13px;">选择参与本次不合格品评审的委员会成员。角色为系统预设，人员手动选择。</p>
+                    <!-- Preset Roles -->
+                    <div id="committee-config"></div>
+                    <!-- Add custom -->
+                    <div class="border-top pt-3 mt-3">
+                        <p style="font-size:13px;font-weight:600;color:#333;">+ 新增其他部门角色/人员</p>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control form-control-sm" id="new-role" placeholder="输入角色，如：客户代表">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control form-control-sm" id="new-person" placeholder="输入人员姓名">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary btn-sm w-100" onclick="addCommitteeMember()">添加</button>
+                            </div>
+                        </div>
+                        <div class="mt-2 d-flex flex-wrap gap-1" id="extra-members"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-4 pt-2 border-top">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="mrbPrevStep(2)"><i class="bi bi-arrow-left me-1"></i>上一步</button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                            <button class="btn btn-primary btn-sm" onclick="submitMrb()"><i class="bi bi-send me-1"></i>提交申请</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MODAL: 提交评审意见 -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalReviewFeedback" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-chat-square-text me-2"></i>提交评审意见</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 不合格品信息 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;" id="rf-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;" id="rf-iqc"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产品型号</span><div style="font-size:13px;font-weight:600;" id="rf-mat"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;" id="rf-sup"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验类型</span><div style="font-size:13px;font-weight:600;" id="rf-inspType"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发现日期</span><div style="font-size:13px;font-weight:600;" id="rf-recvDate"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-size:13px;font-weight:600;" id="rf-qtyIn"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="rf-def"></div></div>
+                </div>
+
+                <!-- 发起人填写的内容 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-pencil-square me-1" style="color:#1890ff;"></i>发起人填写的内容
+                </h6>
+                <div class="mb-4 p-3" style="background:#f8f9fa;border-radius:6px;">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <span class="text-muted" style="font-size:12px;">发起人：</span>
+                            <span style="font-size:13px;font-weight:600;" id="rf-by"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="text-muted" style="font-size:12px;">发起时间：</span>
+                            <span style="font-size:13px;" id="rf-createTime"></span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-muted" style="font-size:12px;">初步处置建议：</span>
+                        <span style="font-size:13px;font-weight:600;" id="rf-suggestion"></span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-muted" style="font-size:12px;">处置说明：</span>
+                        <span style="font-size:13px;" id="rf-suggestion-remark"></span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-muted" style="font-size:12px;">发起说明：</span>
+                        <p style="font-size:13px;margin-top:4px;" id="rf-remark"></p>
+                    </div>
+                </div>
+
+                <!-- MRB评审会议 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-calendar-check me-1" style="color:#1890ff;"></i>MRB评审会议
+                </h6>
+                <div class="mb-4 p-3" style="background:#f8f9fa;border-radius:6px;">
+                    <div class="p-2" style="font-size:13px;" id="rf-meeting"></div>
+                </div>
+
+                <!-- 我的评审意见 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-check2-square me-1" style="color:#1890ff;"></i>我的评审意见 <span class="text-danger">*</span>
+                </h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">处置建议 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="rf-vote">
+                            <option value="">请选择处置建议</option>
+                            <option value="特采">特采</option>
+                            <option value="挑选/返工">挑选/返工</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">处置说明 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rf-comment" rows="4" placeholder="请填写处置说明和理由..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button class="btn btn-primary btn-sm" onclick="submitReviewFeedback()"><i class="bi bi-send me-1"></i>提交评审意见</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MODAL: 不合格品详情 -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalDetail" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-file-text me-2"></i>不合格品详情</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 一级Tab导航 -->
+                <ul class="nav nav-tabs mb-3" id="detailMainTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="detail-basic-tab" data-bs-toggle="tab" data-bs-target="#detail-basic" type="button" role="tab">
+                            <i class="bi bi-info-circle me-1"></i>基本信息
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- 一级Tab内容 -->
+                <div class="tab-content">
+                    <!-- 基本信息Tab -->
+                    <div class="tab-pane fade show active" id="detail-basic" role="tabpanel">
+                        <div class="p-3" style="background:#fafafa;border-radius:6px;">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">不合格品编号</span>
+                                    <div class="fw-semibold text-primary" id="detail-id"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">关联检验单号</span>
+                                    <div class="fw-semibold" id="detail-iqc"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">产品型号</span>
+                                    <div class="fw-semibold" id="detail-mat"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">产线</span>
+                                    <div class="fw-semibold" id="detail-sup"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">检验类型</span>
+                                    <div id="detail-inspType"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">发现日期</span>
+                                    <div id="detail-recvDate"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">生产数量</span>
+                                    <div id="detail-qtyIn"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">检验数量</span>
+                                    <div id="detail-qtySample"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">不良项数</span>
+                                    <div class="text-danger fw-semibold" id="detail-def"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">当前状态</span>
+                                    <div id="detail-sts"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">发起人</span>
+                                    <div id="detail-by"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted" style="font-size:12px;">发起日期</span>
+                                    <div id="detail-createTime"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- IPQC 检验数据区域 -->
+                        <div class="p-3 mt-3" style="background:#fafafa;border-radius:6px;">
+                            <h6 class="fw-bold mb-3" style="font-size:13px;color:#1890ff;">
+                                <i class="bi bi-clipboard-check me-1"></i>IPQC 制程检验数据
+                            </h6>
+
+                            <div class="alert alert-secondary py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-4">
+                                    <span>检验单号：<strong id="detail-insp-id"></strong> | 产品型号：<strong id="detail-insp-mat"></strong> | 工序：<strong id="detail-insp-process">SMT</strong></span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span>本批次检验结果：</span>
+                                        <span class="badge bg-danger">不合格</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 检验数据表格 -->
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle" style="font-size:13px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width:50px;">序号</th>
+                                            <th style="width:150px;">检验项目</th>
+                                            <th style="width:120px;">检验标准</th>
+                                            <th style="width:80px;">检验方法</th>
+                                            <th style="width:100px;">缺陷类型</th>
+                                            <th style="width:80px;">数量</th>
+                                            <th style="width:200px;">缺陷描述</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-center">1</td>
+                                            <td>胶水是否用错</td>
+                                            <td>无错用</td>
+                                            <td>目检</td>
+                                            <td>
+                                                <select class="form-select form-select-sm">
+                                                    <option value="">请选择</option>
+                                                    <option value="cr">Cr 严重</option>
+                                                    <option value="maj" selected>Maj 主要</option>
+                                                    <option value="min">Min 次要</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" class="form-control form-control-sm" value="3"></td>
+                                            <td><input type="text" class="form-control form-control-sm" value="部分产品使用错误型号胶水"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">2</td>
+                                            <td>外观是否有缺陷</td>
+                                            <td>无缺陷</td>
+                                            <td>目检</td>
+                                            <td>
+                                                <select class="form-select form-select-sm">
+                                                    <option value="">请选择</option>
+                                                    <option value="cr">Cr 严重</option>
+                                                    <option value="maj">Maj 主要</option>
+                                                    <option value="min" selected>Min 次要</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" class="form-control form-control-sm" value="2"></td>
+                                            <td><input type="text" class="form-control form-control-sm" value="表面有轻微划痕"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">3</td>
+                                            <td>功能测试</td>
+                                            <td>功能正常</td>
+                                            <td>测试</td>
+                                            <td>
+                                                <select class="form-select form-select-sm">
+                                                    <option value="">请选择</option>
+                                                    <option value="cr">Cr 严重</option>
+                                                    <option value="maj">Maj 主要</option>
+                                                    <option value="min">Min 次要</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" class="form-control form-control-sm" value="0"></td>
+                                            <td><input type="text" class="form-control form-control-sm" value="-"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-center">4</td>
+                                            <td>包装检验</td>
+                                            <td>包装完好</td>
+                                            <td>目检</td>
+                                            <td>
+                                                <select class="form-select form-select-sm">
+                                                    <option value="">请选择</option>
+                                                    <option value="cr">Cr 严重</option>
+                                                    <option value="maj">Maj 主要</option>
+                                                    <option value="min">Min 次要</option>
+                                                </select>
+                                            </td>
+                                            <td><input type="text" class="form-control form-control-sm" value="0"></td>
+                                            <td><input type="text" class="form-control form-control-sm" value="-"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ================================================================ -->
+<!-- MODAL: 处置执行（处置结果录入） -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalDisposal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-tools me-2"></i>处置执行</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 上部分：基本信息（只读） -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>基本信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#f5f7fa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">处置编号</span><div style="font-size:13px;font-weight:600;" id="dp-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联不合格品</span><div style="font-size:13px;font-weight:600;" id="dp-mrb"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料名称</span><div style="font-size:13px;font-weight:600;" id="dp-mat"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">供应商</span><div style="font-size:13px;font-weight:600;" id="dp-sup"></div></div>
+                    <div class="col-md-2"><span class="text-muted" style="font-size:12px;">来料日期</span><div style="font-size:13px;font-weight:600;" id="dp-recvDate"></div></div>
+                    <div class="col-md-2"><span class="text-muted" style="font-size:12px;">来料数量</span><div style="font-size:13px;font-weight:600;" id="dp-qtyIn"></div></div>
+                    <div class="col-md-2"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="dp-def"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良问题类型</span><div style="font-size:13px;font-weight:600;" id="dp-defectType"></div></div>
+                    <div class="col-md-2"><span class="text-muted" style="font-size:12px;">执行方</span><div style="font-size:13px;font-weight:600;" id="dp-executorType"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">处置生产班组长</span><div style="font-size:13px;font-weight:600;" id="dp-executor"></div></div>
+                </div>
+
+                <!-- 下部分：处置结果录入 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #52c41a;">
+                    <i class="bi bi-clipboard-check me-1" style="color:#52c41a;"></i>处置结果录入
+                </h6>
+
+                <!-- 实际完成日期 -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" style="font-size:13px;">实际完成日期 <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="dp-completeDate">
+                    </div>
+                </div>
+
+                <!-- 挑选信息 -->
+                <div class="row g-3 mb-3 p-3" style="background:#e6f7ff;border-radius:6px;">
+                    <div class="col-12">
+                        <h6 style="font-size:13px;font-weight:700;color:#096dd9;margin:0 0 8px 0;">
+                            <i class="bi bi-search me-1"></i>挑选信息
+                        </h6>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">挑选数量 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="dp-sortTotal" onchange="calculateSortSummary()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">挑选合格数量 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="dp-sortQualified" onchange="calculateSortSummary()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">挑选不合格数量</label>
+                        <input type="number" class="form-control" id="dp-sortUnqualified" readonly style="background:#f5f5f5;">
+                    </div>
+                </div>
+
+                <!-- 返工信息 -->
+                <div class="row g-3 mb-3 p-3" style="background:#fff7e6;border-radius:6px;">
+                    <div class="col-12">
+                        <h6 style="font-size:13px;font-weight:700;color:#d46b08;margin:0 0 8px 0;">
+                            <i class="bi bi-tools me-1"></i>返工信息
+                        </h6>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">返工数量 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="dp-reworkTotal" onchange="calculateReworkSummary()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">返工后合格数量 <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="dp-reworkQualified" onchange="calculateReworkSummary()">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">返工后不合格数量</label>
+                        <input type="number" class="form-control" id="dp-reworkUnqualified" readonly style="background:#f5f5f5;">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">工时损失（小时）</label>
+                        <input type="number" class="form-control" id="dp-laborHours" step="0.1" placeholder="例如：8.5">
+                    </div>
+                </div>
+
+                <!-- 材料损耗 -->
+                <div class="row g-3 mb-3 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">材料损耗</label>
+                        <input type="number" class="form-control" id="dp-materialLoss" placeholder="损耗的材料数量">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">材料损耗说明</label>
+                        <input type="text" class="form-control" id="dp-materialLossDesc" placeholder="例如：外壳损坏无法修复">
+                    </div>
+                </div>
+
+                <!-- 内部返工专属字段 -->
+                <div id="dp-internal-rework-section" style="display:none;">
+                    <div class="alert alert-info mb-3" style="font-size:13px;">
+                        <i class="bi bi-info-circle me-2"></i>内部返工，请填写产线和生产人员信息
+                    </div>
+                    <div class="row g-3 mb-3 p-3" style="background:#e6f7ff;border-radius:6px;">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">产线 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="dp-productionLine">
+                                <option value="">请选择产线</option>
+                                <option value="产线A">产线A（装配线）</option>
+                                <option value="产线B">产线B（测试线）</option>
+                                <option value="产线C">产线C（包装线）</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">生产人员 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dp-worker" placeholder="请输入生产人员姓名">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返工明细录入 -->
+                <p style="font-size:13px;font-weight:600;color:#333;margin-bottom:8px;margin-top:12px;">返工明细</p>
+                <div class="table-responsive mb-3">
+                    <table class="table table-bordered align-middle" style="font-size:13px;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:60px;">序号</th>
+                                <th style="width:50%;">物料号</th>
+                                <th style="width:150px;">处理结果</th>
+                                <th style="width:80px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dp-rework-details">
+                            <!-- 动态添加行 -->
+                        </tbody>
+                    </table>
+                    <button class="btn btn-outline-primary btn-sm" onclick="addReworkDetailRow()">
+                        <i class="bi bi-plus-circle me-1"></i>添加明细
+                    </button>
+                </div>
+
+                <!-- 处置说明 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">处置说明</label>
+                    <textarea class="form-control" id="dp-reworkRemark" rows="3" placeholder="请填写处置过程说明..."></textarea>
+                </div>
+
+                <!-- 上传附件 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">
+                        <i class="bi bi-paperclip me-1"></i>上传附件
+                    </label>
+                    <div class="d-flex align-items-center gap-2 p-3" style="background:#f5f7fa;border-radius:8px;border:1px solid #e8e8e8;">
+                        <button class="btn btn-outline-primary btn-sm" onclick="document.getElementById('dp-file-upload').click()" style="white-space:nowrap;">
+                            <i class="bi bi-cloud-upload me-1"></i>选择文件
+                        </button>
+                        <span class="text-muted" style="font-size:12px;flex:1;" id="dp-file-placeholder">支持 .pdf, .jpg, .png 格式，可上传1个附件</span>
+                        <input type="file" id="dp-file-upload" style="display:none;" accept=".jpg,.png,.pdf" onchange="onDisposalFileUpload(this)">
+                    </div>
+                    <div id="dp-file-info" class="mt-2" style="display:none;">
+                        <div class="d-flex align-items-center gap-2 p-2" style="background:#f6ffed;border-radius:6px;border:1px solid #b7eb8f;">
+                            <i class="bi bi-file-earmark-check" style="color:#52c41a;font-size:16px;"></i>
+                            <span style="font-size:13px;flex:1;" id="dp-file-name"></span>
+                            <button class="btn btn-link btn-sm p-0 text-danger" onclick="removeDisposalFile()" style="font-size:12px;">
+                                <i class="bi bi-x-circle"></i> 移除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button class="btn btn-primary btn-sm" onclick="confirmDisposal()"><i class="bi bi-check-circle me-1"></i>确认处置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MODAL: 发起评审（从不合格品台账操作栏触发） -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalInitiateReview" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-play-circle me-2"></i>启动MRB</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 不合格品信息 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;" id="ri-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;" id="ri-iqc"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产品型号</span><div style="font-size:13px;font-weight:600;" id="ri-mat"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;" id="ri-sup"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验类型</span><div style="font-size:13px;font-weight:600;" id="ri-inspType"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发现日期</span><div style="font-size:13px;font-weight:600;" id="ri-recvDate"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-size:13px;font-weight:600;" id="ri-qtyIn"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="ri-def"></div></div>
+                </div>
+
+                <!-- 初步处置建议 -->
+                <div class="mb-3">
+                    <label class="fw-semibold mb-1" style="font-size:13px;">初步处置建议 <span class="text-muted fw-normal" style="font-size:12px;">（选填）</span></label>
+                    <select class="form-select" id="ri-suggestion">
+                        <option value="">请选择处置建议</option>
+                        <option value="特采">特采</option>
+                        <option value="挑选/返工">挑选/返工</option>
+                    </select>
+                </div>
+
+                <!-- 处置说明 -->
+                <div class="mb-4">
+                    <label class="fw-semibold mb-1" style="font-size:13px;">处置说明 <span class="text-muted fw-normal" style="font-size:12px;">（选填，填写处置建议的详细说明）</span></label>
+                    <textarea class="form-control" id="ri-suggestion-remark" rows="2" placeholder="请输入处置建议的详细说明..."></textarea>
+                </div>
+
+                <!-- 选择评审人员 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-people me-1" style="color:#1890ff;"></i>选择评审人员
+                </h6>
+                <div id="review-committee-container">
+                    <!-- 预设部门角色（JS动态生成） -->
+                </div>
+                <!-- 新增评审人员 -->
+                <div class="border-top pt-3 mt-3">
+                    <p style="font-size:13px;font-weight:600;color:#333;">+ 临时新增评审人员</p>
+                    <div class="p-3 mb-2" style="background:#f8f9fa;border:1px solid #d9d9d9;border-radius:6px;">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label mb-1" style="font-size:12px;font-weight:600;">部门</label>
+                                <input type="text" class="form-control form-control-sm" id="ri-new-dept" placeholder="输入部门名称">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label mb-1" style="font-size:12px;font-weight:600;">角色</label>
+                                <input type="text" class="form-control form-control-sm" id="ri-new-role" placeholder="如：客户代表">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label mb-1" style="font-size:12px;font-weight:600;">评审人员</label>
+                                <select class="form-select form-select-sm" id="ri-new-person-select">
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary btn-sm w-50" onclick="confirmRiNewMember()"><i class="bi bi-plus me-1"></i>新增</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 临时新增的评审人员独立列表 -->
+                    <div id="ri-extra-list"></div>
+                </div>
+
+                <!-- 发起说明 -->
+                <div class="mt-3 pt-3 border-top">
+                    <label class="fw-semibold mb-1" style="font-size:13px;">发起说明 <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="ri-remark" rows="3" placeholder="请输入发起评审的说明..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button class="btn btn-primary btn-sm" onclick="submitInitiateReview()"><i class="bi bi-send me-1"></i>提交评审</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MODAL: 下达处置意见（质量主管使用） -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalIssueDisposal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>下达处置意见</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 不合格品信息 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;" id="id-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;" id="id-iqc"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产品型号</span><div style="font-size:13px;font-weight:600;" id="id-mat"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;" id="id-sup"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发现日期</span><div style="font-size:13px;font-weight:600;" id="id-recvDate"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-size:13px;font-weight:600;" id="id-qtyIn"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="id-def"></div></div>
+                </div>
+
+                <!-- 评审人员意见汇总 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #52c41a;">
+                    <i class="bi bi-people me-1" style="color:#52c41a;"></i>评审人员意见汇总
+                </h6>
+                
+                <!-- 投票统计摘要 -->
+                <div class="alert alert-info mb-3 d-flex align-items-center gap-3" id="id-vote-summary" style="font-size:13px;">
+                    <i class="bi bi-bar-chart-fill me-2"></i>
+                    <span class="fw-semibold">投票统计：</span>
+                    <span id="id-vote-stats"></span>
+                </div>
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle" style="font-size:13px;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:60px;">序号</th>
+                                <th style="width:100px;">评审人员</th>
+                                <th style="width:80px;">部门</th>
+                                <th style="width:120px;">评审意见</th>
+                                <th>处置建议</th>
+                            </tr>
+                        </thead>
+                        <tbody id="id-review-opinions"></tbody>
+                    </table>
+                </div>
+
+                <!-- 下达处置意见 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #faad14;">
+                    <i class="bi bi-check-circle me-1" style="color:#faad14;"></i>下达处置意见 <span class="text-danger">*</span>
+                </h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">处置方式 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="id-disposalType" onchange="onDisposalTypeChange()">
+                            <option value="">请选择处置方式</option>
+                            <option value="特采">特采</option>
+                            <option value="挑选/返工">挑选/返工</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 特采信息（仅当选择特采时显示） -->
+                <div id="id-concession-section" style="display:none;">
+                    <div class="row g-3 mb-3 p-3" style="background:#f6ffed;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#52c41a;margin:0 0 8px 0;">
+                                <i class="bi bi-check-circle me-1"></i>特采信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">特采数量 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="id-concessionQty" placeholder="请输入特采数量" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 执行方信息（仅当选择挑选/返工时显示） -->
+                <div id="id-rework-executor-section" style="display:none;">
+                    <div class="row g-3 mb-3 p-3" style="background:#fff7e6;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#d46b08;margin:0 0 8px 0;">
+                                <i class="bi bi-tools me-1"></i>执行信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">生产班组长 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="id-teamLeader">
+                                <option value="">请选择生产班组长</option>
+                                <option value="张班长">张班长（生产一组）</option>
+                                <option value="李班长">李班长（生产二组）</option>
+                                <option value="王班长">王班长（生产三组）</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">执行人员</label>
+                            <input type="text" class="form-control" id="id-reworkPerson" placeholder="由班组长安排，可留空">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处置说明 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">处置说明 <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="id-disposalRemark" rows="3" placeholder="请填写处置说明..."></textarea>
+                </div>
+
+                <!-- 附件上传 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">
+                        <i class="bi bi-paperclip me-1"></i>上传附件
+                    </label>
+                    <div class="d-flex align-items-center gap-2 p-3" style="background:#f5f7fa;border-radius:8px;border:1px solid #e8e8e8;">
+                        <button class="btn btn-outline-primary btn-sm" onclick="document.getElementById('id-disposal-file').click()" style="white-space:nowrap;">
+                            <i class="bi bi-cloud-upload me-1"></i>选择文件
+                        </button>
+                        <span class="text-muted" style="font-size:12px;flex:1;" id="id-disposal-file-placeholder">支持 .pdf, .jpg, .png 格式，可上传1个附件</span>
+                        <input type="file" id="id-disposal-file" style="display:none;" accept=".jpg,.png,.pdf" onchange="onDisposalFileUpload(this)">
+                    </div>
+                    <div id="id-disposal-file-info" class="mt-2" style="display:none;">
+                        <div class="d-flex align-items-center gap-2 p-2" style="background:#f6ffed;border-radius:6px;border:1px solid #b7eb8f;">
+                            <i class="bi bi-file-earmark-check" style="color:#52c41a;font-size:16px;"></i>
+                            <span style="font-size:13px;flex:1;" id="id-disposal-file-name-text"></span>
+                            <button class="btn btn-link btn-sm p-0 text-danger" onclick="removeDisposalFile()" style="font-size:12px;">
+                                <i class="bi bi-x-circle"></i> 移除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button class="btn btn-primary btn-sm" onclick="submitDisposalOpinion()"><i class="bi bi-send me-1"></i>下达处置意见</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- MODAL: 发起评审审核（质量主管审核） -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalInitiateAudit" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-play-circle me-2"></i>启动MRB审核</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- 不合格品信息 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;" id="ia-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;" id="ia-iqc"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产品型号</span><div style="font-size:13px;font-weight:600;" id="ia-mat"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;" id="ia-sup"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验类型</span><div style="font-size:13px;font-weight:600;" id="ia-inspType"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发现日期</span><div style="font-size:13px;font-weight:600;" id="ia-recvDate"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-size:13px;font-weight:600;" id="ia-qtyIn"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="ia-def"></div></div>
+                </div>
+
+                <!-- 初步处置建议（可修改） -->
+                <div class="mb-3">
+                    <label class="fw-semibold mb-1" style="font-size:13px;">初步处置建议 <span class="text-muted fw-normal" style="font-size:12px;">（可修改）</span></label>
+                    <select class="form-select" id="ia-suggestion">
+                        <option value="">请选择处置建议</option>
+                        <option value="特采">特采</option>
+                        <option value="挑选/返工">挑选/返工</option>
+                    </select>
+                </div>
+
+                <!-- 处置说明 -->
+                <div class="mb-4">
+                    <label class="fw-semibold mb-1" style="font-size:13px;">处置说明 <span class="text-muted fw-normal" style="font-size:12px;">（选填）</span></label>
+                    <textarea class="form-control" id="ia-suggestion-remark" rows="2" placeholder="请输入处置建议的详细说明..."></textarea>
+                </div>
+
+                <!-- 选择评审人员 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-people me-1" style="color:#1890ff;"></i>选择评审人员
+                </h6>
+                <div class="mb-4" id="ia-reviewers-table"></div>
+
+                <!-- 发起说明 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-chat-text me-1" style="color:#1890ff;"></i>发起说明
+                </h6>
+                <div class="mb-4 p-3" style="background:#fafafa;border-radius:6px;font-size:13px;" id="ia-remark"></div>
+
+                <!-- 审核区域 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-check-circle me-1" style="color:#1890ff;"></i>审核 <span class="text-danger">*</span>
+                </h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">审核结果</label>
+                        <select class="form-select" id="ia-result-select">
+                            <option value="">请选择</option>
+                            <option value="同意">同意</option>
+                            <option value="驳回">驳回</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">MRB评审会议</label>
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="ia-meetingRadio" id="ia-meetingYes" value="需要召开">
+                                <label class="form-check-label" for="ia-meetingYes" style="font-size:13px;">需要召开</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="ia-meetingRadio" id="ia-meetingNo" value="无需召开" checked>
+                                <label class="form-check-label" for="ia-meetingNo" style="font-size:13px;">无需召开</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="ia-meetingRadio" id="ia-meetingPending" value="待定">
+                                <label class="form-check-label" for="ia-meetingPending" style="font-size:13px;">待定</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">审核意见 <span class="text-muted fw-normal" style="font-size:12px;">（选填）</span></label>
+                    <textarea class="form-control" id="ia-comment" rows="3" placeholder="请填写审核意见..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button>
+                <button class="btn btn-primary btn-sm" onclick="submitInitiateAudit()"><i class="bi bi-check2-circle me-1"></i>提交审核</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ================================================================
+// DATA
+// ================================================================
+const ledgerData = [
+    // 待发起
+    { id:'IPQCMRB202604001', iqc:'IPQC20260423', inspType:'巡检', orderNo:'WO-20260423-01', sup:'产线A', matProp:'SMT', matName:'PCB主板 PCB-V3.2', recvDate:'2026-04-23', qtyIn:500, qtySample:20, def:3, sts:'待发起', by:'张三', createTime:'2026-04-23 14:30', remark:'SMT焊接不良率偏高', defectType:'非外观类' },
+    // 审核中
+    { id:'IPQCMRB202604002', iqc:'IPQC20260422', inspType:'首件检验', orderNo:'WO-20260422-05', sup:'产线B', matProp:'组装', matName:'电池模组 BAT-48V100A', recvDate:'2026-04-22', qtyIn:300, qtySample:15, def:2, sts:'审核中', by:'李四', createTime:'2026-04-22 10:15', remark:'组装间隙超差', defectType:'非外观类', meeting:'未召开', disposalType:'特采', concessionQty:280, disposalRemark:'间隙在可接受范围内，建议特采使用' },
+    // 待处置
+    { id:'IPQCMRB202604003', iqc:'IPQC20260421', inspType:'巡检', orderNo:'WO-20260421-03', sup:'产线C', matProp:'组装', matName:'塑胶外壳 SHELL-PC01', recvDate:'2026-04-21', qtyIn:1000, qtySample:32, def:1, sts:'待处置', by:'王五', createTime:'2026-04-21 09:00', remark:'表面有轻微划痕', defectType:'外观类', meeting:'未召开', disposalType:'挑选/返工', teamLeader:'李班长', reworkPerson:'由班组长安排', disposalRemark:'表面划痕轻微，建议返工处理' },
+    // 已完成
+    { id:'IPQCMRB202604004', iqc:'IPQC20260420', inspType:'首件检验', orderNo:'WO-20260420-08', sup:'产线A', matProp:'SMT', matName:'PCB主板 PCB-V4.0', recvDate:'2026-04-20', qtyIn:200, qtySample:10, def:4, sts:'已完成', by:'赵六', createTime:'2026-04-20 16:45', remark:'焊接不良率偏高', defectType:'非外观类', meeting:'已召开', disposalType:'特采', concessionQty:180, disposalRemark:'经MRB评审，决定特采使用' },
+];
+
+const initiateData = [
+    { id:'IPQCMRB202604001', iqc:'IPQC20260423', mat:'PCB主板 PCB-V3.2', sup:'产线A', def:3, cm:5, sts:'评审中', date:'2026-04-23' },
+    { id:'IPQCMRB202604002', iqc:'IPQC20260422', mat:'电池模组 BAT-48V100A', sup:'产线B', def:2, cm:4, sts:'评审完成', date:'2026-04-22' },
+    { id:'IPQCMRB202604004', iqc:'IPQC20260420', mat:'PCB主板 PCB-V4.0', sup:'产线A', def:4, cm:6, sts:'审核中', date:'2026-04-20' },
+];
+
+const reviewData = [
+    { id:'IPQCMRB202604001', mat:'PCB主板 PCB-V3.2', sup:'产线A', def:3, date:'2026-04-23', dl:'2026-04-28' },
+    { id:'IPQCMRB202604002', mat:'电池模组 BAT-48V100A', sup:'产线B', def:2, date:'2026-04-22', dl:'2026-04-27' },
+];
+
+// 我的审核数据
+const auditData = [
+    { id:'IPQCMRB202604002', iqc:'IPQC20260422', inspType:'首件检验', orderNo:'WO-20260422-05', sup:'产线B', matProp:'组装', matName:'电池模组 BAT-48V100A', recvDate:'2026-04-22', qtyIn:300, qtySample:15, def:2, sts:'审核中', by:'李四', createTime:'2026-04-22 10:15', remark:'组装间隙超差', defectType:'非外观类', meeting:'未召开', disposalType:'特采', concessionQty:280, disposalRemark:'间隙在可接受范围内，建议特采使用', reviewOpinions:[{person:'张三',dept:'生产',opinion:'特采',remark:'不影响使用性能'},{person:'赵工程',dept:'研发',opinion:'特采',remark:'间隙在可接受范围内'}] },
+    { id:'IPQCMRB202604005', iqc:'IPQC20260419', inspType:'巡检', orderNo:'WO-20260419-02', sup:'产线B', matProp:'测试', matName:'传感器 SEN-TEMP01', recvDate:'2026-04-19', qtyIn:400, qtySample:18, def:2, sts:'审核中', by:'张三', createTime:'2026-04-19 11:20', remark:'测试精度不达标', defectType:'非外观类', meeting:'已召开', meetingTime:'2026-04-20 14:00', meetingAttendees:'生产部张三、研发部赵工程、质量部孙质量', disposalType:'挑选/返工', teamLeader:'张班长', reworkPerson:'由班组长安排', disposalRemark:'建议返工修复后使用', reviewOpinions:[{person:'张三',dept:'生产',opinion:'挑选/返工',remark:'建议返工修复'},{person:'赵工程',dept:'研发',opinion:'特采',remark:'精度偏差在允许范围内'},{person:'孙质量',dept:'质量',opinion:'挑选/返工',remark:'返工后可恢复正常使用'}] },
+    { id:'IPQCMRB202604006', iqc:'IPQC20260418', inspType:'巡检', orderNo:'WO-20260418-06', sup:'产线C', matProp:'组装', matName:'连接器 CONN-48P', recvDate:'2026-04-18', qtyIn:600, qtySample:25, def:1, sts:'审核中', by:'钱七', createTime:'2026-04-18 08:30', remark:'插接不良', defectType:'外观类', meeting:'未召开', disposalType:'特采', concessionQty:580, disposalRemark:'插接不良轻微，不影响使用，建议特采', reviewOpinions:[{person:'钱七',dept:'生产',opinion:'特采',remark:'不良轻微，可特采'},{person:'孙质量',dept:'质量',opinion:'特采',remark:'不影响装配使用'}] },
+];
+
+
+const disposalData = [
+    { id:'DSP-2026-001', mrb:'IPQCMRB202604002', mat:'电池模组 BAT-48V100A', sup:'产线B', recvDate:'2026-04-22', qtyIn:200, def:8, defectType:'非外观类', type:'返工', executorType:'产线', executor:'张班长', sts:'待处置', date:'2026-04-22' },
+    { id:'DSP-2026-002', mrb:'IPQCMRB202604003', mat:'塑胶外壳 SHELL-PC01', sup:'产线C', recvDate:'2026-04-21', qtyIn:1000, def:25, defectType:'外观类+非外观类', type:'返工', executorType:'产线', executor:'李质检', sts:'待处置', date:'2026-04-21' },
+    { id:'DSP-2026-003', mrb:'IPQCMRB202604007', mat:'传感器 SEN-TEMP01', sup:'产线A', recvDate:'2026-04-17', qtyIn:300, def:12, defectType:'非外观类', type:'返工', executorType:'产线', executor:'王质检', sts:'待处置', date:'2026-04-17' },
+    { id:'DSP-2026-004', mrb:'IPQCMRB202604005', mat:'传感器 SEN-TEMP01', sup:'产线B', recvDate:'2026-04-19', qtyIn:400, def:2, defectType:'非外观类', type:'特采', executorType:'产线', executor:'赵质检', sts:'已完成', date:'2026-04-19' },
+    { id:'DSP-2026-005', mrb:'IPQCMRB202604006', mat:'连接器 CONN-48P', sup:'产线C', recvDate:'2026-04-18', qtyIn:600, def:1, defectType:'外观类', type:'挑选/返工', executorType:'产线', executor:'孙质检', sts:'已完成', date:'2026-04-18' },
+];
+
+// ================================================================
+// HELPERS
+// ================================================================
+const statusBadge = status => {
+    const map = {
+        '评审中':'badge-reviewing','评审完成':'badge-completed','审核中':'badge-active',
+        '处置中':'badge-pending','已完成':'badge-completed',
+        '待处置':'badge-pending','已完成':'badge-completed',
+        '待审核':'badge-active','待审批':'badge-pending','待处置':'badge-pending',
+    };
+    return map[status] || 'badge-pending';
+};
+
+const sevBadge = sev => {
+    if (sev === '严重') return 'severity-cr';
+    if (sev === '主要') return 'severity-maj';
+    return 'severity-min';
+};
+
+const renderTable = (id, data, cols, rowFn) => {
+    const tbody = document.getElementById(id);
+    if (!tbody) return;
+    tbody.innerHTML = data.map((d, i) => {
+        const cells = cols.map(c => rowFn(d, c, i)).join('');
+        return `<tr>${cells}</tr>`;
+    }).join('');
+};
+
+// ================================================================
+// RENDER ALL TABLES
+// ================================================================
+renderTable('ledger-table-body', ledgerData,
+    ['id','iqc','inspType','orderNo','sup','matProp','productModel','recvDate','def','sts','by','createTime','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='iqc') return `<td><a href="javascript:void(0)" onclick="viewIpqcRecord('${d.iqc}')" style="color:#1890ff;text-decoration:none;cursor:pointer;">${d.iqc}</a></td>`;
+        if (c==='inspType') return `<td>${d.inspType}</td>`;
+        if (c==='orderNo') return `<td>${d.orderNo}</td>`;
+        if (c==='sup') return `<td>${d.sup}</td>`;
+        if (c==='matProp') return `<td>${d.matProp}</td>`;
+        if (c==='productModel') return `<td class="text-start">${d.matName}</td>`;
+        if (c==='recvDate') return `<td style="font-size:12px;">${d.recvDate}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='by') return `<td>${d.by}</td>`;
+        if (c==='createTime') return `<td style="font-size:12px;">${d.createTime}</td>`;
+        if (c==='op') {
+            let btns = `<button class="btn btn-sm btn-outline-primary btn-op me-1" onclick="openDetailModal('${d.id}')">详情</button>`;
+            
+            // 添加发起按钮
+            if (d.sts !== '已完成') {
+                btns += `<button class="btn btn-sm btn-success btn-op me-1" onclick="openInitiateMrb('${d.id}')">发起</button>`;
+            }
+            
+            return `<td>${btns}</td>`;
+        }
+    }
+);
+
+renderTable('initiate-table-body', initiateData,
+    ['id','iqc','mat','sup','def','cm','sts','date','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='iqc') return `<td>${d.iqc}</td>`;
+        if (c==='mat') return `<td class="text-start">${d.mat}</td>`;
+        if (c==='sup') return `<td>${d.sup}</td>`;
+        if (c==='def') return `<td>${d.def}</td>`;
+        if (c==='cm') return `<td>${d.cm}人</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='date') return `<td style="font-size:12px;">${d.date}</td>`;
+        if (c==='op') return `<td><button class="btn btn-sm btn-outline-primary btn-op">查看</button></td>`;
+    }
+);
+
+renderTable('review-table-body', ledgerData,
+    ['id','iqc','inspType','orderNo','sup','matProp','productModel','def','sts','by','createTime','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='iqc') return `<td><a href="javascript:void(0)" onclick="viewIpqcRecord('${d.iqc}')" style="color:#1890ff;text-decoration:none;cursor:pointer;">${d.iqc}</a></td>`;
+        if (c==='inspType') return `<td>${d.inspType}</td>`;
+        if (c==='orderNo') return `<td>${d.orderNo}</td>`;
+        if (c==='sup') return `<td>${d.sup}</td>`;
+        if (c==='matProp') return `<td>${d.matProp}</td>`;
+        if (c==='productModel') return `<td class="text-start">${d.matName}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='by') return `<td>${d.by}</td>`;
+        if (c==='createTime') return `<td style="font-size:12px;">${d.createTime}</td>`;
+        if (c==='op') {
+            let btns = `<button class="btn btn-sm btn-outline-primary btn-op me-1" onclick="openDetailModal('${d.id}')">详情</button>`;
+            if (d.sts === '评审中') {
+                btns += `<button class="btn btn-sm btn-primary btn-op" onclick="openReviewFeedbackModal('${d.id}')">提交评审</button>`;
+            }
+            if (d.sts === '评审完成') {
+                btns += `<button class="btn btn-sm btn-success btn-op" onclick="openIssueDisposalModal('${d.id}')">下达处置意见</button>`;
+            }
+            return `<td>${btns}</td>`;
+        }
+    }
+);
+
+// 渲染我的审核表格
+renderTable('audit-table-body', auditData,
+    ['id','iqc','inspType','orderNo','sup','matProp','productModel','def','sts','by','createTime','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='iqc') return `<td>${d.iqc}</td>`;
+        if (c==='inspType') return `<td>${d.inspType}</td>`;
+        if (c==='orderNo') return `<td>${d.orderNo}</td>`;
+        if (c==='sup') return `<td>${d.sup}</td>`;
+        if (c==='matProp') return `<td>${d.matProp}</td>`;
+        if (c==='productModel') return `<td class="text-start">${d.matName}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='by') return `<td>${d.by}</td>`;
+        if (c==='createTime') return `<td style="font-size:12px;">${d.createTime}</td>`;
+        if (c==='op') return `<td><button class="btn btn-sm btn-primary btn-op" onclick="openAuditModal('${d.id}')">审核</button></td>`;
+    }
+);
+
+renderTable('disposal-table-body', disposalData,
+    ['id','mrb','mat','sup','qtyIn','def','type','executor','sts','date','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='mrb') return `<td>${d.mrb}</td>`;
+        if (c==='mat') return `<td class="text-start">${d.mat}</td>`;
+        if (c==='sup') return `<td>${d.sup}</td>`;
+        if (c==='qtyIn') return `<td>${d.qtyIn}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='type') {
+            return `<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#fff7e6;color:#d46b08;">${d.type}</span></td>`;
+        }
+        if (c==='executor') return `<td class="fw-semibold">${d.executor}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='date') return `<td style="font-size:12px;">${d.date}</td>`;
+        if (c==='op') return `<td><button class="btn btn-sm btn-primary btn-op" onclick="openDisposalModal('${d.id}')">处置</button></td>`;
+    }
+);
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function switchPage(pageId, el) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Show target
+    const page = document.getElementById(pageId);
+    if (page) page.classList.add('active');
+    // Update sidebar
+    document.querySelectorAll('.sub-menu a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+}
+
+function toggleSubMenu(el) {
+    const sub = el.nextElementSibling;
+    const chevron = el.querySelector('.chevron');
+    if (sub) {
+        sub.classList.toggle('open');
+        if (chevron) chevron.classList.toggle('open');
+    }
+}
+
+// ================================================================
+// CREATE 不合格品评审 MODAL (3-STEP WIZARD)
+// ================================================================
+function openCreateMrb() {
+    mrbStep = 1;
+    document.getElementById('mrb-step1').style.display = 'block';
+    document.getElementById('mrb-step2').style.display = 'none';
+    document.getElementById('mrb-step3').style.display = 'none';
+    updateStepIndicator(1);
+    renderDefectTable();
+    renderCommitteeConfig();
+    document.getElementById('extra-members').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('modalCreateMrb')).show();
+}
+
+let mrbStep = 1;
+
+function updateStepIndicator(step) {
+    for (let i = 1; i <= 3; i++) {
+        const circle = document.getElementById('sc'+i);
+        const label = document.getElementById('sl'+i);
+        const conn = document.getElementById('conn'+(i-1));
+        if (i < step) {
+            circle.className = 'step-circle done';
+            circle.textContent = '✓';
+            label.className = 'step-label';
+            if (conn) conn.className = 'step-connector done';
+        } else if (i === step) {
+            circle.className = 'step-circle active';
+            circle.textContent = i;
+            label.className = 'step-label active';
+            if (conn) conn.className = 'step-connector';
+        } else {
+            circle.className = 'step-circle pending';
+            circle.textContent = i;
+            label.className = 'step-label pending';
+            if (conn) conn.className = 'step-connector';
+        }
+    }
+}
+
+function mrbNextStep(s) {
+    mrbStep = s;
+    document.getElementById('mrb-step1').style.display = s === 1 ? 'block' : 'none';
+    document.getElementById('mrb-step2').style.display = s === 2 ? 'block' : 'none';
+    document.getElementById('mrb-step3').style.display = s === 3 ? 'block' : 'none';
+    updateStepIndicator(s);
+}
+
+function mrbPrevStep(s) {
+    mrbStep = s;
+    document.getElementById('mrb-step1').style.display = s === 1 ? 'block' : 'none';
+    document.getElementById('mrb-step2').style.display = s === 2 ? 'block' : 'none';
+    document.getElementById('mrb-step3').style.display = s === 3 ? 'block' : 'none';
+    updateStepIndicator(s);
+}
+
+// 需求1：选择检验单时自动更新物料/供应商信息
+function onIqcSelectChange() {
+    const val = document.getElementById('mrb-iqc-select').value;
+    // Demo mapping
+    const map = {
+        'IPQC20260423': { mat: 'PCB主板 PCB-V3.2', sup: '产线A' },
+        'IPQC20260422': { mat: '控制器 CTRL-500', sup: '产线B' },
+        'IPQC20260420': { mat: 'PCB主板 PCB-V3.2', sup: '产线C' },
+    };
+    const info = map[val] || { mat: '-', sup: '-' };
+    document.getElementById('mrb-material').value = info.mat;
+    document.getElementById('mrb-supplier').value = info.sup;
+}
+
+// 需求1：不良信息自动汇总
+const defectData = [
+    { cat:'外观', spec:'无划伤、无锈蚀', measured:'表面划伤3处', result:'不合格', sev:'主要' },
+    { cat:'尺寸', spec:'50±0.1mm', measured:'50.35mm', result:'不合格', sev:'主要' },
+    { cat:'性能', spec:'拉力≥100N', measured:'85N', result:'不合格', sev:'严重' },
+];
+
+function renderDefectTable() {
+    const tbody = document.getElementById('mrb-defect-table');
+    tbody.innerHTML = defectData.map((d, i) => `
+        <tr>
+            <td><input type="checkbox" class="form-check-input defect-check" checked></td>
+            <td>${d.cat}</td>
+            <td>${d.spec}</td>
+            <td class="text-danger">${d.measured}</td>
+            <td><span class="badge-status badge-rejected">不合格</span></td>
+            <td><span class="badge-status ${sevBadge(d.sev)}">${d.sev}</span></td>
+        </tr>
+    `).join('');
+}
+
+// 需求2：评审委员会配置
+const committeeRoles = [
+    { role:'质量工程师', required:true, members:['张三','李四','王五'] },
+    { role:'工艺工程师', required:true, members:['赵六','钱七'] },
+    { role:'采购代表', required:true, members:['孙八'] },
+    { role:'生产代表', required:false, members:['周九','吴十'] },
+    { role:'研发代表', required:false, members:['郑一'] },
+];
+
+const selectedMembers = {};
+
+function renderCommitteeConfig() {
+    const container = document.getElementById('committee-config');
+    container.innerHTML = committeeRoles.map(cr => {
+        const selected = selectedMembers[cr.role] || [];
+        return `
+            <div class="d-flex align-items-start gap-3 mb-2 p-2" style="background:#fafafa;border-radius:6px;">
+                <div style="width:100px;flex-shrink:0;padding-top:4px;">
+                    <span style="font-size:13px;font-weight:500;">${cr.role}</span>
+                    ${cr.required ? '<span class="text-danger">*</span>' : ''}
+                </div>
+                <div class="d-flex flex-wrap gap-1">
+                    ${cr.members.map(p => `
+                        <span class="tag-btn ${selected.includes(p) ? 'selected' : ''}" 
+                              onclick="toggleMember('${cr.role}','${p}')">${p}</span>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function toggleMember(role, person) {
+    if (!selectedMembers[role]) selectedMembers[role] = [];
+    const idx = selectedMembers[role].indexOf(person);
+    if (idx > -1) {
+        selectedMembers[role].splice(idx, 1);
+    } else {
+        selectedMembers[role].push(person);
+    }
+    renderCommitteeConfig();
+}
+
+function addCommitteeMember() {
+    const role = document.getElementById('new-role').value.trim();
+    const person = document.getElementById('new-person').value.trim();
+    if (!role || !person) { alert('请输入角色和人员姓名'); return; }
+    const container = document.getElementById('extra-members');
+    const tag = document.createElement('span');
+    tag.className = 'tag-btn selected';
+    tag.style.cssText = 'background:#1890ff;color:#fff;border-color:#1890ff;';
+    tag.innerHTML = `${role}: ${person} <span style="margin-left:4px;cursor:pointer;" onclick="this.parentElement.remove()">×</span>`;
+    container.appendChild(tag);
+    document.getElementById('new-role').value = '';
+    document.getElementById('new-person').value = '';
+}
+
+function submitMrb() {
+    alert('不合格品评审申请已提交！\n\n流程节点：\n1. 上级审核 → 2. 不合格品评审 → 3. 处置执行');
+    bootstrap.Modal.getInstance(document.getElementById('modalCreateMrb')).hide();
+}
+
+// ================================================================
+// 不合格品台账 → 发起评审
+// ================================================================
+const presetRoles = [
+    { dept:'生产', role:'生产负责人', persons:['张生产','李生产','王生产'] },
+    { dept:'研发', role:'研发负责人', persons:['刘研发','陈研发'] },
+    { dept:'工艺', role:'工艺负责人', persons:['郑工艺','冯工艺'] },
+    { dept:'质量', role:'质量负责人', persons:['孙质量','周质量','吴质量'] },
+    { dept:'物流服务部', role:'物流服务部负责人', persons:['杨物流','黄物流'] },
+];
+let riExtraMembers = [];
+
+function openInitiateReviewFromLedger(id, iqc, mat, sup, inspType, recvDate, qtyIn, def, defectType) {
+    // 填充不合格品信息
+    document.getElementById('ri-id').textContent = id;
+    document.getElementById('ri-iqc').textContent = iqc;
+    document.getElementById('ri-mat').textContent = mat;
+    document.getElementById('ri-sup').textContent = sup;
+    document.getElementById('ri-inspType').textContent = inspType;
+    document.getElementById('ri-recvDate').textContent = recvDate;
+    document.getElementById('ri-qtyIn').textContent = qtyIn;
+    document.getElementById('ri-def').textContent = def;
+
+    // 重置表单
+    riExtraMembers = [];
+    document.getElementById('ri-extra-list').innerHTML = '';
+    document.getElementById('ri-new-dept').value = '';
+    document.getElementById('ri-new-role').value = '';
+    document.getElementById('ri-new-person-select').value = '';
+    document.getElementById('ri-remark').value = '';
+    document.getElementById('ri-suggestion').value = '';
+    document.getElementById('ri-suggestion-remark').value = '';
+
+    // 填充临时新增的评审人员下拉
+    const personSel = document.getElementById('ri-new-person-select');
+    const allPersons = [...new Set(presetRoles.flatMap(r => r.persons))];
+    personSel.innerHTML = '<option value="">请选择</option>' + allPersons.map(p => `<option value="${p}">${p}</option>`).join('');
+
+    renderCommitteeTable();
+    new bootstrap.Modal(document.getElementById('modalInitiateReview')).show();
+}
+
+// ================================================================
+// DETAIL MODAL
+// ================================================================
+function openDetailModal(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+
+    // 填充基本信息
+    document.getElementById('detail-id').textContent = d.id;
+    document.getElementById('detail-iqc').textContent = d.iqc || '-';
+    document.getElementById('detail-mat').textContent = d.matName;
+    document.getElementById('detail-sup').textContent = d.sup;
+    document.getElementById('detail-inspType').textContent = d.inspType || '-';
+    document.getElementById('detail-recvDate').textContent = d.recvDate || '-';
+    document.getElementById('detail-qtyIn').textContent = d.qtyIn || '-';
+    document.getElementById('detail-qtySample').textContent = d.qtySample || '-';
+    document.getElementById('detail-def').textContent = d.def;
+    document.getElementById('detail-sts').innerHTML = `<span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span>`;
+    document.getElementById('detail-by').textContent = d.by || '-';
+    document.getElementById('detail-createTime').textContent = d.createTime || '-';
+
+    // 填充检验信息条
+    document.getElementById('detail-insp-id').textContent = d.iqc || '-';
+    document.getElementById('detail-insp-mat').textContent = d.matName;
+
+
+    new bootstrap.Modal(document.getElementById('modalDetail')).show();
+}
+
+// ================================================================
+// 查看验证结果（跳转到详情页）
+function viewVerificationResult() {
+    // 获取当前不合格品ID（从弹窗中获取）
+    const currentId = document.getElementById('lr-id').textContent;
+    if (!currentId) return;
+    
+    // 关闭当前弹窗
+    bootstrap.Modal.getInstance(document.getElementById('modalLaunchReview')).hide();
+    
+    // 延迟打开详情弹窗（等待关闭动画完成）
+    setTimeout(() => {
+        openDetailModal(currentId);
+    }, 300);
+}
+
+// ================================================================
+// 提交评审意见
+// ================================================================
+function openReviewFeedbackModal(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+
+    // 填充不合格品信息（与启动MRB一致）
+    document.getElementById('rf-id').textContent = d.id;
+    document.getElementById('rf-iqc').textContent = d.iqc || '-';
+    document.getElementById('rf-mat').textContent = d.matName;
+    document.getElementById('rf-sup').textContent = d.sup;
+    document.getElementById('rf-inspType').textContent = d.inspType || '-';
+    document.getElementById('rf-recvDate').textContent = d.recvDate || '-';
+    document.getElementById('rf-qtyIn').textContent = d.qtyIn || '-';
+    document.getElementById('rf-def').textContent = d.def;
+
+    // 填充发起人信息
+    document.getElementById('rf-by').textContent = d.by || '-';
+    document.getElementById('rf-createTime').textContent = d.createTime || '-';
+    document.getElementById('rf-suggestion').textContent = d.suggestion || '未填写';
+    document.getElementById('rf-suggestion-remark').textContent = d.suggestionRemark || '未填写';
+    document.getElementById('rf-remark').textContent = d.remark || '-';
+
+    // 填充MRB评审会议
+    document.getElementById('rf-meeting').textContent = d.meeting || '无需召开';
+
+    // 重置表单
+    document.getElementById('rf-vote').value = '';
+    document.getElementById('rf-comment').value = '';
+
+    new bootstrap.Modal(document.getElementById('modalReviewFeedback')).show();
+}
+
+function submitReviewFeedback() {
+    const vote = document.getElementById('rf-vote').value;
+    const comment = document.getElementById('rf-comment').value.trim();
+    
+    if (!vote) { alert('请选择处置建议'); return; }
+    if (!comment) { alert('请填写处置说明'); return; }
+    
+    alert(`评审意见已提交！\n\n处置建议：${vote}\n处置说明：${comment}\n\n感谢您的参与！`);
+    bootstrap.Modal.getInstance(document.getElementById('modalReviewFeedback')).hide();
+}
+
+// 查看验证结果（从评审弹窗跳转）
+function viewVerificationResultFromReview() {
+    const currentId = document.getElementById('rf-id').textContent;
+    if (!currentId) return;
+    
+    // 关闭当前弹窗
+    bootstrap.Modal.getInstance(document.getElementById('modalReviewFeedback')).hide();
+    
+    // 延迟打开详情弹窗（等待关闭动画完成）
+    setTimeout(() => {
+        openDetailModal(currentId);
+    }, 300);
+}
+
+// ================================================================
+// 下达处置意见（质量主管）
+// ================================================================
+
+// 打开下达处置意见弹窗
+function openIssueDisposalModal(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+
+    // 填充不合格品信息（与启动MRB字段一致）
+    document.getElementById('id-id').textContent = d.id;
+    document.getElementById('id-iqc').textContent = d.iqc || '-';
+    document.getElementById('id-mat').textContent = d.matName;
+    document.getElementById('id-sup').textContent = d.sup;
+    document.getElementById('id-recvDate').textContent = d.recvDate || '-';
+    document.getElementById('id-qtyIn').textContent = d.qtyIn || '-';
+    document.getElementById('id-def').textContent = d.def;
+
+    // 渲染评审人员意见汇总
+    const opinionsBody = document.getElementById('id-review-opinions');
+    if (d.reviewOpinions && d.reviewOpinions.length > 0) {
+        opinionsBody.innerHTML = d.reviewOpinions.map((op, idx) => {
+            const voteClass = op.vote === '特采' ? 'bg-success' : 'bg-warning text-dark';
+            return `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td style="font-weight:600;">${op.person}</td>
+                    <td>${op.dept}</td>
+                    <td><span class="badge ${voteClass}">${op.vote}</span></td>
+                    <td style="text-align:left;">${op.comment}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // 计算投票统计
+        const voteStats = {};
+        d.reviewOpinions.forEach(op => {
+            voteStats[op.vote] = (voteStats[op.vote] || 0) + 1;
+        });
+        const statsHtml = Object.entries(voteStats).map(([vote, count]) => {
+            const voteClass = vote === '特采' ? 'text-success' : 'text-warning';
+            return `<span class="${voteClass} fw-semibold">${vote} ${count}人</span>`;
+        }).join(' &nbsp;|&nbsp; ');
+        document.getElementById('id-vote-stats').innerHTML = statsHtml;
+    } else {
+        opinionsBody.innerHTML = '<tr><td colspan="5" class="text-muted">暂无评审意见</td></tr>';
+        document.getElementById('id-vote-stats').innerHTML = '<span class="text-muted">暂无投票数据</span>';
+    }
+
+    // 重置表单
+    document.getElementById('id-disposalType').value = '';
+    document.getElementById('id-disposalRemark').value = '';
+    document.getElementById('id-concessionQty').value = '';
+    document.getElementById('id-concession-section').style.display = 'none';
+    document.getElementById('id-teamLeader').value = '';
+    document.getElementById('id-reworkPerson').value = '';
+    document.getElementById('id-rework-executor-section').style.display = 'none';
+    // 重置附件
+    document.getElementById('id-disposal-file').value = '';
+    document.getElementById('id-disposal-file-info').style.display = 'none';
+    document.getElementById('id-disposal-file-placeholder').textContent = '支持 .pdf, .jpg, .png 格式，可上传1个附件';
+
+    new bootstrap.Modal(document.getElementById('modalIssueDisposal')).show();
+}
+
+// 提交处置意见
+function submitDisposalOpinion() {
+    const disposalType = document.getElementById('id-disposalType').value;
+    const remark = document.getElementById('id-disposalRemark').value.trim();
+    
+    if (!disposalType) { alert('请选择处置方式'); return; }
+    if (!remark) { alert('请填写处置说明'); return; }
+    
+    let message = `处置意见已下达！\n\n处置方式：${disposalType}`;
+    
+    // 如果是特采，验证特采数量
+    if (disposalType === '特采') {
+        const concessionQty = document.getElementById('id-concessionQty').value;
+        if (!concessionQty || concessionQty <= 0) { 
+            alert('请填写特采数量'); 
+            return; 
+        }
+        message += `\n特采数量：${concessionQty}`;
+    }
+    
+    // 如果是挑选/返工，验证生产班组长
+    if (disposalType === '挑选/返工') {
+        const teamLeader = document.getElementById('id-teamLeader').value;
+        if (!teamLeader) { 
+            alert('请选择生产班组长'); 
+            return; 
+        }
+        message += `\n生产班组长：${teamLeader}`;
+        const reworkPerson = document.getElementById('id-reworkPerson').value.trim();
+        if (reworkPerson) {
+            message += `\n执行人员：${reworkPerson}`;
+        }
+    }
+    
+    // 检查是否上传附件
+    const fileName = document.getElementById('id-disposal-file-name-text').textContent;
+    if (fileName) {
+        message += `\n附件：${fileName}`;
+    }
+    
+    message += `\n处置说明：${remark}`;
+    message += `\n\n已生成处置任务，请执行方在"我的处置任务"中查看并执行。`;
+    
+    alert(message);
+    bootstrap.Modal.getInstance(document.getElementById('modalIssueDisposal')).hide();
+}
+
+// 处置方式变化时的处理
+function onDisposalTypeChange() {
+    const disposalType = document.getElementById('id-disposalType').value;
+    const concessionSection = document.getElementById('id-concession-section');
+    const reworkSection = document.getElementById('id-rework-executor-section');
+    
+    // 隐藏特采区域
+    concessionSection.style.display = 'none';
+    document.getElementById('id-concessionQty').value = '';
+    
+    // 隐藏返工执行方区域
+    reworkSection.style.display = 'none';
+    document.getElementById('id-teamLeader').value = '';
+    document.getElementById('id-reworkPerson').value = '';
+    
+    // 根据处置方式显示对应区域
+    if (disposalType === '特采') {
+        concessionSection.style.display = 'block';
+    } else if (disposalType === '挑选/返工') {
+        reworkSection.style.display = 'block';
+    }
+    
+    // 重置附件
+    document.getElementById('id-disposal-file').value = '';
+    document.getElementById('id-disposal-file-info').style.display = 'none';
+    document.getElementById('id-disposal-file-placeholder').textContent = '支持 .pdf, .jpg, .png 格式，可上传1个附件';
+}
+
+// 附件上传处理（通用，所有处置方式都可用）
+function onDisposalFileUpload(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const placeholder = document.getElementById('id-disposal-file-placeholder');
+        const fileInfo = document.getElementById('id-disposal-file-info');
+        const fileNameText = document.getElementById('id-disposal-file-name-text');
+        
+        placeholder.textContent = '';
+        fileNameText.textContent = file.name;
+        fileInfo.style.display = 'block';
+    }
+}
+
+// 移除已上传的附件
+function removeDisposalFile() {
+    document.getElementById('id-disposal-file').value = '';
+    document.getElementById('id-disposal-file-info').style.display = 'none';
+    document.getElementById('id-disposal-file-placeholder').textContent = '支持 .pdf, .jpg, .png 格式，可上传1个附件';
+}
+
+// 返工附件上传处理（保留兼容）
+function onReworkFileUpload(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const fileNameDisplay = document.getElementById('id-rework-file-name');
+        const fileNameText = document.getElementById('id-rework-file-name-text');
+        
+        fileNameText.textContent = file.name;
+        fileNameDisplay.style.display = 'block';
+    }
+}
+
+function renderCommitteeTable() {
+    let html = `
+        <table class="table table-bordered align-middle mb-0" style="font-size:13px;">
+            <thead style="background:#f0f2f5;">
+                <tr>
+                    <th style="width:20%;font-weight:600;color:#333;">部门</th>
+                    <th style="width:25%;font-weight:600;color:#333;">角色</th>
+                    <th style="font-weight:600;color:#333;">评审人员</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    presetRoles.forEach((r, idx) => {
+        const personOptions = r.persons.map(p => `<option value="${p}">${p}</option>`).join('');
+        html += `
+                <tr>
+                    <td><span class="badge bg-secondary" style="font-size:12px;">${r.dept}</span></td>
+                    <td><span style="font-size:13px;font-weight:600;">${r.role}</span></td>
+                    <td>
+                        <select class="form-select form-select-sm ri-person-select" data-idx="${idx}" style="max-width:260px;">
+                            <option value="">请选择</option>
+                            ${personOptions}
+                        </select>
+                    </td>
+                </tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('review-committee-container').innerHTML = html;
+}
+
+function renderExtraList() {
+    if (riExtraMembers.length === 0) {
+        document.getElementById('ri-extra-list').innerHTML = '';
+        return;
+    }
+    let html = `
+        <table class="table table-bordered align-middle mb-0" style="font-size:13px;margin-top:8px;">
+            <thead style="background:#f0f2f5;">
+                <tr>
+                    <th style="width:20%;font-weight:600;color:#333;">部门</th>
+                    <th style="width:25%;font-weight:600;color:#333;">角色</th>
+                    <th style="font-weight:600;color:#333;">评审人员</th>
+                    <th style="width:60px;font-weight:600;color:#333;">操作</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    riExtraMembers.forEach((m, idx) => {
+        html += `
+                <tr>
+                    <td><span style="font-size:13px;">${m.dept}</span></td>
+                    <td><span style="font-size:13px;">${m.role}</span></td>
+                    <td><span style="font-size:13px;">${m.person || '未选择'}</span></td>
+                    <td class="text-center">
+                        <a href="javascript:void(0)" onclick="removeExtraMember(${idx})" style="color:#ff4d4f;font-size:16px;text-decoration:none;" title="删除">&times;</a>
+                    </td>
+                </tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('ri-extra-list').innerHTML = html;
+}
+
+function confirmRiNewMember() {
+    const dept = document.getElementById('ri-new-dept').value.trim();
+    const role = document.getElementById('ri-new-role').value.trim();
+    const person = document.getElementById('ri-new-person-select').value;
+    if (!dept || !role) { alert('请填写部门和角色'); return; }
+    riExtraMembers.push({ dept, role, person });
+    renderExtraList();
+    document.getElementById('ri-new-dept').value = '';
+    document.getElementById('ri-new-role').value = '';
+    document.getElementById('ri-new-person-select').value = '';
+}
+
+function removeExtraMember(idx) {
+    riExtraMembers.splice(idx, 1);
+    renderExtraList();
+}
+
+function submitInitiateReview() {
+    const selected = [];
+    // 读取预设部门的选择
+    document.querySelectorAll('.ri-person-select').forEach(sel => {
+        if (sel.value) {
+            const idx = parseInt(sel.dataset.idx);
+            selected.push({ dept: presetRoles[idx].dept, role: presetRoles[idx].role, person: sel.value });
+        }
+    });
+    // 读取临时新增的评审人员
+    riExtraMembers.forEach(m => {
+        if (m.person) {
+            selected.push({ dept: m.dept, role: m.role, person: m.person });
+        }
+    });
+    if (selected.length === 0) {
+        alert('请至少选择一名评审人员');
+        return;
+    }
+    
+    const suggestion = document.getElementById('ri-suggestion').value;
+    
+    const remark = document.getElementById('ri-remark').value.trim();
+    if (!remark) {
+        alert('请填写发起说明');
+        return;
+    }
+    
+    const suggestionRemark = document.getElementById('ri-suggestion-remark').value.trim();
+    
+    let msg = `评审已发起！\n\n评审人员:\n${selected.map(s => `【${s.dept}】${s.role}: ${s.person}`).join('\n')}`;
+    msg += `\n\n初步处置建议: ${suggestion}`;
+    if (suggestionRemark) {
+        msg += `\n处置说明: ${suggestionRemark}`;
+    }
+    msg += `\n\n发起说明: ${remark}`;
+    
+    alert(msg);
+    bootstrap.Modal.getInstance(document.getElementById('modalInitiateReview')).hide();
+}
+
+// ================================================================
+// 发起评审审核（质量主管）
+// ================================================================
+// 渲染评审人员表格的辅助函数
+function renderCommitteeTableHTML(committee) {
+    if (!committee || committee.length === 0) {
+        return '<div class="text-muted">暂无评审人员</div>';
+    }
+    let html = `
+        <table class="table table-bordered align-middle mb-0" style="font-size:13px;">
+            <thead style="background:#f0f2f5;">
+                <tr>
+                    <th style="width:20%;font-weight:600;">部门</th>
+                    <th style="width:25%;font-weight:600;">角色</th>
+                    <th>评审人员</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    committee.forEach(m => {
+        html += `
+                <tr>
+                    <td><span class="badge bg-secondary">${m.dept}</span></td>
+                    <td>${m.role}</td>
+                    <td>${m.person}</td>
+                </tr>`;
+    });
+    return html + '</tbody></table>';
+}
+
+function openInitiateAuditModal(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+
+    // 填充不合格品信息
+    document.getElementById('ia-id').textContent = d.id;
+    document.getElementById('ia-iqc').textContent = d.iqc;
+    document.getElementById('ia-mat').textContent = d.matName;
+    document.getElementById('ia-sup').textContent = d.sup;
+    document.getElementById('ia-inspType').textContent = d.inspType;
+    document.getElementById('ia-recvDate').textContent = d.recvDate;
+    document.getElementById('ia-qtyIn').textContent = d.qtyIn;
+    document.getElementById('ia-def').textContent = d.def;
+
+    // 填充初步处置建议
+    document.getElementById('ia-suggestion').value = d.suggestion || '';
+    document.getElementById('ia-suggestion-remark').value = d.suggestionRemark || '';
+
+    // 渲染评审人员表格
+    document.getElementById('ia-reviewers-table').innerHTML = renderCommitteeTableHTML(d.committee);
+
+    // 重置审核表单
+    document.getElementById('ia-result-select').value = '';
+    document.getElementById('ia-comment').value = '';
+    document.getElementById('ia-meetingNo').checked = true;
+
+    new bootstrap.Modal(document.getElementById('modalInitiateAudit')).show();
+}
+
+function submitInitiateAudit() {
+    const result = document.getElementById('ia-result-select').value;
+    if (!result) { alert('请选择审核结果'); return; }
+    const comment = document.getElementById('ia-comment').value.trim();
+    const meetingEl = document.querySelector('input[name="ia-meetingRadio"]:checked');
+    const meeting = meetingEl ? meetingEl.value : '未选择';
+    alert(`审核已提交！\n\n审核结果：${result}\nMRB会议：${meeting}\n审核意见：${comment}`);
+    bootstrap.Modal.getInstance(document.getElementById('modalInitiateAudit')).hide();
+}
+
+// ================================================================
+// IPQC 检验记录查看
+// ================================================================
+function viewIpqcRecord(ipqcNo) {
+    // 模拟跳转过渡效果
+    const overlay = document.createElement('div');
+    overlay.id = 'ipqc-transition-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;';
+    overlay.innerHTML = `
+        <div style="width:40px;height:40px;border:3px solid #f0f0f0;border-top-color:#1890ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px;"></div>
+        <div style="font-size:14px;color:#666;">正在跳转至 IPQC 模块...</div>
+        <div style="font-size:12px;color:#999;margin-top:4px;">${ipqcNo}</div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+
+    // 1秒后展示IPQC检验记录弹窗
+    setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.remove();
+
+            const record = ledgerData.find(r => r.iqc === ipqcNo);
+            const ipqcMat = record ? record.matName : 'PCB主板 PCB-V3.2';
+            const ipqcLine = record ? record.sup : '产线A';
+            const ipqcProcess = record ? record.matProp : 'SMT';
+
+            const modalHtml = `
+                <div class="modal fade" id="modalIpqcView" tabindex="-1">
+                    <div class="modal-dialog modal-fullscreen">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background:#f5f8ff;">
+                                <div>
+                                    <span style="font-size:11px;color:#999;">IPQC模块 / 检验记录</span>
+                                    <h5 class="modal-title mt-1" style="font-size:15px;">检验单号：${ipqcNo}</h5>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="d-flex align-items-center gap-2 mb-3 p-2" style="background:#f0f5ff;border-radius:6px;font-size:12px;color:#666;">
+                                    <i class="bi bi-arrow-up-right-circle" style="color:#1890ff;"></i>
+                                    已跳转至 IPQC 模块查看检验记录详情
+                                </div>
+                                
+                                <!-- IPQC 检验数据区域 -->
+                                <div class="p-3 mt-3" style="background:#fafafa;border-radius:6px;">
+                                    <h6 class="fw-bold mb-3" style="font-size:13px;color:#1890ff;">
+                                        <i class="bi bi-clipboard-check me-1"></i>IPQC 制程检验数据
+                                    </h6>
+
+                                    <div class="alert alert-secondary py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center gap-4">
+                                            <span>检验单号：<strong>${ipqcNo}</strong> | 产品型号：<strong>${ipqcMat}</strong> | 工序：<strong>${ipqcProcess}</strong></span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span>本批次检验结果：</span>
+                                                <span class="badge bg-danger">不合格</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 检验数据表格 -->
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle" style="font-size:13px;">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width:50px;">序号</th>
+                                                    <th style="width:150px;">检验项目</th>
+                                                    <th style="width:120px;">检验标准</th>
+                                                    <th style="width:80px;">检验方法</th>
+                                                    <th style="width:100px;">缺陷类型</th>
+                                                    <th style="width:80px;">数量</th>
+                                                    <th style="width:200px;">缺陷描述</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-center">1</td>
+                                                    <td>胶水是否用错</td>
+                                                    <td>无错用</td>
+                                                    <td>目检</td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" disabled>
+                                                            <option value="">请选择</option>
+                                                            <option value="cr">Cr 严重</option>
+                                                            <option value="maj" selected>Maj 主要</option>
+                                                            <option value="min">Min 次要</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="3" disabled></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="部分产品使用错误型号胶水" disabled></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">2</td>
+                                                    <td>外观是否有缺陷</td>
+                                                    <td>无缺陷</td>
+                                                    <td>目检</td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" disabled>
+                                                            <option value="">请选择</option>
+                                                            <option value="cr">Cr 严重</option>
+                                                            <option value="maj">Maj 主要</option>
+                                                            <option value="min" selected>Min 次要</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="2" disabled></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="表面有轻微划痕" disabled></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">3</td>
+                                                    <td>功能测试</td>
+                                                    <td>功能正常</td>
+                                                    <td>测试</td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" disabled>
+                                                            <option value="">请选择</option>
+                                                            <option value="cr">Cr 严重</option>
+                                                            <option value="maj">Maj 主要</option>
+                                                            <option value="min">Min 次要</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="0" disabled></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="-" disabled></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">4</td>
+                                                    <td>包装检验</td>
+                                                    <td>包装完好</td>
+                                                    <td>目检</td>
+                                                    <td>
+                                                        <select class="form-select form-select-sm" disabled>
+                                                            <option value="">请选择</option>
+                                                            <option value="cr">Cr 严重</option>
+                                                            <option value="maj">Maj 主要</option>
+                                                            <option value="min">Min 次要</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="0" disabled></td>
+                                                    <td><input type="text" class="form-control form-control-sm" value="-" disabled></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="showTransitionBack()">返回不合格品台账</button>
+                                <button class="btn btn-primary btn-sm" data-bs-dismiss="modal">留在当前页面</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            const oldModal = document.getElementById('modalIpqcView');
+            if (oldModal) oldModal.remove();
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const modal = new bootstrap.Modal(document.getElementById('modalIpqcView'));
+            modal.show();
+        }, 250);
+    }, 1000);
+}
+
+// 从IPQC返回的过渡动画
+function showTransitionBack() {
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalIpqcView'));
+    if (modal) modal.hide();
+
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;';
+    overlay.innerHTML = `
+        <div style="width:40px;height:40px;border:3px solid #f0f0f0;border-top-color:#1890ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px;"></div>
+        <div style="font-size:14px;color:#666;">正在返回...</div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+
+    setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 250);
+    }, 600);
+}
+
+// ================================================================
+// REVIEW MODAL
+// ================================================================
+function openReviewModal() {
+    new bootstrap.Modal(document.getElementById('modalReview')).show();
+}
+
+let selectedVote = '';
+function selectVote(el) {
+    document.querySelectorAll('#vote-options .vote-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedVote = el.textContent;
+}
+
+function submitReview() {
+    if (!selectedVote) { alert('请选择评审投票意见'); return; }
+    alert('评审意见已提交！');
+    bootstrap.Modal.getInstance(document.getElementById('modalReview')).hide();
+}
+
+
+// ================================================================
+// DISPOSAL
+// ================================================================
+// ================================================================
+// 处置执行相关函数
+// ================================================================
+let reworkDetailIndex = 0;
+
+function openDisposalModal(id) {
+    const d = disposalData.find(r => r.id === id);
+    if (!d) return;
+
+    // 填充基本信息
+    document.getElementById('dp-id').textContent = d.id;
+    document.getElementById('dp-mrb').textContent = d.mrb;
+    document.getElementById('dp-mat').textContent = d.mat;
+    document.getElementById('dp-sup').textContent = d.sup;
+    document.getElementById('dp-recvDate').textContent = d.recvDate;
+    document.getElementById('dp-qtyIn').textContent = d.qtyIn;
+    document.getElementById('dp-def').textContent = d.def;
+    document.getElementById('dp-defectType').textContent = d.defectType;
+    document.getElementById('dp-executorType').textContent = d.executorType;
+    document.getElementById('dp-executor').textContent = d.executor;
+
+    // 初始化挑选数量
+    document.getElementById('dp-sortTotal').value = '';
+    document.getElementById('dp-sortQualified').value = '';
+    document.getElementById('dp-sortUnqualified').value = '';
+
+    // 初始化返工数量
+    document.getElementById('dp-reworkTotal').value = '';
+    document.getElementById('dp-reworkQualified').value = '';
+    document.getElementById('dp-reworkUnqualified').value = '';
+    document.getElementById('dp-laborHours').value = '';
+    document.getElementById('dp-materialLoss').value = '';
+    document.getElementById('dp-materialLossDesc').value = '';
+    document.getElementById('dp-productionLine').value = '';
+    document.getElementById('dp-worker').value = '';
+
+    // 根据执行方类型显示/隐藏内部返工字段
+    if (d.executorType === '内部') {
+        document.getElementById('dp-internal-rework-section').style.display = 'block';
+    } else {
+        document.getElementById('dp-internal-rework-section').style.display = 'none';
+    }
+
+    // 重置表单
+    document.getElementById('dp-reworkRemark').value = '';
+    document.getElementById('dp-completeDate').value = '';
+    
+    // 重置附件
+    document.getElementById('dp-file-upload').value = '';
+    document.getElementById('dp-file-info').style.display = 'none';
+    document.getElementById('dp-file-placeholder').textContent = '支持 .pdf, .jpg, .png 格式，可上传1个附件';
+
+    // 清空并初始化处置明细
+    reworkDetailIndex = 0;
+    document.getElementById('dp-rework-details').innerHTML = '';
+    addReworkDetailRow();
+
+    new bootstrap.Modal(document.getElementById('modalDisposal')).show();
+}
+
+// 添加处置明细行
+function addReworkDetailRow() {
+    reworkDetailIndex++;
+    const tbody = document.getElementById('dp-rework-details');
+    const row = document.createElement('tr');
+    row.id = `rework-row-${reworkDetailIndex}`;
+    row.innerHTML = `
+        <td>${reworkDetailIndex}</td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入物料号"></td>
+        <td>
+            <select class="form-select form-select-sm">
+                <option value="">请选择</option>
+                <option value="合格">合格</option>
+                <option value="不合格">不合格</option>
+            </select>
+        </td>
+        <td><button class="btn btn-sm btn-outline-danger" onclick="removeReworkDetailRow(${reworkDetailIndex})"><i class="bi bi-x"></i></button></td>
+    `;
+    tbody.appendChild(row);
+}
+
+// 删除返工明细行
+function removeReworkDetailRow(index) {
+    const row = document.getElementById(`rework-row-${index}`);
+    if (row) {
+        row.remove();
+        // 重新排序
+        const rows = document.querySelectorAll('#dp-rework-details tr');
+        rows.forEach((row, idx) => {
+            row.querySelector('td:first-child').textContent = idx + 1;
+        });
+    }
+}
+
+// 计算挑选汇总
+function calculateSortSummary() {
+    const total = parseInt(document.getElementById('dp-sortTotal').value) || 0;
+    const qualified = parseInt(document.getElementById('dp-sortQualified').value) || 0;
+    const unqualified = total - qualified;
+    document.getElementById('dp-sortUnqualified').value = unqualified >= 0 ? unqualified : 0;
+}
+
+// 计算返工汇总
+function calculateReworkSummary() {
+    const total = parseInt(document.getElementById('dp-reworkTotal').value) || 0;
+    const qualified = parseInt(document.getElementById('dp-reworkQualified').value) || 0;
+    const unqualified = total - qualified;
+    document.getElementById('dp-reworkUnqualified').value = unqualified >= 0 ? unqualified : 0;
+}
+
+// 处置文件上传
+function onDisposalFileUpload(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        document.getElementById('dp-file-placeholder').textContent = '';
+        document.getElementById('dp-file-name').textContent = file.name;
+        document.getElementById('dp-file-info').style.display = 'block';
+    }
+}
+
+// 移除处置文件
+function removeDisposalFile() {
+    document.getElementById('dp-file-upload').value = '';
+    document.getElementById('dp-file-info').style.display = 'none';
+    document.getElementById('dp-file-placeholder').textContent = '支持 .pdf, .jpg, .png 格式，可上传1个附件';
+}
+
+// 确认处置
+function confirmDisposal() {
+    const sortTotal = parseInt(document.getElementById('dp-sortTotal').value) || 0;
+    const sortQualified = parseInt(document.getElementById('dp-sortQualified').value) || 0;
+    const reworkTotal = parseInt(document.getElementById('dp-reworkTotal').value) || 0;
+    const reworkQualified = parseInt(document.getElementById('dp-reworkQualified').value) || 0;
+    const executorType = document.getElementById('dp-executorType').textContent;
+    const completeDate = document.getElementById('dp-completeDate').value;
+    
+    if (!completeDate) { alert('请选择实际完成日期'); return; }
+    if (sortTotal <= 0 && reworkTotal <= 0) { alert('请填写挑选数量或返工数量'); return; }
+    if (sortQualified < 0) { alert('挑选合格数量不能小于0'); return; }
+    if (sortQualified > sortTotal) { alert('挑选合格数量不能大于挑选总数'); return; }
+    if (reworkQualified < 0) { alert('返工合格数量不能小于0'); return; }
+    if (reworkQualified > reworkTotal) { alert('返工合格数量不能大于返工总数'); return; }
+
+    // 内部返工验证
+    if (executorType === '内部') {
+        const productionLine = document.getElementById('dp-productionLine').value;
+        const worker = document.getElementById('dp-worker').value.trim();
+        if (!productionLine) { alert('请选择产线'); return; }
+        if (!worker) { alert('请填写生产人员'); return; }
+    }
+
+    const id = document.getElementById('dp-id').textContent;
+    const sortUnqualified = sortTotal - sortQualified;
+    const reworkUnqualified = reworkTotal - reworkQualified;
+    const laborHours = document.getElementById('dp-laborHours').value;
+    const materialLoss = document.getElementById('dp-materialLoss').value;
+    
+    let message = `返工处置已完成！\n\n`;
+    message += `处置编号：${id}\n`;
+    message += `实际完成日期：${completeDate}\n\n`;
+    
+    if (sortTotal > 0) {
+        message += `【挑选信息】\n`;
+        message += `挑选总数：${sortTotal}\n`;
+        message += `挑选合格：${sortQualified}\n`;
+        message += `挑选不合格：${sortUnqualified}\n\n`;
+    }
+    
+    if (reworkTotal > 0) {
+        message += `【返工信息】\n`;
+        message += `返工总数：${reworkTotal}\n`;
+        message += `返工合格：${reworkQualified}\n`;
+        message += `返工不合格：${reworkUnqualified}\n`;
+        if (laborHours) {
+            message += `工时损失：${laborHours}小时\n`;
+        }
+        message += `\n`;
+    }
+    
+    if (materialLoss) {
+        message += `材料损耗：${materialLoss}\n`;
+    }
+    
+    if (executorType === '内部') {
+        message += `产线：${document.getElementById('dp-productionLine').value}\n`;
+        message += `生产人员：${document.getElementById('dp-worker').value}\n`;
+    }
+    
+    const fileName = document.getElementById('dp-file-name').textContent;
+    if (fileName) {
+        message += `\n附件：${fileName}`;
+    }
+    
+    alert(message);
+    bootstrap.Modal.getInstance(document.getElementById('modalDisposal')).hide();
+}
+
+// ==================== 我的审核功能 ====================
+
+// 打开审核弹窗
+function openAuditModal(id) {
+    const d = auditData.find(r => r.id === id);
+    if (!d) return;
+    
+    // 构建委员意见表格HTML
+    let opinionHtml = '';
+    if (d.reviewOpinions && d.reviewOpinions.length > 0) {
+        d.reviewOpinions.forEach((op, idx) => {
+            opinionHtml += `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${op.person}</td>
+                    <td>${op.dept}</td>
+                    <td><span class="badge bg-info">${op.opinion}</span></td>
+                    <td>${op.remark}</td>
+                </tr>
+            `;
+        });
+    } else {
+        opinionHtml = '<tr><td colspan="5" class="text-muted">暂无委员意见</td></tr>';
+    }
+    
+    // 构建MRB评审会议信息
+    let meetingHtml = '';
+    if (d.meeting === '已召开') {
+        meetingHtml = `
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold" style="font-size:13px;">召开时间</label>
+                    <div style="font-size:13px;">${d.meetingTime || '-'}</div>
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-semibold" style="font-size:13px;">参会人员及会议概述记录</label>
+                    <div style="font-size:13px;white-space:pre-wrap;">${d.meetingAttendees || '-'}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 构建特采信息
+    let concessionHtml = '';
+    if (d.disposalType === '特采') {
+        concessionHtml = `
+            <div class="row g-3 mb-3 p-3" style="background:#f6ffed;border-radius:6px;">
+                <div class="col-12">
+                    <h6 style="font-size:13px;font-weight:700;color:#52c41a;margin:0 0 8px 0;">
+                        <i class="bi bi-check-circle me-1"></i>特采信息
+                    </h6>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold" style="font-size:13px;">特采数量</label>
+                    <div style="font-size:13px;">${d.concessionQty || '-'}</div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 动态创建审核弹窗
+    const modalHtml = `
+    <div class="modal fade" id="modalAudit" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-clipboard-check me-2"></i>审核 - ${d.id}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 不合格品信息 -->
+                    <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                        <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息
+                    </h6>
+                    <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;">${d.id}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;">${d.iqc}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验类型</span><div style="font-size:13px;font-weight:600;">${d.inspType}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">工单号</span><div style="font-size:13px;font-weight:600;">${d.orderNo}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;">${d.sup}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">工序</span><div style="font-size:13px;font-weight:600;">${d.matProp}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产品型号</span><div style="font-size:13px;font-weight:600;">${d.matName}</div></div>
+                        <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;">${d.def}</div></div>
+                    </div>
+
+                    <!-- 处置意见录入 -->
+                    <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                        <i class="bi bi-chat-square-text me-1" style="color:#1890ff;"></i>处置意见录入
+                        <span class="text-muted fw-normal" style="font-size:12px;">（发起人已录入）</span>
+                    </h6>
+                    
+                    <p style="font-size:13px;font-weight:600;color:#333;margin-bottom:12px;">委员处置意见</p>
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered align-middle" style="font-size:13px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:60px;">序号</th>
+                                    <th style="width:180px;">评审人员</th>
+                                    <th style="width:160px;">部门</th>
+                                    <th style="width:160px;">处置意见</th>
+                                    <th>处置说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${opinionHtml}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 处置结论 -->
+                    <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                        <i class="bi bi-star me-1" style="color:#1890ff;"></i>处置结论
+                    </h6>
+
+                    <!-- MRB评审会议 -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">MRB评审会议</label>
+                            <div style="font-size:13px;">${d.meeting || '-'}</div>
+                        </div>
+                    </div>
+                    ${meetingHtml}
+
+                    <!-- 处置方式 -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">处置方式</label>
+                            <div style="font-size:13px;">${d.disposalType || '-'}</div>
+                        </div>
+                    </div>
+
+                    ${concessionHtml}
+
+                    <!-- 返工执行方信息 -->
+                    ${d.disposalType === '挑选/返工' ? `
+                    <div class="row g-3 mb-3 p-3" style="background:#fff7e6;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#d46b08;margin:0 0 8px 0;">
+                                <i class="bi bi-tools me-1"></i>返工执行信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">生产班组长</label>
+                            <div style="font-size:13px;">${d.teamLeader || '-'}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">执行人员</label>
+                            <div style="font-size:13px;">${d.reworkPerson || '-'}</div>
+                        </div>
+                    </div>
+                    ` : ''}
+
+                    <!-- 处置说明 -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">处置说明</label>
+                        <div style="font-size:13px;white-space:pre-wrap;">${d.disposalRemark || '-'}</div>
+                    </div>
+
+                    <!-- 审核意见 -->
+                    <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #52c41a;">
+                        <i class="bi bi-pencil me-1" style="color:#52c41a;"></i>审核意见 <span class="text-danger">*</span>
+                    </h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">审核结论</label>
+                            <select class="form-select" id="audit-conclusion">
+                                <option value="">请选择</option>
+                                <option value="通过">通过</option>
+                                <option value="驳回">驳回</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:13px;">审核意见</label>
+                        <textarea class="form-control" id="audit-opinion" rows="4" placeholder="请输入审核意见..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAudit('${d.id}')">提交审核</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    
+    // 移除旧的弹窗(如果有)
+    const oldModal = document.getElementById('modalAudit');
+    if (oldModal) oldModal.remove();
+    
+    // 添加新弹窗并显示
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    const modal = new bootstrap.Modal(document.getElementById('modalAudit'));
+    modal.show();
+}
+
+// 提交审核
+function submitAudit(id) {
+    const conclusion = document.getElementById('audit-conclusion').value;
+    const opinion = document.getElementById('audit-opinion').value.trim();
+    
+    if (!conclusion) {
+        alert('请选择审核结论');
+        return;
+    }
+    if (!opinion) {
+        alert('请输入审核意见');
+        return;
+    }
+    
+    // 更新auditData中的状态
+    const item = auditData.find(d => d.id === id);
+    if (item) {
+        if (conclusion === '通过') {
+            item.sts = '待处置';
+        } else {
+            item.sts = '待发起';
+            // 从审核数据中移除
+            const index = auditData.findIndex(d => d.id === id);
+            if (index > -1) {
+                auditData.splice(index, 1);
+            }
+        }
+    }
+    
+    alert('审核已提交');
+    
+    // 关闭弹窗
+    bootstrap.Modal.getInstance(document.getElementById('modalAudit')).hide();
+    
+    // 重新渲染表格
+    renderAuditTable();
+    renderLedgerTable();
+}
+
+// 渲染审核表格
+function renderAuditTable() {
+    const tbody = document.getElementById('audit-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = auditData.map(d => {
+        return `
+            <tr>
+                <td class="text-primary fw-semibold">${d.id}</td>
+                <td>${d.iqc}</td>
+                <td>${d.inspType}</td>
+                <td>${d.orderNo}</td>
+                <td>${d.sup}</td>
+                <td>${d.matProp}</td>
+                <td class="text-start">${d.matName}</td>
+                <td class="text-danger fw-semibold">${d.def}</td>
+                <td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>
+                <td>${d.by}</td>
+                <td style="font-size:12px;">${d.createTime}</td>
+                <td><button class="btn btn-sm btn-primary btn-op" onclick="openAuditModal('${d.id}')">审核</button></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// 筛选审核数据
+function filterAuditData() {
+    const ncmNo = document.getElementById('auditNcmNo').value.trim();
+    const product = document.getElementById('auditProduct').value.trim();
+    const line = document.getElementById('auditLine').value.trim();
+    const inspType = document.getElementById('auditInspType').value;
+    const status = document.getElementById('auditStatus').value;
+    
+    let filtered = auditData;
+    
+    if (ncmNo) filtered = filtered.filter(d => d.id.includes(ncmNo));
+    if (product) filtered = filtered.filter(d => d.matName.includes(product));
+    if (line) filtered = filtered.filter(d => d.sup.includes(line));
+    if (inspType !== '全部') filtered = filtered.filter(d => d.inspType === inspType);
+    if (status !== '全部') filtered = filtered.filter(d => d.sts === status);
+    
+    const tbody = document.getElementById('audit-table-body');
+    tbody.innerHTML = filtered.map(d => {
+        return `
+            <tr>
+                <td class="text-primary fw-semibold">${d.id}</td>
+                <td>${d.iqc}</td>
+                <td>${d.inspType}</td>
+                <td>${d.orderNo}</td>
+                <td>${d.sup}</td>
+                <td>${d.matProp}</td>
+                <td class="text-start">${d.matName}</td>
+                <td class="text-danger fw-semibold">${d.def}</td>
+                <td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>
+                <td>${d.by}</td>
+                <td style="font-size:12px;">${d.createTime}</td>
+                <td><button class="btn btn-sm btn-primary btn-op" onclick="openAuditModal('${d.id}')">审核</button></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// 重置审核筛选
+function resetAuditFilter() {
+    document.getElementById('auditNcmNo').value = '';
+    document.getElementById('auditProduct').value = '';
+    document.getElementById('auditLine').value = '';
+    document.getElementById('auditInspType').value = '全部';
+    document.getElementById('auditStatus').value = '全部';
+    renderAuditTable();
+}
+
+// 重新渲染台账表格
+function renderLedgerTable() {
+    const tbody = document.getElementById('ledger-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = ledgerData.map(d => {
+        let ops = `<button class="btn btn-sm btn-outline-primary btn-op me-1" onclick="openDetailModal('${d.id}')">详情</button>`;
+        
+        // 添加发起按钮
+        if (d.sts !== '已完成') {
+            ops += `<button class="btn btn-sm btn-success btn-op me-1" onclick="openInitiateMrb('${d.id}')">发起</button>`;
+        }
+        
+        return `
+            <tr>
+                <td class="text-primary fw-semibold">${d.id}</td>
+                <td><a href="javascript:void(0)" onclick="viewIpqcRecord('${d.iqc}')" style="color:#1890ff;text-decoration:none;cursor:pointer;">${d.iqc}</a></td>
+                <td>${d.inspType}</td>
+                <td>${d.orderNo}</td>
+                <td>${d.sup}</td>
+                <td>${d.matProp}</td>
+                <td class="text-start">${d.matName}</td>
+                <td class="text-danger fw-semibold">${d.def}</td>
+                <td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>
+                <td>${d.by}</td>
+                <td style="font-size:12px;">${d.createTime}</td>
+                <td>${ops}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ==================== 发起MRB评审功能 ====================
+
+// 当前发起的不合格品ID
+let currentInitiateId = '';
+
+// 打开发起弹窗
+function openInitiateMrb(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+    
+    currentInitiateId = id;
+    
+    // 填充不合格品信息
+    document.getElementById('init-id').textContent = d.id;
+    document.getElementById('init-iqc').textContent = d.iqc;
+    document.getElementById('init-inspType').textContent = d.inspType;
+    document.getElementById('init-orderNo').textContent = d.orderNo;
+    document.getElementById('init-sup').textContent = d.sup;
+    document.getElementById('init-matProp').textContent = d.matProp;
+    document.getElementById('init-matName').textContent = d.matName;
+    document.getElementById('init-def').textContent = d.def;
+    
+    // 清空表单
+    document.getElementById('init-meeting').value = '未召开';
+    document.getElementById('init-meeting-time-col').style.display = 'none';
+    document.getElementById('init-meeting-attendees-section').style.display = 'none';
+    document.getElementById('init-meetingTime').value = '';
+    document.getElementById('init-meetingAttendees').value = '';
+    document.getElementById('init-disposalType').value = '';
+    document.getElementById('init-concession-section').style.display = 'none';
+    document.getElementById('init-concessionQty').value = '';
+    document.getElementById('init-rework-executor-section').style.display = 'none';
+    document.getElementById('init-teamLeader').value = '';
+    document.getElementById('init-reworkPerson').value = '';
+    document.getElementById('init-disposalRemark').value = '';
+    document.getElementById('init-attachment').value = '';
+    
+    // 清空意见列表
+    document.getElementById('init-opinion-list').innerHTML = '';
+    
+    // 显示弹窗
+    const modal = new bootstrap.Modal(document.getElementById('modalInitiateMrb'));
+    modal.show();
+}
+
+// 添加委员意见行
+function addInitiateOpinionRow() {
+    const tbody = document.getElementById('init-opinion-list');
+    const rowCount = tbody.rows.length + 1;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${rowCount}</td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入评审人员"></td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入部门"></td>
+        <td>
+            <select class="form-select form-select-sm">
+                <option value="">请选择</option>
+                <option value="特采">特采</option>
+                <option value="挑选/返工">挑选/返工</option>
+                <option value="整批退货">整批退货</option>
+            </select>
+        </td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入处置说明"></td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+    `;
+    tbody.appendChild(row);
+}
+
+// MRB评审会议切换
+function onInitMeetingChange() {
+    const meeting = document.getElementById('init-meeting').value;
+    document.getElementById('init-meeting-time-col').style.display = meeting === '已召开' ? 'block' : 'none';
+    document.getElementById('init-meeting-attendees-section').style.display = meeting === '已召开' ? 'block' : 'none';
+}
+
+// 处置方式切换
+function onInitDisposalTypeChange() {
+    const disposalType = document.getElementById('init-disposalType').value;
+    document.getElementById('init-concession-section').style.display = disposalType === '特采' ? 'block' : 'none';
+    document.getElementById('init-rework-executor-section').style.display = disposalType === '挑选/返工' ? 'block' : 'none';
+    
+    // 清空字段
+    if (disposalType !== '特采') {
+        document.getElementById('init-concessionQty').value = '';
+    }
+    if (disposalType !== '挑选/返工') {
+        document.getElementById('init-teamLeader').value = '';
+        document.getElementById('init-reworkPerson').value = '';
+    }
+}
+
+// 提交发起
+function submitInitiateMrb() {
+    const disposalType = document.getElementById('init-disposalType').value;
+    
+    if (!disposalType) {
+        alert('请选择处置方式');
+        return;
+    }
+    
+    // 如果是特采，验证特采数量
+    if (disposalType === '特采') {
+        const concessionQty = document.getElementById('init-concessionQty').value;
+        if (!concessionQty || concessionQty <= 0) {
+            alert('请填写特采数量');
+            return;
+        }
+    }
+    
+    // 如果是挑选/返工，验证生产班组长
+    if (disposalType === '挑选/返工') {
+        const teamLeader = document.getElementById('init-teamLeader').value;
+        if (!teamLeader) {
+            alert('请选择生产班组长');
+            return;
+        }
+    }
+    
+    // 更新状态为审核中
+    const item = ledgerData.find(d => d.id === currentInitiateId);
+    if (item) {
+        item.sts = '审核中';
+    }
+    
+    alert('MRB评审已发起，等待审核');
+    
+    // 关闭弹窗
+    bootstrap.Modal.getInstance(document.getElementById('modalInitiateMrb')).hide();
+    
+    // 重新渲染表格
+    renderLedgerTable();
+    renderAuditTable();
+}
+</script>
+
+</body>
+</html>

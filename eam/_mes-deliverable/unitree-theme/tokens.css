@@ -1,0 +1,132 @@
+/*!
+ * UniTree Design Tokens v1
+ * 四系统（WMS/MES/QMS/EAM）共享的设计变量
+ * 反向提取自 WMS 现有实现（http://zjx.iampmer.com/wms/）
+ * 创建日期: 2026-05-08
+ */
+
+:root {
+  /* ============ 主色 ============ */
+  --u-primary: #1677FF;
+  --u-primary-hover: #4096FF;
+  --u-primary-active: #0958D9;
+  --u-primary-bg: #E6F4FF;          /* 浅色主色底（如 hover/选中底） */
+  --u-primary-border: #91CAFF;
+
+  /* ============ 中性色 ============ */
+  --u-bg-page: #E6E9F0;             /* 页面背景（浅灰蓝）*/
+  --u-bg-card: #FFFFFF;             /* 卡片底色 */
+  --u-bg-hover: #F5F7FA;            /* 表格/菜单悬停 */
+  --u-bg-stripe: #FAFBFC;           /* 表格斑马纹 */
+  --u-bg-disabled: #F3F4F6;
+
+  /* 侧栏 */
+  --u-sidebar-bg: #3B3F48;
+  --u-sidebar-bg-hover: #4A4F58;
+  --u-sidebar-text: rgba(255, 255, 255, 0.80);
+  --u-sidebar-text-hover: #FFFFFF;
+  --u-sidebar-active-bg: #1677FF;
+  --u-sidebar-active-text: #FFFFFF;
+  --u-sidebar-active-bar: #FFFFFF;  /* 激活项左侧 4px 白色立标 */
+  --u-sidebar-divider: rgba(255, 255, 255, 0.08);
+
+  /* 顶栏 */
+  --u-header-bg: #FFFFFF;
+  --u-header-border: #E5E7EB;
+
+  /* 文字 */
+  --u-text-1: #1F2937;              /* 主标题、表头 */
+  --u-text-2: #4B5563;              /* 正文、表格内容 */
+  --u-text-3: #9CA3AF;              /* 辅助、占位、说明 */
+  --u-text-disabled: #C0C4CC;
+  --u-text-inverse: #FFFFFF;
+
+  /* 边框 */
+  --u-border: #E5E7EB;              /* 默认边框 */
+  --u-border-light: #F0F2F5;
+  --u-border-dark: #D1D5DB;
+
+  /* ============ 状态色 ============ */
+  --u-success: #10B981;
+  --u-success-bg: #ECFDF5;
+  --u-success-border: #A7F3D0;
+
+  --u-warning: #F59E0B;
+  --u-warning-bg: #FFFBEB;
+  --u-warning-border: #FDE68A;
+
+  --u-danger: #EF4444;
+  --u-danger-bg: #FEF2F2;
+  --u-danger-border: #FECACA;
+
+  --u-info: #6366F1;
+  --u-info-bg: #EEF2FF;
+  --u-info-border: #C7D2FE;
+
+  /* ============ 字体 ============ */
+  --u-font: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont,
+            "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --u-font-mono: "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+
+  --u-fs-h1: 20px;                  /* 页面主标题 */
+  --u-fs-h2: 16px;                  /* 卡片标题、模块标题 */
+  --u-fs-h3: 14px;                  /* 小标题、Label */
+  --u-fs-body: 14px;                /* 正文 */
+  --u-fs-table: 13px;               /* 表格内容（紧凑） */
+  --u-fs-sm: 12px;                  /* 辅助文字、徽标 */
+
+  --u-fw-regular: 400;
+  --u-fw-medium: 500;
+  --u-fw-bold: 600;
+
+  --u-lh-tight: 1.4;
+  --u-lh-normal: 1.6;
+
+  /* ============ 圆角 ============ */
+  --u-radius-sm: 4px;
+  --u-radius: 6px;
+  --u-radius-lg: 8px;
+  --u-radius-pill: 999px;
+
+  /* ============ 阴影 ============ */
+  --u-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --u-shadow-popover: 0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --u-shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.18);
+  --u-shadow-focus: 0 0 0 2px rgba(22, 119, 255, 0.20);
+
+  /* ============ 间距 ============ */
+  --u-space-1: 4px;
+  --u-space-2: 8px;
+  --u-space-3: 12px;
+  --u-space-4: 16px;
+  --u-space-5: 20px;
+  --u-space-6: 24px;
+  --u-space-8: 32px;
+  --u-space-10: 40px;
+
+  /* ============ 布局 ============ */
+  --u-sidebar-w: 220px;
+  --u-sidebar-w-collapsed: 64px;
+  --u-sidebar-logo-h: 88px;
+  --u-header-h: 56px;
+  --u-content-padding: 24px;
+
+  --u-menu-item-h: 44px;
+  --u-table-row-h: 44px;
+  --u-input-h: 32px;
+  --u-input-h-lg: 40px;
+  --u-btn-h: 32px;
+  --u-btn-h-lg: 40px;
+
+  /* ============ 动效 ============ */
+  --u-transition-fast: 0.15s ease;
+  --u-transition: 0.2s ease;
+  --u-transition-slow: 0.3s ease;
+
+  /* ============ z-index ============ */
+  --u-z-sidebar: 100;
+  --u-z-header: 90;
+  --u-z-dropdown: 1000;
+  --u-z-modal: 2000;
+  --u-z-toast: 3000;
+}

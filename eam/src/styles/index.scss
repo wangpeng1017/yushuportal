@@ -1,0 +1,618 @@
+@use './var.css';
+@use './FormCreate/index.scss';
+@use './theme.scss';
+@use './theme/index.scss' as eam_theme;
+@use 'element-plus/theme-chalk/dark/css-vars.css';
+
+/* ========== 全局视觉规范：保证文字对比度清晰（王老师 2026-05-10 反馈） ========== */
+/* ElMessage 弹窗：必须用与项目主题同等具体的选择器才能覆盖 */
+.el-message,
+.el-message.el-message--info,
+.el-message.el-message--success,
+.el-message.el-message--warning,
+.el-message.el-message--error,
+.el-message.el-message--primary,
+.el-message.is-center,
+.el-message.is-plain {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1px solid #ebeef5 !important;
+  border-color: #ebeef5 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  padding: 12px 16px !important;
+}
+.el-message .el-message__content,
+.el-message.el-message--warning .el-message__content,
+.el-message.el-message--success .el-message__content,
+.el-message.el-message--error .el-message__content,
+.el-message.el-message--info .el-message__content {
+  color: #303133 !important;
+  font-weight: 500 !important;
+}
+.el-message--success .el-message__icon,
+.el-message.el-message--success .el-message__icon { color: #67c23a !important; }
+.el-message--warning .el-message__icon,
+.el-message.el-message--warning .el-message__icon { color: #e6a23c !important; }
+.el-message--error .el-message__icon,
+.el-message.el-message--error .el-message__icon { color: #f56c6c !important; }
+.el-message--info .el-message__icon,
+.el-message.el-message--info .el-message__icon { color: #909399 !important; }
+
+/* ==========================================================================
+   全局 el-tag 视觉降级：去掉背景色 + 边框 + 内边距，让 tag 看起来像纯文字
+   仅保留 type 的语义文字颜色（success/warning/danger/info）
+   王老师 2026-05-10：「所有的 tag 都要去掉，看起来要像纯文字」
+   ========================================================================== */
+.el-tag,
+.el-tag.is-plain,
+.el-tag.is-hit,
+.el-tag.el-tag--success,
+.el-tag.el-tag--warning,
+.el-tag.el-tag--danger,
+.el-tag.el-tag--info,
+.el-tag.el-tag--primary {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  border-color: transparent !important;
+  padding: 0 4px !important;
+  height: auto !important;
+  line-height: 1.5 !important;
+  font-weight: 500 !important;
+}
+/* 文字色按 type 语义保留，便于一眼区分状态/警示 */
+.el-tag,
+.el-tag.el-tag--info,
+.el-tag.el-tag--default { color: #606266 !important; }
+.el-tag.el-tag--primary { color: #409eff !important; }
+.el-tag.el-tag--success { color: #67c23a !important; }
+.el-tag.el-tag--warning { color: #e6a23c !important; }
+.el-tag.el-tag--danger  { color: #f56c6c !important; }
+/* 关闭按钮微调 */
+.el-tag .el-tag__close { color: inherit !important; }
+
+/* ==========================================================================
+   全平台 KPI / 统计卡兜底：所有 .card-blue/orange/red/green/purple 改 Notion 风
+   王老师 2026-05-10：全平台都要 Notion 风，去掉鲜艳色块背景
+   ========================================================================== */
+.card-red, .card-orange, .card-green, .card-blue, .card-purple,
+.stat-card.danger, .stat-card.warn, .stat-card.primary, .stat-card.success {
+  background: #fff !important;
+  background-color: #fff !important;
+  border: 1px solid #ebeef5 !important;
+  border-left-width: 4px !important;
+  border-radius: 6px !important;
+}
+.card-red    { border-left-color: #f56c6c !important; }
+.card-orange { border-left-color: #909399 !important; }
+.card-green  { border-left-color: #67c23a !important; }
+.card-blue   { border-left-color: #409eff !important; }
+.card-purple { border-left-color: #909399 !important; }
+.stat-card.danger  { border-left-color: #f56c6c !important; }
+.stat-card.warn    { border-left-color: #909399 !important; }
+.stat-card.primary { border-left-color: #409eff !important; }
+.stat-card.success { border-left-color: #909399 !important; }
+
+/* KPI 数字统一深色，去掉鲜艳着色 */
+.kpi-num.kpi-red,
+.kpi-num.kpi-orange,
+.kpi-num.kpi-green,
+.kpi-num.kpi-blue,
+.kpi-num.kpi-purple,
+.kpi-num.kpi-yellow {
+  color: #303133 !important;
+}
+
+/* ========== 全局字体 - 微软雅黑（规范） ========== */
+html,
+body,
+#app {
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.reset-margin [class*='el-icon'] + span {
+  margin-left: 2px !important;
+}
+
+/* 解决抽屉弹出时，body宽度变化的问题 */
+.el-popup-parent--hidden {
+  width: 100% !important;
+}
+
+.el-scrollbar__bar {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* ========== UniTree 表格统一 ========== */
+.el-table {
+  font-size: 13px;
+  th.el-table__cell {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  td.el-table__cell {
+    font-size: 13px;
+  }
+}
+
+/* ========== UniTree .el-tag 状态色映射 ========== */
+.el-tag {
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  height: 22px;
+  padding: 0 8px;
+  line-height: 1;
+  &.el-tag--success {
+    background-color: #ECFDF5 !important;
+    border-color: #A7F3D0 !important;
+    color: #10B981 !important;
+  }
+  &.el-tag--warning {
+    background-color: #FFFBEB !important;
+    border-color: #FDE68A !important;
+    color: #F59E0B !important;
+  }
+  &.el-tag--danger,
+  &.el-tag--error {
+    background-color: #FEF2F2 !important;
+    border-color: #FECACA !important;
+    color: #EF4444 !important;
+  }
+  &.el-tag--info {
+    background-color: #EEF2FF !important;
+    border-color: #C7D2FE !important;
+    color: #6366F1 !important;
+  }
+  &.el-tag--primary,
+  &:not(.el-tag--success):not(.el-tag--warning):not(.el-tag--danger):not(.el-tag--error):not(.el-tag--info) {
+    background-color: #E6F4FF !important;
+    border-color: #91CAFF !important;
+    color: #1677FF !important;
+  }
+}
+
+/* nprogress 适配主题色（蓝） */
+#nprogress {
+  & .bar {
+    background-color: #1677FF !important;
+    height: 2px !important;
+  }
+
+  & .peg {
+    box-shadow:
+      0 0 10px #1677FF,
+      0 0 5px #1677FF !important;
+  }
+
+  & .spinner-icon {
+    border-top-color: #1677FF;
+    border-left-color: #1677FF;
+  }
+}
+
+/* 滚动条 - 隐式细滑 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.32);
+}
+
+/* 页面过渡 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* ========== 全局按钮规范（蓝色主调） ========== */
+.el-button {
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 16px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* 主要按钮 - 蓝色 */
+  &--primary {
+    background-color: #1677FF;
+    border: 1px solid #1677FF;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(22, 119, 255, 0.2);
+
+    &:hover {
+      background-color: #4596FF;
+      border-color: #4596FF;
+      box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      background-color: #0958D9;
+      border-color: #0958D9;
+      box-shadow: 0 1px 3px rgba(22, 119, 255, 0.25);
+      transform: translateY(0);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.18);
+    }
+  }
+
+  &--success {
+    background-color: #67c23a;
+    border-color: #67c23a;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(103, 194, 58, 0.2);
+
+    &:hover {
+      background-color: #85ce61;
+      border-color: #85ce61;
+      box-shadow: 0 4px 8px rgba(103, 194, 58, 0.28);
+      transform: translateY(-1px);
+    }
+  }
+
+  &--warning {
+    background-color: #e6a23c;
+    border-color: #e6a23c;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(230, 162, 60, 0.2);
+
+    &:hover {
+      background-color: #ebb563;
+      border-color: #ebb563;
+      box-shadow: 0 4px 8px rgba(230, 162, 60, 0.28);
+      transform: translateY(-1px);
+    }
+  }
+
+  &--danger {
+    background-color: #EF4444;
+    border-color: #EF4444;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.18);
+
+    &:hover {
+      background-color: #FB6D6D;
+      border-color: #FB6D6D;
+      box-shadow: 0 4px 8px rgba(239, 68, 68, 0.28);
+      transform: translateY(-1px);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+    }
+  }
+
+  &--info {
+    background-color: #909399;
+    border-color: #909399;
+    color: #fff;
+
+    &:hover {
+      background-color: #a6a9ad;
+      border-color: #a6a9ad;
+      transform: translateY(-1px);
+    }
+  }
+
+  /* 默认按钮 */
+  &--default {
+    background-color: #ffffff;
+    border: 1px solid #d9d9d9;
+    color: #606266;
+    box-shadow: none;
+
+    &:hover {
+      color: #1677FF;
+      border-color: #1677FF;
+      background-color: #ffffff;
+    }
+
+    &:active {
+      color: #0958D9;
+      border-color: #0958D9;
+      background-color: #f0f7ff;
+    }
+  }
+
+  /* 朴素按钮 */
+  &.is-plain {
+    background-color: #ffffff;
+
+    &.el-button--primary {
+      color: #1677FF;
+      background-color: #ffffff;
+      border-color: #1677FF;
+
+      &:hover {
+        background-color: #1677FF;
+        border-color: #1677FF;
+        color: #ffffff;
+      }
+    }
+
+    &.el-button--success {
+      color: #67c23a;
+      background-color: #ffffff;
+      border-color: #67c23a;
+
+      &:hover {
+        background-color: #67c23a;
+        border-color: #67c23a;
+        color: #ffffff;
+      }
+    }
+
+    &.el-button--danger {
+      color: #EF4444;
+      background-color: #ffffff;
+      border-color: #EF4444;
+
+      &:hover {
+        background-color: #EF4444;
+        border-color: #EF4444;
+        color: #ffffff;
+      }
+    }
+  }
+
+  /* 链接按钮 */
+  &.is-link {
+    border: none;
+    padding: 2px;
+    height: auto;
+
+    &.el-button--primary {
+      color: #1677FF;
+      &:hover { color: #4596FF; }
+      &:active { color: #0958D9; }
+    }
+
+    &.el-button--danger {
+      color: #EF4444;
+      &:hover { color: #FB6D6D; }
+      &:active { color: #DC2626; }
+    }
+  }
+
+  /* 尺寸 */
+  &--small {
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 13px;
+    height: 28px;
+  }
+
+  &:not(.el-button--small):not(.el-button--large) {
+    height: 32px;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  &--large {
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    height: 40px;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &.is-circle {
+    border-radius: 50%;
+  }
+
+  &.is-round {
+    border-radius: 20px;
+  }
+}
+
+/* 按钮组 */
+.el-button-group {
+  .el-button {
+    border-radius: 0;
+
+    &:first-child {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+  }
+}
+
+.el-dialog {
+  padding: 0;
+  border-radius: 10px;
+}
+
+.el-button:not(.el-button--small):not(.el-button--large) {
+  height: 32px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+/* ========== 全局新增按钮（plain primary） ========== */
+.el-button.is-plain.el-button--primary {
+  background-color: #ffffff !important;
+  border-color: #1677FF !important;
+  color: #1677FF !important;
+  box-shadow: none !important;
+
+  &:hover:not(.is-disabled) {
+    background-color: #1677FF !important;
+    border-color: #1677FF !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(22, 119, 255, 0.25) !important;
+  }
+
+  &:active:not(.is-disabled) {
+    background-color: #0958D9 !important;
+    border-color: #0958D9 !important;
+    color: #ffffff !important;
+    transform: translateY(0);
+  }
+
+  &:focus:not(.is-disabled) {
+    outline: none;
+    background-color: #ffffff !important;
+    border-color: #1677FF !important;
+    color: #1677FF !important;
+    box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.18) !important;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+      box-shadow: none !important;
+    }
+  }
+}
+
+/* ========== 全局批量删除按钮（plain danger） ========== */
+.el-button.is-plain.el-button--danger {
+  background-color: #ffffff !important;
+  border-color: #EF4444 !important;
+  color: #EF4444 !important;
+  box-shadow: none !important;
+
+  &:hover:not(.is-disabled) {
+    background-color: #EF4444 !important;
+    border-color: #EF4444 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.22) !important;
+  }
+
+  &:active:not(.is-disabled) {
+    background-color: #DC2626 !important;
+    border-color: #DC2626 !important;
+    color: #ffffff !important;
+    transform: translateY(0);
+  }
+
+  &:focus:not(.is-disabled) {
+    outline: none;
+    background-color: #ffffff !important;
+    border-color: #EF4444 !important;
+    color: #EF4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18) !important;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+      box-shadow: none !important;
+      background-color: #ffffff !important;
+    }
+  }
+}
+
+/* ========== Dialog 对话框按钮统一风格 ========== */
+.el-dialog__footer {
+  .el-button {
+    background-color: #ffffff !important;
+    border-color: #1677FF !important;
+    color: #1677FF !important;
+    box-shadow: none !important;
+
+    &:hover:not(.is-disabled) {
+      background-color: #1677FF !important;
+      border-color: #1677FF !important;
+      color: #ffffff !important;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(22, 119, 255, 0.22) !important;
+    }
+
+    &:active:not(.is-disabled) {
+      background-color: #0958D9 !important;
+      border-color: #0958D9 !important;
+      color: #ffffff !important;
+      transform: translateY(0);
+    }
+
+    &:focus:not(.is-disabled) {
+      outline: none;
+      background-color: #ffffff !important;
+      border-color: #1677FF !important;
+      color: #1677FF !important;
+      box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.18) !important;
+    }
+
+    &.is-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        transform: none;
+        box-shadow: none !important;
+        background-color: #ffffff !important;
+      }
+    }
+  }
+}
+
+.el-divider--horizontal {
+  margin: 8px 0;
+}
+
+.task-item {
+  padding: 3px 0;
+}
+
+.el-dialog {
+  --el-dialog-margin-top: 5vh;
+}
+
+/* 通用 helper class */
+.text-primary { color: rgba(0, 0, 0, 0.88); }
+.text-regular { color: rgba(0, 0, 0, 0.65); }
+.text-secondary { color: rgba(0, 0, 0, 0.45); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }

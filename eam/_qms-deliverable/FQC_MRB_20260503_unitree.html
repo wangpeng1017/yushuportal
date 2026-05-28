@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QMS系统 - FQC不合格品管理模块</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* ============ FQC Design System ============ */
+        body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background-color: #f0f2f5; font-size: 14px; }
+        
+        /* Sidebar */
+        .sidebar { height: 100vh; background-color: #001529; color: #a6adb4; position: fixed; width: 220px; z-index: 100; overflow-y: auto; padding-top: 0; }
+        .sidebar .menu-header { padding: 16px 20px 12px; border-bottom: 1px solid #1f2d3d; }
+        .sidebar .menu-header h5 { color: #fff; font-weight: 700; font-size: 16px; letter-spacing: 1px; margin: 0; }
+        .sidebar .menu-header .badge { font-size: 11px; font-weight: 500; background-color: #1890ff; margin-top: 4px; }
+        .sidebar .menu-title { font-size: 13px; color: #fff; padding: 9px 20px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .sidebar .menu-title:hover { color: #1890ff; }
+        .sidebar .sub-menu { display: none; }
+        .sidebar .sub-menu.open { display: block; }
+        .sidebar .sub-menu a { color: #a6adb4; text-decoration: none; display: block; padding: 8px 20px 8px 42px; cursor: pointer; transition: 0.2s; font-size: 13px; border-left: 3px solid transparent; }
+        .sidebar .sub-menu a:hover { color: #fff; background-color: rgba(24,144,255,0.1); }
+        .sidebar .sub-menu a.active { color: #fff; background-color: rgba(24,144,255,0.18); border-left-color: #1890ff; }
+        .sidebar .menu-icon { font-size: 14px; margin-right: 8px; }
+        .sidebar .chevron { font-size: 10px; transition: transform 0.2s; }
+        .sidebar .chevron.open { transform: rotate(90deg); }
+        
+        /* Main Content */
+        .main-content { margin-left: 220px; padding: 20px; min-height: 100vh; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Cards */
+        .card { border: none; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,.08); margin-bottom: 16px; }
+        .card-header-custom { padding: 14px 20px; font-size: 14px; font-weight: 600; border-bottom: 1px solid #f0f0f0; background: #fff; border-radius: 6px 6px 0 0 !important; }
+        
+        /* Tables */
+        .table th { background-color: #f8f9fa; font-weight: 600; font-size: 12px; color: #666; border-bottom-width: 1px; }
+        .table td { font-size: 13px; vertical-align: middle; }
+        .table th, .table td { padding: 10px 12px; white-space: nowrap; }
+        .table-hover tbody tr:hover { background-color: #f5f8ff; }
+        
+        /* Badges */
+        .badge-status { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .badge-pending { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+        .badge-active { background: #e6f7ff; color: #096dd9; border: 1px solid #91d5ff; }
+        .badge-completed { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+        .badge-rejected { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+        .badge-reviewing { background: #f9f0ff; color: #722ed1; border: 1px solid #d3adf7; }
+        
+        /* Buttons */
+        .btn-op { font-size: 12px !important; padding: 4px 10px !important; border-radius: 4px !important; }
+        .btn-primary { background-color: #1890ff; border-color: #1890ff; }
+        .btn-primary:hover { background-color: #40a9ff; border-color: #40a9ff; }
+        
+        /* Search Form */
+        .search-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+        .form-control, .form-select { font-size: 13px; }
+        .form-control:focus, .form-select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,0.1); }
+        
+        /* Modal */
+        .modal-backdrop { background-color: rgba(0,0,0,0.45); }
+        .modal-content { border: none; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+        .modal-header { border-bottom: 1px solid #f0f0f0; padding: 16px 24px; }
+        .modal-header .modal-title { font-size: 15px; font-weight: 600; }
+        .modal-body { padding: 20px 24px; max-height: 70vh; overflow-y: auto; }
+        .modal-footer { border-top: 1px solid #f0f0f0; padding: 12px 24px; }
+        
+        /* Step Wizard */
+        .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 24px; }
+        .step-item { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .step-item:last-child { flex: 0; }
+        .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+        .step-circle.active { background: #1890ff; color: #fff; }
+        .step-circle.done { background: #52c41a; color: #fff; }
+        .step-circle.pending { background: #f0f0f0; color: #999; }
+        .step-label { font-size: 13px; font-weight: 500; white-space: nowrap; }
+        .step-label.active { color: #1890ff; }
+        .step-label.pending { color: #999; }
+        .step-connector { flex: 1; height: 1px; background: #e8e8e8; margin: 0 12px; }
+        .step-connector.done { background: #52c41a; }
+        
+        /* Tag Selector */
+        .tag-btn { display: inline-block; padding: 4px 14px; border-radius: 14px; font-size: 12px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #666; transition: all 0.2s; margin: 2px; }
+        .tag-btn:hover { border-color: #1890ff; color: #1890ff; }
+        .tag-btn.selected { background: #1890ff; color: #fff; border-color: #1890ff; }
+        
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #1f2d3d; border-radius: 2px; }
+        .sidebar::-webkit-scrollbar-track { background: #001529; }
+
+        [v-cloak] { display: none; }
+    </style>
+
+<!-- UniTree UI Theme (M3b 轻 retrofit) -->
+<link rel="stylesheet" href="unitree-theme/tokens.css">
+<link rel="stylesheet" href="unitree-theme/base.css">
+<link rel="stylesheet" href="unitree-theme/components.css">
+<style>
+  /* ==== UniTree Skin: 给原 Bootstrap 元素套 WMS 视觉 ==== */
+  body {
+    font-family: var(--u-font) !important;
+    font-size: var(--u-fs-body) !important;
+    background-color: var(--u-bg-page) !important;
+    color: var(--u-text-2) !important;
+  }
+  h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5 {
+    color: var(--u-text-1) !important;
+  }
+  h4, .h4 { font-size: var(--u-fs-h2) !important; }
+
+  /* —— 侧栏覆盖 —— */
+  .sidebar {
+    background-color: var(--u-sidebar-bg) !important;
+    width: var(--u-sidebar-w) !important;
+    color: var(--u-sidebar-text) !important;
+    padding-top: 0 !important;
+  }
+  .sidebar .text-center.mb-3,
+  .sidebar .menu-header {
+    padding: var(--u-space-4) var(--u-space-4) var(--u-space-3) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    margin: 0 !important;
+  }
+  .sidebar .text-center.mb-3 h4,
+  .sidebar .menu-header {
+    font-weight: 700 !important;
+    color: #fff !important;
+    letter-spacing: 2px !important;
+    margin-bottom: 4px !important;
+  }
+  .sidebar .text-center.mb-3 .badge,
+  .sidebar .text-center.mb-3 span.badge {
+    background: transparent !important;
+    color: rgba(255,255,255,.65) !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    letter-spacing: 1px !important;
+    padding: 0 !important;
+    margin-top: 4px !important;
+  }
+  .sidebar .menu-title {
+    color: rgba(255,255,255,.40) !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    letter-spacing: 1px !important;
+    padding: var(--u-space-3) var(--u-space-5) var(--u-space-2) !important;
+    border: none !important;
+    cursor: default !important;
+  }
+  .sidebar .menu-title:hover { color: rgba(255,255,255,.40) !important; }
+  .sidebar .menu-title i { display: none !important; }
+  .sidebar .sub-menu { padding-left: 0 !important; background: transparent !important; }
+  .sidebar .sub-menu a,
+  .sidebar .nav-link {
+    height: var(--u-menu-item-h) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 var(--u-space-5) !important;
+    color: var(--u-sidebar-text) !important;
+    font-size: var(--u-fs-body) !important;
+    border-left: none !important;
+    transition: background .15s !important;
+  }
+  .sidebar .sub-menu a:hover,
+  .sidebar .nav-link:hover {
+    background: var(--u-sidebar-bg-hover) !important;
+    color: #fff !important;
+  }
+  .sidebar .sub-menu a.active,
+  .sidebar .nav-link.active {
+    background: var(--u-sidebar-active-bg) !important;
+    color: #fff !important;
+    position: relative;
+    border-left: none !important;
+  }
+  .sidebar .sub-menu a.active::before,
+  .sidebar .nav-link.active::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: #fff;
+  }
+
+  /* —— 主体覆盖 —— */
+  .main-content {
+    margin-left: var(--u-sidebar-w) !important;
+    width: calc(100% - var(--u-sidebar-w)) !important;
+    padding: var(--u-content-padding) !important;
+    background-color: var(--u-bg-page) !important;
+  }
+
+  /* —— Bootstrap 卡片 —— */
+  .card {
+    border: none !important;
+    border-radius: var(--u-radius) !important;
+    box-shadow: var(--u-shadow-card) !important;
+  }
+
+  /* —— Bootstrap 按钮 —— */
+  .btn { border-radius: var(--u-radius) !important; font-weight: 400 !important; }
+  .btn-primary,
+  .btn-primary:focus {
+    background-color: var(--u-primary) !important;
+    border-color: var(--u-primary) !important;
+  }
+  .btn-primary:hover {
+    background-color: var(--u-primary-hover) !important;
+    border-color: var(--u-primary-hover) !important;
+  }
+  .btn-outline-primary {
+    border-color: var(--u-border-dark) !important;
+    color: var(--u-text-2) !important;
+    background: #fff !important;
+  }
+  .btn-outline-primary:hover {
+    border-color: var(--u-primary) !important;
+    color: var(--u-primary) !important;
+    background: #fff !important;
+  }
+  .btn-success { background-color: var(--u-success) !important; border-color: var(--u-success) !important; }
+  .btn-danger  { background-color: var(--u-danger)  !important; border-color: var(--u-danger)  !important; }
+  .btn-warning { background-color: var(--u-warning) !important; border-color: var(--u-warning) !important; color: #fff !important; }
+  .btn-info    { background-color: var(--u-info)    !important; border-color: var(--u-info)    !important; color: #fff !important; }
+
+  /* —— Bootstrap 徽章 → UniTree Tag 视觉 —— */
+  .badge {
+    font-weight: 400 !important;
+    border-radius: var(--u-radius-sm) !important;
+    padding: 4px 8px !important;
+    font-size: var(--u-fs-sm) !important;
+  }
+  .badge.bg-primary   { background-color: var(--u-primary-bg) !important; color: var(--u-primary) !important; border: 1px solid var(--u-primary-border); }
+  .badge.bg-success   { background-color: var(--u-success-bg) !important; color: var(--u-success) !important; border: 1px solid var(--u-success-border); }
+  .badge.bg-warning   { background-color: var(--u-warning-bg) !important; color: var(--u-warning) !important; border: 1px solid var(--u-warning-border); }
+  .badge.bg-danger    { background-color: var(--u-danger-bg)  !important; color: var(--u-danger)  !important; border: 1px solid var(--u-danger-border);  }
+  .badge.bg-info      { background-color: var(--u-info-bg)    !important; color: var(--u-info)    !important; border: 1px solid var(--u-info-border);    }
+  .badge.bg-secondary { background-color: var(--u-bg-stripe) !important; color: var(--u-text-2) !important; border: 1px solid var(--u-border); }
+
+  /* —— Bootstrap 表格 —— */
+  .table {
+    --bs-table-color: var(--u-text-2) !important;
+    border-color: var(--u-border-light) !important;
+    font-size: var(--u-fs-table) !important;
+  }
+  .table thead th {
+    background-color: var(--u-bg-stripe) !important;
+    color: var(--u-text-1) !important;
+    font-weight: 500 !important;
+    border-bottom-color: var(--u-border) !important;
+  }
+  .table-hover tbody tr:hover { --bs-table-bg-state: var(--u-bg-hover) !important; }
+  .table-bordered { border-color: var(--u-border-light) !important; }
+  .table-bordered th, .table-bordered td { border-color: var(--u-border-light) !important; }
+
+  /* —— Bootstrap Tab —— */
+  .nav-tabs { border-bottom: 1px solid var(--u-border) !important; }
+  .nav-tabs .nav-link {
+    color: var(--u-text-2) !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 12px 0 !important;
+    margin-right: 24px !important;
+  }
+  .nav-tabs .nav-link.active {
+    color: var(--u-primary) !important;
+    font-weight: 500 !important;
+    border-bottom: 2px solid var(--u-primary) !important;
+    background: transparent !important;
+  }
+
+  /* —— 表单元素 —— */
+  .form-control, .form-select {
+    border-radius: var(--u-radius) !important;
+    border-color: var(--u-border) !important;
+    font-size: var(--u-fs-body) !important;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--u-primary) !important;
+    box-shadow: var(--u-shadow-focus) !important;
+  }
+  .form-label { color: var(--u-text-2) !important; font-weight: 400 !important; }
+
+  /* —— Modal —— */
+  .modal-content {
+    border-radius: var(--u-radius) !important;
+    border: none !important;
+    box-shadow: var(--u-shadow-modal) !important;
+  }
+  .modal-header { border-bottom: 1px solid var(--u-border-light) !important; }
+  .modal-footer { border-top: 1px solid var(--u-border-light) !important; }
+
+  /* —— Alert —— */
+  .alert { border-radius: var(--u-radius) !important; border: none !important; }
+
+  /* —— 文字色覆盖 —— */
+  .text-muted { color: var(--u-text-3) !important; }
+  .text-danger { color: var(--u-danger) !important; }
+  .text-success { color: var(--u-success) !important; }
+  .text-warning { color: var(--u-warning) !important; }
+  .text-info { color: var(--u-info) !important; }
+  .text-primary { color: var(--u-primary) !important; }
+</style>
+
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<div class="sidebar">
+    <div class="menu-header">
+        <h5>QMS System</h5>
+        <span class="badge">FQC不合格品视图</span>
+    </div>
+
+    <!-- 1. 不合格品管理 -->
+    <div class="menu-title" onclick="toggleSubMenu(this)">
+        <span><i class="bi bi-journal-text menu-icon"></i>不合格品管理</span>
+        <i class="bi bi-chevron-right chevron open"></i>
+    </div>
+    <div class="sub-menu open">
+        <a class="active" onclick="switchPage('p-ledger', this)">不合格品台账</a>
+        <a onclick="switchPage('p-my-audit', this)">我的审核</a>
+    </div>
+
+    <!-- 2. 不合格品处置 -->
+    <div class="menu-title" onclick="toggleSubMenu(this)">
+        <span><i class="bi bi-box-seam menu-icon"></i>不合格品处置</span>
+        <i class="bi bi-chevron-right chevron"></i>
+    </div>
+    <div class="sub-menu">
+        <a onclick="switchPage('p-disposal', this)">我的处置任务</a>
+    </div>
+</div>
+
+<!-- ============ MAIN CONTENT ============ -->
+<div class="main-content">
+
+<!-- ================================================================ -->
+<!-- PAGE 1: 不合格品台账 -->
+<!-- ================================================================ -->
+<div id="p-ledger" class="page active">
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bold m-0">不合格品台账</h5>
+    </div>
+    <!-- Search -->
+    <div class="card p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-2"><label class="search-label">不合格品编号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">物料编码</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">物料名称</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产线</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>产线A</option><option>产线B</option><option>产线C</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>评审中</option><option>处置中</option><option>已完成</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100">查询</button>
+                <button class="btn btn-outline-secondary btn-sm">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>不合格品单号</th><th>关联检验单号</th><th>检验类型</th><th>物料编码</th><th>物料名称</th>
+                    <th>生产工单号</th><th>生产批次</th><th>产线</th><th>生产数量</th><th>检验数量</th>
+                    <th>不良数量</th><th>状态</th><th>创建人</th><th>创建时间</th><th style="width:140px">操作</th>
+                </tr></thead>
+                <tbody id="ledger-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ================================================================ -->
+<!-- PAGE 2.5: 我的审核 -->
+<!-- ================================================================ -->
+<div id="p-my-audit" class="page">
+    <div class="d-flex align-items-center mb-3">
+        <h5 class="fw-bold m-0">我的审核</h5>
+    </div>
+    <!-- Search -->
+    <div class="card p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-2"><label class="search-label">不合格品编号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">物料编码</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">物料名称</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">产线</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>产线A</option><option>产线B</option><option>产线C</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>审核中</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100">查询</button>
+                <button class="btn btn-outline-secondary btn-sm">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>不合格品单号</th><th>关联检验单号</th><th>检验类型</th><th>物料编码</th><th>物料名称</th>
+                    <th>生产工单号</th><th>生产批次</th><th>产线</th><th>生产数量</th><th>检验数量</th>
+                    <th>不良数量</th><th>状态</th><th>创建人</th><th>创建时间</th><th style="width:140px">操作</th>
+                </tr></thead>
+                <tbody id="audit-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- PAGE 3: 我的处置任务 -->
+<!-- ================================================================ -->
+<div id="p-disposal" class="page">
+    <div class="d-flex align-items-center mb-3"><h5 class="fw-bold m-0">我的处置任务</h5></div>
+    <div class="card p-3 mb-3">
+        <div class="row g-2">
+            <div class="col-md-2"><label class="search-label">处置编号</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">执行方</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>产线</option><option>外部</option></select>
+            </div>
+            <div class="col-md-2"><label class="search-label">执行人</label><input type="text" class="form-control form-control-sm" placeholder="请输入"></div>
+            <div class="col-md-2"><label class="search-label">状态</label>
+                <select class="form-select form-select-sm"><option>全部</option><option>待处置</option><option>已完成</option></select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end gap-1">
+                <button class="btn btn-primary btn-sm w-100">查询</button>
+                <button class="btn btn-outline-secondary btn-sm">重置</button>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center mb-0">
+                <thead><tr>
+                    <th>处置编号</th><th>关联不合格品</th><th>检验类型</th><th>物料编码</th><th>物料名称</th><th>产线</th>
+                    <th>生产数量</th><th>不良数量</th>
+                    <th>处置方式</th><th>处置生产班组长</th><th>状态</th><th>创建日期</th><th style="width:80px">操作</th>
+                </tr></thead>
+                <tbody id="disposal-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</div><!-- /main-content -->
+
+<!-- ================================================================ -->
+<!-- MODAL: 审核MRB评审 -->
+<!-- ================================================================ -->
+<div class="modal fade" id="modalAudit" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-check-circle me-2"></i>审核MRB评审</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- FQC不合格品信息 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>FQC不合格品信息
+                </h6>
+                <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;" id="audit-id"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;" id="audit-fqc"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验类型</span><div style="font-size:13px;font-weight:600;" id="audit-inspType"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产工单号</span><div style="font-size:13px;font-weight:600;" id="audit-orderNo"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产批次</span><div style="font-size:13px;font-weight:600;" id="audit-batch"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;" id="audit-line"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料编码</span><div style="font-size:13px;font-weight:600;" id="audit-matCode"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料名称</span><div style="font-size:13px;font-weight:600;" id="audit-matName"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-size:13px;font-weight:600;" id="audit-qtyIn"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验数量</span><div style="font-size:13px;font-weight:600;" id="audit-qtySample"></div></div>
+                    <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;" id="audit-def"></div></div>
+                </div>
+
+                <!-- 处置意见录入 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-chat-square-text me-1" style="color:#1890ff;"></i>处置意见录入
+                </h6>
+                
+                <p style="font-size:13px;font-weight:600;color:#333;margin-bottom:12px;">委员处置意见</p>
+                <div class="table-responsive mb-3">
+                    <table class="table table-bordered align-middle" style="font-size:13px;">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:60px;">序号</th>
+                                <th style="width:180px;">评审人员</th>
+                                <th style="width:160px;">部门</th>
+                                <th style="width:160px;">处置意见</th>
+                                <th>处置说明</th>
+                                <th style="width:70px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-opinion-list" style="padding: 8px 0;">
+                            <!-- 动态添加行 -->
+                        </tbody>
+                    </table>
+                    <button class="btn btn-outline-primary btn-sm" onclick="addAuditOpinionRow()">
+                        <i class="bi bi-plus-circle me-1"></i>添加委员意见
+                    </button>
+                </div>
+
+                <!-- 处置结论 -->
+                <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;">
+                    <i class="bi bi-star me-1" style="color:#1890ff;"></i>处置结论
+                </h6>
+
+                <!-- MRB评审会议 -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">MRB评审会议</label>
+                        <select class="form-select" id="audit-meeting" onchange="onAuditMeetingChange()">
+                            <option value="未召开">未召开</option>
+                            <option value="已召开">已召开</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6" id="audit-meeting-time-col" style="display:none;">
+                        <label class="form-label fw-semibold" style="font-size:13px;">召开时间</label>
+                        <input type="datetime-local" class="form-control" id="audit-meetingTime">
+                    </div>
+                </div>
+
+                <!-- 参会人员及会议概述记录 -->
+                <div id="audit-meeting-attendees-section" style="display:none;">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold" style="font-size:13px;">参会人员及会议概述记录</label>
+                            <textarea class="form-control" id="audit-meetingAttendees" rows="4" placeholder="请输入参会人员及会议概述记录"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处置方式 -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" style="font-size:13px;">处置方式 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="audit-disposalType" onchange="onAuditDisposalTypeChange()" required>
+                            <option value="">请选择处置方式</option>
+                            <option value="特采">特采</option>
+                            <option value="挑选/返工">挑选/返工</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 特采信息 -->
+                <div id="audit-concession-section" style="display:none;">
+                    <div class="row g-3 mb-3 p-3" style="background:#f6ffed;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#52c41a;margin:0 0 8px 0;">
+                                <i class="bi bi-check-circle me-1"></i>特采信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">特采数量</label>
+                            <input type="number" class="form-control" id="audit-concessionQty" placeholder="请输入特采数量" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返工执行方信息 -->
+                <div id="audit-rework-executor-section" style="display:none;">
+                    <div class="row g-3 mb-3 p-3" style="background:#fff7e6;border-radius:6px;">
+                        <div class="col-12">
+                            <h6 style="font-size:13px;font-weight:700;color:#d46b08;margin:0 0 8px 0;">
+                                <i class="bi bi-tools me-1"></i>返工执行信息
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">生产班组长 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="audit-teamLeader">
+                                <option value="">请选择生产班组长</option>
+                                <option value="张班长">张班长（生产一组）</option>
+                                <option value="李班长">李班长（生产二组）</option>
+                                <option value="王班长">王班长（生产三组）</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">执行人员</label>
+                            <input type="text" class="form-control" id="audit-reworkPerson" placeholder="由班组长安排，可留空">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 处置说明 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">处置说明</label>
+                    <textarea class="form-control" id="audit-disposalRemark" rows="3" placeholder="请输入处置说明..."></textarea>
+                </div>
+
+                <!-- 上传附件 -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px;">上传附件</label>
+                    <input type="file" class="form-control" id="audit-attachment" multiple>
+                    <div class="form-text">支持上传多个附件</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitAudit()">提交审核</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODALS AND SCRIPTS - See full implementation -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ================================================================
+// DATA
+// ================================================================
+const ledgerData = [
+    { id:'FQCMRB202604001', fqc:'FQC202504007', inspType:'成品检验', matCode:'SM-2000', matName:'伺服电机', orderNo:'WO202504001', batch:'LOT202504007', line:'产线A', qtyIn:100, qtySample:100, def:3, sts:'待发起', by:'张三', createTime:'2026-04-27 09:30', remark:'外观划伤不良率偏高，申请评审', suggestion:'返工', defectType:'外观类' },
+    { id:'FQCMRB202604002', fqc:'FQC202504008', inspType:'成品检验', matCode:'SM-3000', matName:'步进电机', orderNo:'WO202504002', batch:'LOT202504008', line:'产线B', qtyIn:200, qtySample:100, def:2, sts:'审核中', by:'李四', createTime:'2026-04-26 14:15', remark:'尺寸超差，申请评审', suggestion:'特采', defectType:'非外观类', committee:[{dept:'生产',role:'生产负责人',person:'张三',opinion:'特采',remark:'尺寸偏差轻微，不影响装配，建议特采'},{dept:'研发',role:'研发负责人',person:'赵工程',opinion:'特采',remark:'经评估在公差范围内，可特采'},{dept:'工艺',role:'工艺负责人',person:'郑工艺',opinion:'挑选/返工',remark:'建议先挑选，不合格品返工处理'},{dept:'质量',role:'质量负责人',person:'孙质量',opinion:'特采',remark:'质量风险可控，同意特采'},{dept:'物流服务部',role:'物流服务部负责人',person:'黄物流',opinion:'特采',remark:'交期紧急，建议特采放行'}] },
+    { id:'FQCMRB202604003', fqc:'FQC202504003', inspType:'售后维修检验', matCode:'SM-4000', matName:'直流电机', orderNo:'WO202504003', batch:'LOT202504003', line:'产线C', qtyIn:150, qtySample:75, def:4, sts:'审核中', by:'王五', createTime:'2026-04-25 10:00', remark:'电气性能不达标，申请评审', suggestion:'返工', defectType:'非外观类', committee:[{dept:'生产',role:'生产负责人',person:'李生产',opinion:'挑选/返工',remark:'电气性能问题必须返工，不可特采'},{dept:'研发',role:'研发负责人',person:'刘研发',opinion:'挑选/返工',remark:'性能不达标影响产品功能，建议返工'},{dept:'工艺',role:'工艺负责人',person:'冯工艺',opinion:'挑选/返工',remark:'可返工修复，建议返工处理'},{dept:'质量',role:'质量负责人',person:'周质量',opinion:'整批退货',remark:'性能问题严重，建议整批退货'}] },
+    { id:'FQCMRB202604004', fqc:'FQC202504002', inspType:'成品检验', matCode:'SM-2000', matName:'伺服电机', orderNo:'WO202504004', batch:'LOT202504002', line:'产线A', qtyIn:100, qtySample:50, def:5, sts:'审核中', by:'赵六', createTime:'2026-04-24 16:45', remark:'功能测试不合格率偏高，申请评审', suggestion:'挑选/返工', defectType:'非外观类', committee:[{dept:'生产',role:'生产负责人',person:'王生产',opinion:'挑选/返工',remark:'功能测试问题需逐个检测返工'},{dept:'工艺',role:'工艺负责人',person:'郑工艺',opinion:'特采',remark:'功能偏差在可接受范围内，建议特采'},{dept:'质量',role:'质量负责人',person:'吴质量',opinion:'挑选/返工',remark:'不合格品较多，建议挑选返工'},{dept:'物流服务部',role:'物流服务部负责人',person:'杨物流',opinion:'挑选/返工',remark:'客户交期可协商，建议返工保证质量'}] },
+    { id:'FQCMRB202604005', fqc:'FQC202504009', inspType:'成品检验', matCode:'SM-5000', matName:'交流电机', orderNo:'WO202504005', batch:'LOT202504009', line:'产线B', qtyIn:300, qtySample:150, def:8, sts:'待处置', by:'钱七', createTime:'2026-04-23 11:20', remark:'噪音超标，已审核通过', suggestion:'返工', defectType:'非外观类' },
+];
+
+const disposalData = [
+    { id:'DSP-2026-001', mrb:'FQCMRB202604002', inspType:'成品检验', matCode:'SM-3000', matName:'步进电机', line:'产线B', qtyIn:200, def:8, defectType:'非外观类', type:'特采', executorType:'产线', executor:'张班长', sts:'待处置', date:'2026-04-26' },
+    { id:'DSP-2026-002', mrb:'FQCMRB202604003', inspType:'售后维修检验', matCode:'SM-4000', matName:'直流电机', line:'产线C', qtyIn:150, def:25, defectType:'非外观类', type:'返工', executorType:'产线', executor:'李班长', sts:'待处置', date:'2026-04-25' },
+    { id:'DSP-2026-003', mrb:'FQCMRB202604005', inspType:'成品检验', matCode:'SM-3000', matName:'步进电机', line:'产线B', qtyIn:200, def:2, defectType:'外观类', type:'挑选/返工', executorType:'产线', executor:'王班长', sts:'已完成', date:'2026-04-23' },
+];
+
+// ================================================================
+// HELPERS
+// ================================================================
+const statusBadge = status => {
+    const map = {
+        '待发起':'badge-pending','审核中':'badge-active',
+        '待处置':'badge-reviewing','已完成':'badge-completed'
+    };
+    return map[status] || 'badge-pending';
+};
+
+const renderTable = (id, data, cols, rowFn) => {
+    const tbody = document.getElementById(id);
+    if (!tbody) return;
+    tbody.innerHTML = data.map((d, i) => {
+        const cells = cols.map(c => rowFn(d, c, i)).join('');
+        return `<tr>${cells}</tr>`;
+    }).join('');
+};
+
+// ================================================================
+// RENDER TABLES
+// ================================================================
+renderTable('ledger-table-body', ledgerData,
+    ['id','fqc','inspType','matCode','matName','orderNo','batch','line','qtyIn','qtySample','def','sts','by','createTime','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='fqc') return `<td><a href="javascript:void(0)" onclick="viewFqcRecord('${d.fqc}')" style="color:#1890ff;text-decoration:none;">${d.fqc}</a></td>`;
+        if (c==='inspType') return `<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#e6f7ff;color:#1890ff;">${d.inspType}</span></td>`;
+        if (c==='matCode') return `<td>${d.matCode}</td>`;
+        if (c==='matName') return `<td class="text-start">${d.matName}</td>`;
+        if (c==='orderNo') return `<td>${d.orderNo}</td>`;
+        if (c==='batch') return `<td>${d.batch}</td>`;
+        if (c==='line') return `<td>${d.line}</td>`;
+        if (c==='qtyIn') return `<td>${d.qtyIn}</td>`;
+        if (c==='qtySample') return `<td>${d.qtySample}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='by') return `<td>${d.by}</td>`;
+        if (c==='createTime') return `<td style="font-size:12px;">${d.createTime}</td>`;
+        if (c==='op') {
+            let btns = `<button class="btn btn-sm btn-outline-primary btn-op me-1" onclick="openDetailModal('${d.id}')">详情</button>`;
+            if (d.sts === '待发起') btns += `<button class="btn btn-sm btn-success btn-op" onclick="openAuditModal('${d.id}')">发起</button>`;
+            return `<td>${btns}</td>`;
+        }
+    }
+);
+
+// 渲染"我的审核"表格 - 只显示审核中状态的记录
+renderTable('audit-table-body', ledgerData.filter(d => d.sts === '审核中'),
+    ['id','fqc','inspType','matCode','matName','orderNo','batch','line','qtyIn','qtySample','def','sts','by','createTime','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='fqc') return `<td><a href="javascript:void(0)" onclick="viewFqcRecord('${d.fqc}')" style="color:#1890ff;text-decoration:none;">${d.fqc}</a></td>`;
+        if (c==='inspType') return `<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#e6f7ff;color:#1890ff;">${d.inspType}</span></td>`;
+        if (c==='matCode') return `<td>${d.matCode}</td>`;
+        if (c==='matName') return `<td class="text-start">${d.matName}</td>`;
+        if (c==='orderNo') return `<td>${d.orderNo}</td>`;
+        if (c==='batch') return `<td>${d.batch}</td>`;
+        if (c==='line') return `<td>${d.line}</td>`;
+        if (c==='qtyIn') return `<td>${d.qtyIn}</td>`;
+        if (c==='qtySample') return `<td>${d.qtySample}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='by') return `<td>${d.by}</td>`;
+        if (c==='createTime') return `<td style="font-size:12px;">${d.createTime}</td>`;
+        if (c==='op') {
+            let btns = `<button class="btn btn-sm btn-outline-primary btn-op me-1" onclick="openDetailModal('${d.id}')">详情</button>`;
+            if (d.sts === '审核中') btns += `<button class="btn btn-sm btn-warning btn-op" onclick="openAuditModal('${d.id}')">审核</button>`;
+            return `<td>${btns}</td>`;
+        }
+    }
+);
+
+renderTable('disposal-table-body', disposalData.filter(d => d.type !== '特采'),
+    ['id','mrb','inspType','matCode','matName','line','qtyIn','def','type','executor','sts','date','op'],
+    (d,c) => {
+        if (c==='id') return `<td class="text-primary fw-semibold">${d.id}</td>`;
+        if (c==='mrb') return `<td>${d.mrb}</td>`;
+        if (c==='inspType') return `<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#e6f7ff;color:#1890ff;">${d.inspType}</span></td>`;
+        if (c==='matCode') return `<td>${d.matCode}</td>`;
+        if (c==='matName') return `<td class="text-start">${d.matName}</td>`;
+        if (c==='line') return `<td>${d.line}</td>`;
+        if (c==='qtyIn') return `<td>${d.qtyIn}</td>`;
+        if (c==='def') return `<td class="text-danger fw-semibold">${d.def}</td>`;
+        if (c==='type') return `<td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#fff7e6;color:#d46b08;">${d.type}</span></td>`;
+        if (c==='executor') return `<td class="fw-semibold">${d.executor}</td>`;
+        if (c==='sts') return `<td><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></td>`;
+        if (c==='date') return `<td style="font-size:12px;">${d.date}</td>`;
+        if (c==='op') return `<td><button class="btn btn-sm btn-primary btn-op" onclick="openDisposalModal('${d.id}')">处置</button></td>`;
+    }
+);
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function switchPage(pageId, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId)?.classList.add('active');
+    document.querySelectorAll('.sub-menu a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+}
+function toggleSubMenu(el) {
+    const sub = el.nextElementSibling;
+    const chevron = el.querySelector('.chevron');
+    if (sub) { sub.classList.toggle('open'); chevron?.classList.toggle('open'); }
+}
+
+// ================================================================
+// MODALS (Dynamically Created)
+// ================================================================
+function createModal(id, title, bodyHtml, footerHtml) {
+    const old = document.getElementById(id);
+    if (old) old.remove();
+    const html = `
+    <div class="modal fade" id="${id}" tabindex="-1">
+        <div class="modal-dialog modal-xl"><div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title">${title}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">${bodyHtml}</div>
+            <div class="modal-footer">${footerHtml}</div>
+        </div></div>
+    </div>`;
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+// 1. Detail Modal
+function openDetailModal(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+    createModal('modalDetail', '<i class="bi bi-file-text me-2"></i>不合格品详情', `
+        <div class="p-3" style="background:#fafafa;border-radius:6px;">
+            <div class="row g-3 mb-3">
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品编号</span><div class="fw-semibold text-primary">${d.id}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div class="fw-semibold">${d.fqc}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料编码</span><div>${d.matCode}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料名称</span><div>${d.matName}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产工单号</span><div>${d.orderNo}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产批次</span><div>${d.batch}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div>${d.line}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div>${d.qtyIn}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验数量</span><div>${d.qtySample}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良项数</span><div class="text-danger fw-semibold">${d.def}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">当前状态</span><div><span class="badge-status ${statusBadge(d.sts)}">${d.sts}</span></div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发现日期</span><div>${d.createTime.split(' ')[0]}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发起人</span><div>${d.by}</div></div>
+                <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发起日期</span><div>${d.createTime}</div></div>
+            </div>
+        </div>
+        <div class="p-3 mt-3" style="background:#fafafa;border-radius:6px;">
+            <h6 class="fw-bold mb-3" style="font-size:13px;color:#1890ff;"><i class="bi bi-clipboard-check me-1"></i>FQC 成品检验数据</h6>
+            <div class="alert alert-secondary py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-4">
+                    <span>检验单号：<strong>${d.fqc}</strong> | 物料名称：<strong>${d.matName}</strong> | 产线：<strong>${d.line}</strong></span>
+                    <div class="d-flex align-items-center gap-2"><span>本批次检验结果：</span><span class="badge bg-danger">不合格</span></div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle" style="font-size:13px;">
+                    <thead class="table-light"><tr><th style="width:50px;">序号</th><th>检验项目</th><th>检验标准</th><th>检验方法</th><th>缺陷类型</th><th>数量</th><th>缺陷描述</th></tr></thead>
+                    <tbody>
+                        <tr><td class="text-center">1</td><td>外观检查</td><td>无划伤、无变形</td><td>目检</td><td><span class="badge-status severity-maj">Maj 主要</span></td><td>3</td><td>表面有明显划伤痕迹</td></tr>
+                        <tr><td class="text-center">2</td><td>尺寸检测</td><td>50±0.1mm</td><td>卡尺测量</td><td><span class="badge-status severity-maj">Maj 主要</span></td><td>2</td><td>长度超差0.25mm</td></tr>
+                        <tr><td class="text-center">3</td><td>功能测试</td><td>功能正常</td><td>测试</td><td><span class="badge-status severity-min">Min 次要</span></td><td>0</td><td>-</td></tr>
+                        <tr><td class="text-center">4</td><td>电气性能</td><td>符合规格书</td><td>仪器测试</td><td><span class="badge-status severity-min">Min 次要</span></td><td>1</td><td>输出电压偏差+3%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `, `<button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">关闭</button>`);
+    new bootstrap.Modal(document.getElementById('modalDetail')).show();
+}
+
+// 2. Initiate MRB Modal
+const presetRoles = [
+    { dept:'生产', role:'生产负责人', persons:['张生产','李生产','王生产'] },
+    { dept:'研发', role:'研发负责人', persons:['刘研发','陈研发'] },
+    { dept:'工艺', role:'工艺负责人', persons:['郑工艺','冯工艺'] },
+    { dept:'质量', role:'质量负责人', persons:['孙质量','周质量','吴质量'] },
+    { dept:'物流服务部', role:'物流服务部负责人', persons:['杨物流','黄物流'] },
+];
+let riExtraMembers = [];
+
+function openInitiateReview(idStr) {
+    const d = ledgerData.find(r => r.id === idStr);
+    if (!d) return;
+    riExtraMembers = [];
+    createModal('modalInitiateMrb', '<i class="bi bi-play-circle me-2"></i>启动MRB', `
+        <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;"><i class="bi bi-info-circle me-1" style="color:#1890ff;"></i>不合格品信息</h6>
+        <div class="row g-2 mb-4 p-3" style="background:#fafafa;border-radius:6px;">
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不合格品单号</span><div style="font-size:13px;font-weight:600;">${d.id}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联检验单号</span><div style="font-size:13px;font-weight:600;">${d.fqc}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料编码</span><div style="font-size:13px;font-weight:600;">${d.matCode}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料名称</span><div style="font-size:13px;font-weight:600;">${d.matName}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产工单号</span><div style="font-size:13px;font-weight:600;">${d.orderNo}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产批次</span><div style="font-size:13px;font-weight:600;">${d.batch}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-size:13px;font-weight:600;">${d.line}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-size:13px;font-weight:600;">${d.qtyIn}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">检验数量</span><div style="font-size:13px;font-weight:600;">${d.qtySample}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-size:13px;font-weight:600;color:#ff4d4f;">${d.def}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">发现日期</span><div style="font-size:13px;font-weight:600;">${d.createTime.split(' ')[0]}</div></div>
+        </div>
+        <div class="mb-3"><label class="fw-semibold mb-1" style="font-size:13px;">初步处置建议 <span class="text-muted fw-normal" style="font-size:12px;">（选填）</span></label><select class="form-select" id="ri-suggestion"><option value="">请选择处置建议</option><option value="特采">特采</option><option value="挑选/返工">挑选/返工</option></select></div>
+        <div class="mb-4"><label class="fw-semibold mb-1" style="font-size:13px;">处置说明 <span class="text-muted fw-normal" style="font-size:12px;">（选填）</span></label><textarea class="form-control" id="ri-suggestion-remark" rows="2" placeholder="请输入处置建议的详细说明..."></textarea></div>
+        <h6 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;"><i class="bi bi-people me-1" style="color:#1890ff;"></i>选择评审人员</h6>
+        <div id="review-committee-container"></div>
+        <div class="border-top pt-3 mt-3">
+            <p style="font-size:13px;font-weight:600;color:#333;">+ 临时新增评审人员</p>
+            <div class="p-3 mb-2" style="background:#f8f9fa;border:1px solid #d9d9d9;border-radius:6px;">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3"><label class="form-label mb-1" style="font-size:12px;font-weight:600;">部门</label><input type="text" class="form-control form-control-sm" id="ri-new-dept" placeholder="输入部门名称"></div>
+                    <div class="col-md-3"><label class="form-label mb-1" style="font-size:12px;font-weight:600;">角色</label><input type="text" class="form-control form-control-sm" id="ri-new-role" placeholder="如：客户代表"></div>
+                    <div class="col-md-3"><label class="form-label mb-1" style="font-size:12px;font-weight:600;">评审人员</label><select class="form-select form-select-sm" id="ri-new-person-select"><option value="">请选择</option>${[...new Set(presetRoles.flatMap(r => r.persons))].map(p => `<option value="${p}">${p}</option>`).join('')}</select></div>
+                    <div class="col-md-3"><button class="btn btn-primary btn-sm w-50" onclick="confirmRiNewMember()"><i class="bi bi-plus me-1"></i>新增</button></div>
+                </div>
+            </div>
+            <div id="ri-extra-list"></div>
+        </div>
+        <div class="mt-3 pt-3 border-top"><label class="fw-semibold mb-1" style="font-size:13px;">发起说明 <span class="text-danger">*</span></label><textarea class="form-control" id="ri-remark" rows="3" placeholder="请输入发起评审的说明..."></textarea></div>
+    `, `<button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button><button class="btn btn-primary btn-sm" onclick="submitInitiateReview('${d.id}')"><i class="bi bi-send me-1"></i>提交评审</button>`);
+    renderCommitteeTable();
+    new bootstrap.Modal(document.getElementById('modalInitiateMrb')).show();
+}
+
+function renderCommitteeTable() {
+    let html = `<table class="table table-bordered align-middle mb-0" style="font-size:13px;"><thead style="background:#f0f2f5;"><tr><th style="width:20%;font-weight:600;">部门</th><th style="width:25%;font-weight:600;">角色</th><th>评审人员</th></tr></thead><tbody>`;
+    presetRoles.forEach((r, idx) => {
+        html += `<tr><td><span class="badge bg-secondary">${r.dept}</span></td><td>${r.role}</td><td><select class="form-select form-select-sm ri-person-select" data-idx="${idx}"><option value="">请选择</option>${r.persons.map(p => `<option value="${p}">${p}</option>`).join('')}</select></td></tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('review-committee-container').innerHTML = html;
+}
+
+function confirmRiNewMember() {
+    const dept = document.getElementById('ri-new-dept').value.trim();
+    const role = document.getElementById('ri-new-role').value.trim();
+    const person = document.getElementById('ri-new-person-select').value;
+    if (!dept || !role) { alert('请填写部门和角色'); return; }
+    riExtraMembers.push({ dept, role, person });
+    let html = `<table class="table table-bordered align-middle mb-0 mt-2" style="font-size:13px;"><thead style="background:#f0f2f5;"><tr><th>部门</th><th>角色</th><th>评审人员</th><th style="width:60px;">操作</th></tr></thead><tbody>`;
+    riExtraMembers.forEach((m, idx) => {
+        html += `<tr><td>${m.dept}</td><td>${m.role}</td><td>${m.person || '未选择'}</td><td class="text-center"><a href="javascript:void(0)" onclick="removeExtraMember(${idx})" style="color:#ff4d4f;">&times;</a></td></tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('ri-extra-list').innerHTML = html;
+    document.getElementById('ri-new-dept').value = '';
+    document.getElementById('ri-new-role').value = '';
+    document.getElementById('ri-new-person-select').value = '';
+}
+
+function removeExtraMember(idx) { riExtraMembers.splice(idx, 1); confirmRiNewMember(); if (riExtraMembers.length === 0) document.getElementById('ri-extra-list').innerHTML = ''; }
+
+function submitInitiateReview(id) {
+    const selected = [];
+    document.querySelectorAll('.ri-person-select').forEach(sel => {
+        if (sel.value) { const idx = parseInt(sel.dataset.idx); selected.push({ dept: presetRoles[idx].dept, role: presetRoles[idx].role, person: sel.value }); }
+    });
+    riExtraMembers.forEach(m => { if (m.person) selected.push(m); });
+    if (selected.length === 0) { alert('请至少选择一名评审人员'); return; }
+    const remark = document.getElementById('ri-remark').value.trim();
+    if (!remark) { alert('请填写发起说明'); return; }
+    alert(`评审已提交！\n\n流程：1.上级审核 → 2.评审人员意见评审 → 3.汇总评审意见后下达处置意见 → 4.按处置意见执行\n\n评审人员:\n${selected.map(s => `【${s.dept}】${s.role}: ${s.person}`).join('\n')}\n\n发起说明: ${remark}`);
+    bootstrap.Modal.getInstance(document.getElementById('modalInitiateMrb')).hide();
+}
+
+// 3. Audit Modal
+// 打开审核弹窗(与发起页面内容相同)
+let currentAuditId = null;
+function openAuditModal(id) {
+    const d = ledgerData.find(r => r.id === id);
+    if (!d) return;
+    
+    currentAuditId = id;
+    
+    // 填充FQC不合格品信息
+    document.getElementById('audit-id').textContent = d.id;
+    document.getElementById('audit-fqc').textContent = d.fqc;
+    document.getElementById('audit-inspType').textContent = d.inspType;
+    document.getElementById('audit-orderNo').textContent = d.orderNo;
+    document.getElementById('audit-batch').textContent = d.batch;
+    document.getElementById('audit-line').textContent = d.line;
+    document.getElementById('audit-matCode').textContent = d.matCode;
+    document.getElementById('audit-matName').textContent = d.matName;
+    document.getElementById('audit-qtyIn').textContent = d.qtyIn;
+    document.getElementById('audit-qtySample').textContent = d.qtySample;
+    document.getElementById('audit-def').textContent = d.def;
+    
+    // 清空表单
+    document.getElementById('audit-meeting').value = '未召开';
+    document.getElementById('audit-meeting-time-col').style.display = 'none';
+    document.getElementById('audit-meeting-attendees-section').style.display = 'none';
+    document.getElementById('audit-meetingTime').value = '';
+    document.getElementById('audit-meetingAttendees').value = '';
+    document.getElementById('audit-disposalType').value = '';
+    document.getElementById('audit-concession-section').style.display = 'none';
+    document.getElementById('audit-concessionQty').value = '';
+    document.getElementById('audit-rework-executor-section').style.display = 'none';
+    document.getElementById('audit-teamLeader').value = '';
+    document.getElementById('audit-reworkPerson').value = '';
+    document.getElementById('audit-disposalRemark').value = '';
+    document.getElementById('audit-attachment').value = '';
+    
+    // 清空意见列表
+    document.getElementById('audit-opinion-list').innerHTML = '';
+    
+    // 如果有委员会数据,自动填充委员意见
+    if (d.committee && d.committee.length > 0) {
+        d.committee.forEach((member, index) => {
+            addAuditOpinionRowWithData(
+                index + 1,
+                member.person,
+                member.dept,
+                member.opinion || '',
+                member.remark || ''
+            );
+        });
+        
+        // 统计委员意见,自动带出处置方式
+        const opinionCount = {};
+        d.committee.forEach(member => {
+            if (member.opinion) {
+                opinionCount[member.opinion] = (opinionCount[member.opinion] || 0) + 1;
+            }
+        });
+        
+        // 找出票数最多的处置方式
+        let maxOpinion = '';
+        let maxCount = 0;
+        for (const opinion in opinionCount) {
+            if (opinionCount[opinion] > maxCount) {
+                maxCount = opinionCount[opinion];
+                maxOpinion = opinion;
+            }
+        }
+        
+        // 如果有统计结果,自动填处置方式
+        if (maxOpinion) {
+            document.getElementById('audit-disposalType').value = maxOpinion;
+            // 触发处置方式变化事件,显示对应表单
+            onAuditDisposalTypeChange();
+        }
+    }
+    
+    // 显示弹窗
+    const modal = new bootstrap.Modal(document.getElementById('modalAudit'));
+    modal.show();
+}
+
+// 添加审核委员意见行
+function addAuditOpinionRow() {
+    const tbody = document.getElementById('audit-opinion-list');
+    const rowCount = tbody.rows.length + 1;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${rowCount}</td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入评审人员"></td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入部门"></td>
+        <td>
+            <select class="form-select form-select-sm">
+                <option value="">请选择</option>
+                <option value="特采">特采</option>
+                <option value="挑选/返工">挑选/返工</option>
+                <option value="整批退货">整批退货</option>
+            </select>
+        </td>
+        <td><input type="text" class="form-control form-control-sm" placeholder="请输入处置说明"></td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-trash"></i></button></td>
+    `;
+    tbody.appendChild(row);
+}
+
+// 添加审核委员意见行(带数据)
+function addAuditOpinionRowWithData(seq, person, dept, opinion, remark) {
+    const tbody = document.getElementById('audit-opinion-list');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${seq}</td>
+        <td><input type="text" class="form-control form-control-sm" value="${person}" readonly style="background:#f5f5f5;"></td>
+        <td><input type="text" class="form-control form-control-sm" value="${dept}" readonly style="background:#f5f5f5;"></td>
+        <td><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;background:#e6f7ff;color:#1890ff;">${opinion || '-'}</span></td>
+        <td><input type="text" class="form-control form-control-sm" value="${remark || '-'}" readonly style="background:#f5f5f5;"></td>
+        <td>-</td>
+    `;
+    tbody.appendChild(row);
+}
+
+// 审核MRB评审会议切换
+function onAuditMeetingChange() {
+    const meeting = document.getElementById('audit-meeting').value;
+    document.getElementById('audit-meeting-time-col').style.display = meeting === '已召开' ? 'block' : 'none';
+    document.getElementById('audit-meeting-attendees-section').style.display = meeting === '已召开' ? 'block' : 'none';
+}
+
+// 审核处置方式切换
+function onAuditDisposalTypeChange() {
+    const disposalType = document.getElementById('audit-disposalType').value;
+    document.getElementById('audit-concession-section').style.display = disposalType === '特采' ? 'block' : 'none';
+    document.getElementById('audit-rework-executor-section').style.display = disposalType === '挑选/返工' ? 'block' : 'none';
+    
+    // 清空字段
+    if (disposalType !== '特采') {
+        document.getElementById('audit-concessionQty').value = '';
+    }
+    if (disposalType !== '挑选/返工') {
+        document.getElementById('audit-teamLeader').value = '';
+        document.getElementById('audit-reworkPerson').value = '';
+    }
+}
+
+// 提交审核
+function submitAudit() {
+    const disposalType = document.getElementById('audit-disposalType').value;
+    
+    if (!disposalType) {
+        alert('请选择处置方式');
+        return;
+    }
+    
+    // 如果是特采，验证特采数量
+    if (disposalType === '特采') {
+        const concessionQty = document.getElementById('audit-concessionQty').value;
+        if (!concessionQty || concessionQty <= 0) {
+            alert('请填写特采数量');
+            return;
+        }
+    }
+    
+    // 如果是挑选/返工，验证生产班组长
+    if (disposalType === '挑选/返工') {
+        const teamLeader = document.getElementById('audit-teamLeader').value;
+        if (!teamLeader) {
+            alert('请选择生产班组长');
+            return;
+        }
+    }
+    
+    // 更新状态为待处置
+    const item = ledgerData.find(d => d.id === currentAuditId);
+    if (item) {
+        item.sts = '待处置';
+    }
+    
+    alert('审核已通过！');
+    
+    // 关闭弹窗
+    bootstrap.Modal.getInstance(document.getElementById('modalAudit')).hide();
+    
+    // 重新渲染表格
+    renderAuditTable();
+    renderLedgerTable();
+}
+
+// 4. Review Feedback Modal
+// 6. Disposal Execution Modal
+let reworkIdx = 0;
+function openDisposalModal(id) {
+    const d = disposalData.find(r => r.id === id);
+    if (!d) return;
+    reworkIdx = 0;
+    createModal('modalDisposalExec', '<i class="bi bi-tools me-2"></i>处置执行', `
+        <h6 style="font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #1890ff;"><i class="bi bi-info-circle me-1"></i>基本信息</h6>
+        <div class="row g-2 mb-4 p-3" style="background:#f5f7fa;border-radius:6px;">
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">处置编号</span><div style="font-weight:600;">${d.id}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">关联不合格品</span><div style="font-weight:600;">${d.mrb}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">物料名称</span><div style="font-weight:600;">${d.matName}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">产线</span><div style="font-weight:600;">${d.line}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">生产数量</span><div style="font-weight:600;">${d.qtyIn}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">不良数量</span><div style="font-weight:600;color:#ff4d4f;">${d.def}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">执行方</span><div style="font-weight:600;">${d.executorType}</div></div>
+            <div class="col-md-3"><span class="text-muted" style="font-size:12px;">处置生产班组长</span><div style="font-weight:600;">${d.executor}</div></div>
+        </div>
+        <h6 style="font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #52c41a;"><i class="bi bi-clipboard-check me-1"></i>处置结果录入</h6>
+        <div class="row g-3 mb-3"><div class="col-md-4"><label class="form-label fw-semibold">实际完成日期 <span class="text-danger">*</span></label><input type="date" class="form-control" id="de-date"></div></div>
+        <div class="row g-3 mb-3 p-3" style="background:#e6f7ff;border-radius:6px;">
+            <div class="col-12"><h6 style="font-size:13px;font-weight:700;color:#096dd9;margin:0 0 8px;"><i class="bi bi-search me-1"></i>挑选信息</h6></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">挑选总数 <span class="text-danger">*</span></label><input type="number" class="form-control" id="de-sortTotal" onchange="calcSort()"></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">挑选合格数量 <span class="text-danger">*</span></label><input type="number" class="form-control" id="de-sortOk" onchange="calcSort()"></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">挑选不合格</label><input type="number" class="form-control" id="de-sortBad" readonly style="background:#f5f5f5;"></div>
+        </div>
+        <div class="row g-3 mb-3 p-3" style="background:#fff7e6;border-radius:6px;">
+            <div class="col-12"><h6 style="font-size:13px;font-weight:700;color:#d46b08;margin:0 0 8px;"><i class="bi bi-tools me-1"></i>返工信息</h6></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">返工总数 <span class="text-danger">*</span></label><input type="number" class="form-control" id="de-reworkTotal" onchange="calcRework()"></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">返工合格数量 <span class="text-danger">*</span></label><input type="number" class="form-control" id="de-reworkOk" onchange="calcRework()"></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">返工不合格</label><input type="number" class="form-control" id="de-reworkBad" readonly style="background:#f5f5f5;"></div>
+            <div class="col-md-3"><label class="form-label fw-semibold">工时损失（小时）</label><input type="number" class="form-control" id="de-hours" step="0.1"></div>
+        </div>
+        <div class="row g-3 mb-3 p-3" style="background:#fafafa;border-radius:6px;">
+            <div class="col-md-6"><label class="form-label fw-semibold">材料损耗</label><input type="number" class="form-control" id="de-loss"></div>
+            <div class="col-md-6"><label class="form-label fw-semibold">材料损耗说明</label><input type="text" class="form-control" id="de-lossDesc"></div>
+        </div>
+        <p style="font-weight:600;margin-bottom:8px;margin-top:12px;">返工明细</p>
+        <div class="table-responsive mb-3"><table class="table table-bordered" style="font-size:13px;"><thead class="table-light"><tr><th>序号</th><th>物料号</th><th>处理结果</th><th>操作</th></tr></thead><tbody id="de-reworkDetails"></tbody></table>
+        <button class="btn btn-outline-primary btn-sm" onclick="addReworkRow()"><i class="bi bi-plus-circle me-1"></i>添加明细</button></div>
+        <div class="mb-3"><label class="form-label fw-semibold">处置说明</label><textarea class="form-control" id="de-remark" rows="3" placeholder="请填写处置过程说明..."></textarea></div>
+    `, `<button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">取消</button><button class="btn btn-primary btn-sm" onclick="confirmDisposal()"><i class="bi bi-check-circle me-1"></i>确认处置</button>`);
+    addReworkRow();
+    new bootstrap.Modal(document.getElementById('modalDisposalExec')).show();
+}
+
+function addReworkRow() {
+    reworkIdx++;
+    const tbody = document.getElementById('de-reworkDetails');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${reworkIdx}</td><td><input type="text" class="form-control form-control-sm" placeholder="物料号"></td><td><select class="form-select form-select-sm"><option value="">请选择</option><option value="合格">合格</option><option value="不合格">不合格</option></select></td><td><button class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove()"><i class="bi bi-x"></i></button></td>`;
+    tbody.appendChild(tr);
+}
+
+function calcSort() {
+    const t = parseInt(document.getElementById('de-sortTotal').value)||0;
+    const o = parseInt(document.getElementById('de-sortOk').value)||0;
+    document.getElementById('de-sortBad').value = Math.max(0, t-o);
+}
+function calcRework() {
+    const t = parseInt(document.getElementById('de-reworkTotal').value)||0;
+    const o = parseInt(document.getElementById('de-reworkOk').value)||0;
+    document.getElementById('de-reworkBad').value = Math.max(0, t-o);
+}
+
+function confirmDisposal() {
+    const date = document.getElementById('de-date').value;
+    if (!date) { alert('请选择实际完成日期'); return; }
+    const sT = parseInt(document.getElementById('de-sortTotal').value)||0;
+    const sO = parseInt(document.getElementById('de-sortOk').value)||0;
+    const rT = parseInt(document.getElementById('de-reworkTotal').value)||0;
+    const rO = parseInt(document.getElementById('de-reworkOk').value)||0;
+    if (sT<=0 && rT<=0) { alert('请填写挑选数量或返工数量'); return; }
+    if (sO<0||sO>sT) { alert('挑选合格数量不合法'); return; }
+    if (rO<0||rO>rT) { alert('返工合格数量不合法'); return; }
+    let msg = `处置已完成！\n实际完成日期：${date}\n\n`;
+    if (sT>0) msg += `【挑选信息】\n挑选总数：${sT}\n挑选合格：${sO}\n挑选不合格：${sT-sO}\n\n`;
+    if (rT>0) msg += `【返工信息】\n返工总数：${rT}\n返工合格：${rO}\n返工不合格：${rT-rO}\n`;
+    const h = document.getElementById('de-hours').value;
+    if (h) msg += `工时损失：${h}小时\n`;
+    const l = document.getElementById('de-loss').value;
+    if (l) msg += `材料损耗：${l}\n`;
+    alert(msg);
+    bootstrap.Modal.getInstance(document.getElementById('modalDisposalExec')).hide();
+}
+
+// ================================================================
+// FQC Record View
+// ================================================================
+function viewFqcRecord(fqcNo) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;';
+    overlay.innerHTML = `<div style="width:40px;height:40px;border:3px solid #f0f0f0;border-top-color:#1890ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px;"></div><div style="font-size:14px;color:#666;">正在跳转至 FQC 模块... ${fqcNo}</div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.style.opacity = '1');
+    setTimeout(() => {
+        overlay.style.opacity = '0';
+        setTimeout(() => { overlay.remove(); openDetailModal(ledgerData.find(r => r.fqc === fqcNo)?.id || ledgerData[0].id); }, 250);
+    }, 1000);
+}
+</script>
+
+</body>
+</html>

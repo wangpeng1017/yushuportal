@@ -1,0 +1,167 @@
+:root {
+    /* ========== 系统后台 UI 规范 - 三栏布局 ========== */
+
+    /* 登录页背景渐变 */
+    --login-bg-color: #f5f7fa;
+
+    --left-menu-max-width: 220px;
+
+    --left-menu-min-width: 64px;
+
+    /* —— 侧栏：对齐 UniTree 深灰 —— */
+    --left-menu-bg-color: #3B3F48;
+    --left-menu-bg-light-color: #4A4F58;
+    --left-menu-bg-active-color: #1677FF;
+    --left-menu-text-color: rgba(255, 255, 255, 0.85);
+    --left-menu-text-active-color: #FFFFFF;
+    --left-menu-collapse-bg-active-color: #1677FF;
+
+    --eam-sider-bg-from: #3B3F48;
+    --eam-sider-bg-to:   #3B3F48;
+    --eam-sider-hover-bg:  rgba(255,255,255,.06);
+
+    /* logo（对齐 WMS：图 52px + 副标题 12px，logo 区 ≈ 100px） */
+    --logo-height: 100px;
+    --logo-title-text-color: #FFFFFF;
+
+    /* header - 白底 */
+    --top-header-bg-color: #FFFFFF;
+    --top-header-text-color: #1F2937;
+    --top-header-hover-color: #F4F6FA;
+
+    /* navbar 56px 与 logo-height 解耦（对齐 WMS） */
+    --top-tool-height: 56px;
+
+    --top-tool-p-x: 8px;
+
+    --tags-view-height: 36px;
+
+    /* tab menu */
+    --tab-menu-max-width: 80px;
+
+    --tab-menu-min-width: 30px;
+
+    --tab-menu-collapse-height: 36px;
+
+    --app-content-padding: 16px;
+
+    /* —— 内容区底色（对齐 UniTree #E6E9F0） —— */
+    --app-content-bg-color: #E6E9F0;
+    --eam-bg-page: #E6E9F0;
+    --eam-bg-card: #FFFFFF;
+    --eam-radius-card: 12px;
+    --eam-shadow-card: 0 2px 8px rgba(15, 23, 42, .04);
+
+    /* 卡片背景 */
+    --card-bg-color: #FFFFFF;
+
+    --app-footer-height: 48px;
+
+    --transition-time-02: 0.25s;
+
+    /* ========== 主色：亮蓝 #1677FF ========== */
+    --primary-color: #1677FF;
+    --primary-color-hover: #4596FF;
+    --primary-color-active: #0958D9;
+
+    /* ========== 覆写 Element Plus 主题色 ========== */
+    --el-color-primary: #1677FF;
+    --el-color-primary-light-3: #4596FF;
+    --el-color-primary-light-5: #7AB3FF;
+    --el-color-primary-light-7: #B0D1FF;
+    --el-color-primary-light-8: #CCDFFF;
+    --el-color-primary-light-9: #EBF3FF;
+    --el-color-primary-dark-2: #0958D9;
+
+    /* —— 语义色 —— */
+    --el-color-success: #16A34A;
+    --el-color-warning: #F97316;
+    --el-color-danger:  #EF4444;
+    --el-color-error: #EF4444;
+    --el-color-info: #909399;
+
+    --el-border-radius-base: 4px;
+    --el-border-radius-small: 4px;
+
+    --success-color: #16A34A;
+    --warning-color: #F97316;
+    --danger-color: #EF4444;
+    --info-color: #909399;
+
+    /* —— 表格 token（对齐 UniTree） —— */
+    --eam-table-header-bg: #FAFBFC;
+    --eam-table-header-color: #1F2937;
+    --eam-table-stripe-bg: #FAFBFC;
+    --eam-table-row-hover: #F5F7FA;
+    --eam-table-row-height: 44px;
+
+    /* —— 操作列文字按钮色 —— */
+    --eam-action-detail: #0EA5E9;
+    --eam-action-edit: #1677FF;
+    --eam-action-delete: #EF4444;
+    --eam-action-more: #6B7280;
+
+    /* —— 间距 —— */
+    --eam-space-page: 16px;
+    --eam-space-card: 16px;
+
+    /* 边框色 - 极浅 */
+    --border-color: #ebeef5;
+    --border-color-light: #f2f3f5;
+
+    /* 文本色 */
+    --text-color-primary: #1F2937;
+    --text-color-regular: #4B5563;
+    --text-color-secondary: #6B7280;
+    --text-color-placeholder: #9CA3AF;
+
+    /* 阴影 - 卡片规范 0 2px 4px rgba(0,0,0,0.05) */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-base: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 12px 28px -8px rgba(0, 0, 0, 0.12), 0 6px 12px -4px rgba(0, 0, 0, 0.06);
+
+    /* 圆角 - 规范 4px 小圆角 */
+    --border-radius-small: 4px;
+    --border-radius-base: 4px;
+    --border-radius-large: 8px;
+
+    /* 应用图标背景渐变 - 用于首页"我的应用" */
+    --app-icon-bg-blue: linear-gradient(135deg, #5b9cff 0%, #3b82f6 100%);
+    --app-icon-bg-cyan: linear-gradient(135deg, #4dd0e1 0%, #00acc1 100%);
+    --app-icon-bg-green: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+    --app-icon-bg-orange: linear-gradient(135deg, #ffb74d 0%, #fb8c00 100%);
+    --app-icon-bg-red: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+    --app-icon-bg-purple: linear-gradient(135deg, #ab47bc 0%, #7e57c2 100%);
+}
+
+.dark {
+    --app-content-bg-color: #141414;
+    --primary-color: #1677ff;
+    --primary-color-hover: #3d8fff;
+    --border-color: #303030;
+    --border-color-light: #262626;
+    --text-color-primary: rgba(255, 255, 255, 0.85);
+    --text-color-regular: rgba(255, 255, 255, 0.65);
+    --text-color-secondary: rgba(255, 255, 255, 0.45);
+    --text-color-placeholder: rgba(255, 255, 255, 0.25);
+}
+
+html,
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--app-content-bg-color);
+    color: var(--text-color-primary);
+    font-size: 14px;
+    line-height: 24px;
+}
+
+*,
+:after,
+:before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}

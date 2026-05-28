@@ -1,0 +1,17 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+/dist*
+dist.zip
+pnpm-debug
+auto-*.d.ts
+.idea
+.history
+.qoder/rules/*
+.qoder
+.kiro
+nul
+
+# UNITREE shared theme (synced from unitree-ui-theme/, EAM uses var.css instead)
+src/styles/unitree-theme/

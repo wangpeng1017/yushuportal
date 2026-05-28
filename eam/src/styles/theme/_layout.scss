@@ -1,0 +1,50 @@
+/* —— 侧栏渐变背景 —— */
+.v-aside,
+[class*='__left-menu'] {
+  background: linear-gradient(180deg, var(--eam-sider-bg-from) 0%, var(--eam-sider-bg-to) 100%) !important;
+}
+
+/* —— Logo 区 —— */
+.v-logo {
+  background: var(--eam-sider-bg-from) !important;
+
+  .title {
+    color: var(--logo-title-text-color);
+    font-weight: 600;
+  }
+}
+
+/* —— 菜单项 hover/active —— */
+.el-menu {
+  background: transparent !important;
+
+  .el-menu-item,
+  .el-sub-menu__title {
+    color: var(--left-menu-text-color) !important;
+
+    &:hover {
+      background: var(--eam-sider-hover-bg) !important;
+      color: var(--left-menu-text-active-color) !important;
+    }
+  }
+
+  .el-menu-item.is-active {
+    background: var(--left-menu-bg-active-color) !important;
+    color: var(--left-menu-text-active-color) !important;
+    border-left: 3px solid var(--el-color-primary);
+  }
+}
+
+/* —— 顶部 Header 白底 —— */
+.tool-header,
+[class*='__tool-header'] {
+  background: var(--top-header-bg-color) !important;
+  color: var(--top-header-text-color) !important;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+/* —— 内容区底色 —— */
+.app-main,
+[class*='__content'] {
+  background: var(--eam-bg-page) !important;
+}

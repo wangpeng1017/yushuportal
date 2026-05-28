@@ -1,0 +1,964 @@
+/*!
+ * UniTree Components CSS
+ * 共享组件类库（layout / sidebar / header / card / btn / table / form / tag ...）
+ * 依赖: tokens.css, base.css
+ */
+
+/* =====================================================
+ * 1) 整体布局 .u-layout
+ * ===================================================== */
+.u-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--u-bg-page);
+}
+
+.u-layout__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--u-sidebar-w);
+  min-width: 0; /* 防止 flex 子元素撑开 */
+  transition: margin-left var(--u-transition);
+}
+
+.u-layout--collapsed .u-layout__main {
+  margin-left: var(--u-sidebar-w-collapsed);
+}
+
+.u-layout__content {
+  flex: 1;
+  padding: var(--u-content-padding);
+  overflow-x: auto;
+}
+
+/* =====================================================
+ * 2) 侧栏 .u-sidebar
+ * ===================================================== */
+.u-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--u-sidebar-w);
+  background: var(--u-sidebar-bg);
+  color: var(--u-sidebar-text);
+  z-index: var(--u-z-sidebar);
+  display: flex;
+  flex-direction: column;
+  transition: width var(--u-transition);
+  overflow: hidden;
+}
+
+.u-sidebar--collapsed {
+  width: var(--u-sidebar-w-collapsed);
+}
+
+/* Logo 区 */
+.u-sidebar__logo {
+  height: var(--u-sidebar-logo-h);
+  padding: var(--u-space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--u-sidebar-divider);
+  flex-shrink: 0;
+}
+
+.u-sidebar__logo-title {
+  font-size: 18px;
+  font-weight: var(--u-fw-bold);
+  color: #FFFFFF;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+.u-sidebar__logo-subtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 1px;
+}
+
+.u-sidebar--collapsed .u-sidebar__logo-subtitle {
+  display: none;
+}
+
+/* 菜单 */
+.u-sidebar__menu {
+  flex: 1;
+  padding: var(--u-space-3) 0;
+  overflow-y: auto;
+}
+
+.u-menu-item {
+  display: flex;
+  align-items: center;
+  height: var(--u-menu-item-h);
+  padding: 0 var(--u-space-5);
+  color: var(--u-sidebar-text);
+  cursor: pointer;
+  transition: background var(--u-transition-fast), color var(--u-transition-fast);
+  position: relative;
+  font-size: var(--u-fs-body);
+  text-decoration: none;
+}
+
+.u-menu-item__icon {
+  width: 18px;
+  height: 18px;
+  margin-right: var(--u-space-3);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.u-menu-item__text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.u-menu-item__arrow {
+  font-size: 12px;
+  opacity: 0.6;
+  transition: transform var(--u-transition-fast);
+}
+
+.u-menu-item:hover {
+  background: var(--u-sidebar-bg-hover);
+  color: var(--u-sidebar-text-hover);
+}
+
+.u-menu-item--active {
+  background: var(--u-sidebar-active-bg) !important;
+  color: var(--u-sidebar-active-text) !important;
+}
+
+.u-menu-item--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--u-sidebar-active-bar);
+}
+
+.u-menu-item--open .u-menu-item__arrow {
+  transform: rotate(90deg);
+}
+
+/* 二级菜单 */
+.u-submenu {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.u-submenu .u-menu-item {
+  padding-left: 52px;
+  height: 40px;
+  font-size: 13px;
+}
+
+.u-sidebar--collapsed .u-menu-item__text,
+.u-sidebar--collapsed .u-menu-item__arrow,
+.u-sidebar--collapsed .u-submenu {
+  display: none;
+}
+
+.u-sidebar--collapsed .u-menu-item {
+  justify-content: center;
+  padding: 0;
+}
+
+.u-sidebar--collapsed .u-menu-item__icon {
+  margin: 0;
+}
+
+/* 分组标题（如 QMS 现在的"来料检验管理"分组） */
+.u-menu-group-title {
+  padding: var(--u-space-3) var(--u-space-5) var(--u-space-2);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.40);
+  letter-spacing: 1px;
+}
+
+.u-sidebar--collapsed .u-menu-group-title {
+  display: none;
+}
+
+/* =====================================================
+ * 3) 顶栏 .u-header
+ * ===================================================== */
+.u-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--u-z-header);
+  height: var(--u-header-h);
+  padding: 0 var(--u-space-6);
+  background: var(--u-header-bg);
+  border-bottom: 1px solid var(--u-header-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.u-header__left {
+  display: flex;
+  align-items: center;
+  gap: var(--u-space-4);
+}
+
+.u-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--u-space-3);
+}
+
+.u-header__tool {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--u-radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--u-text-2);
+  transition: background var(--u-transition-fast);
+}
+
+.u-header__tool:hover {
+  background: var(--u-bg-hover);
+  color: var(--u-text-1);
+}
+
+/* 折叠按钮 */
+.u-header__collapse-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--u-radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--u-text-2);
+  transition: background var(--u-transition-fast);
+}
+
+.u-header__collapse-btn:hover {
+  background: var(--u-bg-hover);
+}
+
+/* 面包屑 */
+.u-breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: var(--u-fs-body);
+  color: var(--u-text-3);
+}
+
+.u-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.u-breadcrumb__sep {
+  margin: 0 var(--u-space-2);
+  color: var(--u-text-3);
+  font-size: 12px;
+}
+
+.u-breadcrumb__item--active {
+  color: var(--u-text-1);
+  font-weight: var(--u-fw-medium);
+}
+
+/* 头像 */
+.u-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--u-primary-bg);
+  color: var(--u-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--u-fs-body);
+  font-weight: var(--u-fw-medium);
+  cursor: pointer;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.u-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =====================================================
+ * 4) 卡片 .u-card
+ * ===================================================== */
+.u-card {
+  background: var(--u-bg-card);
+  border-radius: var(--u-radius);
+  box-shadow: var(--u-shadow-card);
+  overflow: hidden;
+}
+
+.u-card + .u-card {
+  margin-top: var(--u-space-4);
+}
+
+.u-card__header {
+  padding: var(--u-space-4) var(--u-space-5);
+  border-bottom: 1px solid var(--u-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--u-space-3);
+}
+
+.u-card__title {
+  font-size: var(--u-fs-h2);
+  font-weight: var(--u-fw-bold);
+  color: var(--u-text-1);
+  margin: 0;
+}
+
+.u-card__extra {
+  display: flex;
+  align-items: center;
+  gap: var(--u-space-2);
+}
+
+.u-card__body {
+  padding: var(--u-space-5);
+}
+
+.u-card__body--flush {
+  padding: 0;
+}
+
+.u-card__footer {
+  padding: var(--u-space-3) var(--u-space-5);
+  border-top: 1px solid var(--u-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--u-space-2);
+  background: var(--u-bg-stripe);
+}
+
+/* 统计数据卡 .u-stat-card —— 用 auto-fit 让卡片自动填满整行 */
+.u-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--u-space-4);
+  width: 100%;
+}
+
+.u-stat-card {
+  background: var(--u-bg-card);
+  border-radius: var(--u-radius);
+  box-shadow: var(--u-shadow-card);
+  padding: var(--u-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--u-space-2);
+}
+
+.u-stat-card__value {
+  font-size: 28px;
+  font-weight: var(--u-fw-bold);
+  color: var(--u-text-1);
+  line-height: 1.2;
+}
+
+.u-stat-card__label {
+  font-size: var(--u-fs-body);
+  color: var(--u-text-3);
+}
+
+.u-stat-card__delta {
+  font-size: var(--u-fs-sm);
+  color: var(--u-success);
+  font-weight: var(--u-fw-medium);
+}
+
+.u-stat-card__delta--down {
+  color: var(--u-danger);
+}
+
+/* =====================================================
+ * 5) 按钮 .u-btn
+ * ===================================================== */
+.u-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: var(--u-btn-h);
+  padding: 0 var(--u-space-4);
+  border-radius: var(--u-radius);
+  border: 1px solid transparent;
+  font-size: var(--u-fs-body);
+  font-weight: var(--u-fw-regular);
+  cursor: pointer;
+  transition: all var(--u-transition-fast);
+  white-space: nowrap;
+  user-select: none;
+  font-family: inherit;
+}
+
+.u-btn:focus-visible {
+  box-shadow: var(--u-shadow-focus);
+}
+
+.u-btn:disabled,
+.u-btn--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.u-btn--lg {
+  height: var(--u-btn-h-lg);
+  padding: 0 var(--u-space-5);
+  font-size: var(--u-fs-h2);
+}
+
+.u-btn--sm {
+  height: 26px;
+  padding: 0 var(--u-space-3);
+  font-size: var(--u-fs-sm);
+}
+
+/* 主按钮 */
+.u-btn--primary {
+  background: var(--u-primary);
+  border-color: var(--u-primary);
+  color: #FFFFFF;
+}
+.u-btn--primary:hover:not(:disabled) {
+  background: var(--u-primary-hover);
+  border-color: var(--u-primary-hover);
+}
+.u-btn--primary:active:not(:disabled) {
+  background: var(--u-primary-active);
+  border-color: var(--u-primary-active);
+}
+
+/* 默认按钮（描边白底） */
+.u-btn--default {
+  background: #FFFFFF;
+  border-color: var(--u-border-dark);
+  color: var(--u-text-2);
+}
+.u-btn--default:hover:not(:disabled) {
+  border-color: var(--u-primary);
+  color: var(--u-primary);
+}
+
+/* 危险按钮 */
+.u-btn--danger {
+  background: var(--u-danger);
+  border-color: var(--u-danger);
+  color: #FFFFFF;
+}
+.u-btn--danger:hover:not(:disabled) {
+  background: #DC2626;
+  border-color: #DC2626;
+}
+
+/* 文字按钮 */
+.u-btn--text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--u-primary);
+  padding: 0 var(--u-space-2);
+}
+.u-btn--text:hover:not(:disabled) {
+  color: var(--u-primary-hover);
+  background: var(--u-primary-bg);
+}
+
+.u-btn--text-danger {
+  color: var(--u-danger);
+}
+.u-btn--text-danger:hover:not(:disabled) {
+  color: #DC2626;
+  background: var(--u-danger-bg);
+}
+
+/* 按钮组 */
+.u-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u-space-2);
+}
+
+/* =====================================================
+ * 6) 表单 .u-field / .u-input / .u-select
+ * ===================================================== */
+.u-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.u-label {
+  font-size: var(--u-fs-body);
+  color: var(--u-text-2);
+  font-weight: var(--u-fw-regular);
+}
+
+.u-label--required::after {
+  content: " *";
+  color: var(--u-danger);
+}
+
+.u-input,
+.u-select,
+.u-textarea {
+  height: var(--u-input-h);
+  padding: 0 var(--u-space-3);
+  border: 1px solid var(--u-border);
+  border-radius: var(--u-radius);
+  background: #FFFFFF;
+  font-size: var(--u-fs-body);
+  color: var(--u-text-1);
+  transition: border-color var(--u-transition-fast), box-shadow var(--u-transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.u-textarea {
+  height: auto;
+  min-height: 72px;
+  padding: var(--u-space-2) var(--u-space-3);
+  resize: vertical;
+  line-height: var(--u-lh-normal);
+}
+
+.u-input:hover,
+.u-select:hover,
+.u-textarea:hover {
+  border-color: var(--u-primary-border);
+}
+
+.u-input:focus,
+.u-select:focus,
+.u-textarea:focus {
+  border-color: var(--u-primary);
+  box-shadow: var(--u-shadow-focus);
+}
+
+.u-input:disabled,
+.u-select:disabled,
+.u-textarea:disabled {
+  background: var(--u-bg-disabled);
+  color: var(--u-text-disabled);
+  cursor: not-allowed;
+}
+
+/* select 的下拉箭头 */
+.u-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+/* 筛选条 .u-filter-bar */
+.u-filter-bar {
+  padding: var(--u-space-4) var(--u-space-5);
+}
+
+.u-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--u-space-4);
+}
+
+.u-filter-actions {
+  margin-top: var(--u-space-4);
+  padding-top: var(--u-space-3);
+  border-top: 1px solid var(--u-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--u-space-2);
+}
+
+/* =====================================================
+ * 7) 表格 .u-table
+ * ===================================================== */
+.u-table-wrap {
+  background: var(--u-bg-card);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* 兜底：表格直接放在 .u-card 内（未包 .u-table-wrap）也能横向滚动 */
+.u-card > .u-table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.u-card > .u-table > thead,
+.u-card > .u-table > tbody {
+  display: table;
+  width: max-content;
+  min-width: 100%;
+  table-layout: auto;
+}
+
+.u-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--u-fs-table);
+  color: var(--u-text-2);
+}
+
+.u-table thead th {
+  height: var(--u-table-row-h);
+  padding: 0 var(--u-space-3);
+  background: var(--u-bg-stripe);
+  color: var(--u-text-1);
+  font-weight: var(--u-fw-medium);
+  font-size: var(--u-fs-table);
+  text-align: left;
+  border-bottom: 1px solid var(--u-border);
+  white-space: nowrap;
+}
+
+.u-table tbody td {
+  height: var(--u-table-row-h);
+  padding: 0 var(--u-space-3);
+  border-bottom: 1px solid var(--u-border-light);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.u-table tbody tr {
+  transition: background var(--u-transition-fast);
+}
+
+.u-table tbody tr:hover {
+  background: var(--u-bg-hover);
+}
+
+.u-table--striped tbody tr:nth-child(even) {
+  background: var(--u-bg-stripe);
+}
+
+.u-table--striped tbody tr:nth-child(even):hover {
+  background: var(--u-bg-hover);
+}
+
+.u-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 选择框列 */
+.u-table th.u-table__cell-checkbox,
+.u-table td.u-table__cell-checkbox {
+  width: 40px;
+  text-align: center;
+  padding-left: var(--u-space-3);
+  padding-right: 0;
+}
+
+/* 操作列（窄列、靠右） */
+.u-table th.u-table__cell-action,
+.u-table td.u-table__cell-action {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.u-table__cell-action .u-btn--text {
+  height: 24px;
+}
+
+/* 空状态 */
+.u-table-empty {
+  padding: var(--u-space-10) var(--u-space-4);
+  text-align: center;
+  color: var(--u-text-3);
+  font-size: var(--u-fs-body);
+}
+
+/* =====================================================
+ * 8) 标签 .u-tag
+ * ===================================================== */
+.u-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--u-space-2);
+  border-radius: var(--u-radius-sm);
+  font-size: var(--u-fs-sm);
+  font-weight: var(--u-fw-regular);
+  border: 1px solid;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.u-tag--default {
+  color: var(--u-text-2);
+  background: var(--u-bg-stripe);
+  border-color: var(--u-border);
+}
+
+.u-tag--primary {
+  color: var(--u-primary);
+  background: var(--u-primary-bg);
+  border-color: var(--u-primary-border);
+}
+
+.u-tag--success {
+  color: var(--u-success);
+  background: var(--u-success-bg);
+  border-color: var(--u-success-border);
+}
+
+.u-tag--warning {
+  color: var(--u-warning);
+  background: var(--u-warning-bg);
+  border-color: var(--u-warning-border);
+}
+
+.u-tag--danger {
+  color: var(--u-danger);
+  background: var(--u-danger-bg);
+  border-color: var(--u-danger-border);
+}
+
+.u-tag--info {
+  color: var(--u-info);
+  background: var(--u-info-bg);
+  border-color: var(--u-info-border);
+}
+
+.u-tag--pill {
+  border-radius: var(--u-radius-pill);
+  padding: 0 var(--u-space-3);
+}
+
+/* =====================================================
+ * 9) 标签栏 .u-tabs
+ * ===================================================== */
+.u-tabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--u-border);
+  gap: var(--u-space-6);
+  padding: 0 var(--u-space-5);
+}
+
+.u-tab {
+  position: relative;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--u-fs-body);
+  color: var(--u-text-2);
+  cursor: pointer;
+  transition: color var(--u-transition-fast);
+}
+
+.u-tab:hover {
+  color: var(--u-primary);
+}
+
+.u-tab--active {
+  color: var(--u-primary);
+  font-weight: var(--u-fw-medium);
+}
+
+.u-tab--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--u-primary);
+  border-radius: 1px;
+}
+
+.u-tab__badge {
+  margin-left: var(--u-space-2);
+  font-size: var(--u-fs-sm);
+  color: var(--u-text-3);
+}
+
+/* =====================================================
+ * 10) 分页 .u-pagination
+ * ===================================================== */
+.u-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--u-space-2);
+  padding: var(--u-space-3) var(--u-space-5);
+  border-top: 1px solid var(--u-border-light);
+  font-size: var(--u-fs-body);
+  color: var(--u-text-2);
+}
+
+.u-pagination__total {
+  margin-right: auto;
+  color: var(--u-text-3);
+  font-size: var(--u-fs-sm);
+}
+
+.u-page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--u-space-2);
+  border: 1px solid var(--u-border);
+  border-radius: var(--u-radius-sm);
+  background: #FFFFFF;
+  color: var(--u-text-2);
+  cursor: pointer;
+  font-size: var(--u-fs-body);
+  transition: all var(--u-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.u-page-btn:hover:not(:disabled):not(.u-page-btn--active) {
+  border-color: var(--u-primary);
+  color: var(--u-primary);
+}
+
+.u-page-btn--active {
+  background: var(--u-primary);
+  border-color: var(--u-primary);
+  color: #FFFFFF;
+}
+
+.u-page-btn:disabled {
+  cursor: not-allowed;
+  color: var(--u-text-disabled);
+}
+
+/* =====================================================
+ * 11) 页头标题（卡片之上的页面标题区）
+ * ===================================================== */
+.u-page-header {
+  margin-bottom: var(--u-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--u-space-3);
+}
+
+.u-page-title {
+  font-size: var(--u-fs-h1);
+  font-weight: var(--u-fw-bold);
+  color: var(--u-text-1);
+  margin: 0;
+}
+
+.u-page-subtitle {
+  font-size: var(--u-fs-sm);
+  color: var(--u-text-3);
+  margin-top: 4px;
+}
+
+/* =====================================================
+ * 12) 通用工具：操作"更多"菜单触发按钮
+ * ===================================================== */
+.u-action-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--u-radius-sm);
+  cursor: pointer;
+  color: var(--u-text-3);
+  transition: all var(--u-transition-fast);
+}
+
+.u-action-more:hover {
+  background: var(--u-bg-hover);
+  color: var(--u-primary);
+}
+
+/* =====================================================
+ * 13) 复选框 .u-checkbox
+ * ===================================================== */
+.u-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--u-border-dark);
+  border-radius: 3px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #FFFFFF;
+  position: relative;
+  transition: all var(--u-transition-fast);
+  vertical-align: middle;
+}
+
+.u-checkbox:hover {
+  border-color: var(--u-primary);
+}
+
+.u-checkbox:checked {
+  background: var(--u-primary);
+  border-color: var(--u-primary);
+}
+
+.u-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #FFFFFF;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* =====================================================
+ * 14) 响应式（PC 优先）
+ * ===================================================== */
+@media (max-width: 1280px) {
+  .u-sidebar:not(.u-sidebar--keep) {
+    width: var(--u-sidebar-w-collapsed);
+  }
+  .u-sidebar:not(.u-sidebar--keep) .u-sidebar__logo-subtitle,
+  .u-sidebar:not(.u-sidebar--keep) .u-menu-item__text,
+  .u-sidebar:not(.u-sidebar--keep) .u-menu-item__arrow,
+  .u-sidebar:not(.u-sidebar--keep) .u-submenu,
+  .u-sidebar:not(.u-sidebar--keep) .u-menu-group-title {
+    display: none;
+  }
+  .u-sidebar:not(.u-sidebar--keep) .u-menu-item {
+    justify-content: center;
+    padding: 0;
+  }
+  .u-sidebar:not(.u-sidebar--keep) .u-menu-item__icon {
+    margin: 0;
+  }
+  .u-layout__main {
+    margin-left: var(--u-sidebar-w-collapsed);
+  }
+}
