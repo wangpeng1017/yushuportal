@@ -70,6 +70,10 @@ export interface MaterialRecord {
   standardHours?: number
   productionType?: string
   issueMode?: string
+  // 金蝶物料接口对齐补充字段
+  isKit?: '是' | '否'
+  batchManaged?: '是' | '否'
+  actualHours?: number
 }
 
 export interface BomItem {
@@ -187,7 +191,10 @@ export const mdmCategories: MdmCategory[] = [
       { key: 'employee', name: '员工档案', icon: 'ep:user' },
       { key: 'unit', name: '计量单位', icon: 'ep:scale-to-original' },
       { key: 'currency', name: '币别', icon: 'ep:money' },
-      { key: 'taxRate', name: '税率/税收分类', icon: 'ep:document' }
+      { key: 'taxRate', name: '税率/税收分类', icon: 'ep:document' },
+      { key: 'rdProject', name: '研发项目', icon: 'ep:opportunity' },
+      { key: 'buildProject', name: '在建工程项目', icon: 'ep:office-building' },
+      { key: 'saleProject', name: '销售项目', icon: 'ep:sell' }
     ]
   },
   {
@@ -252,6 +259,14 @@ export const mdmCategories: MdmCategory[] = [
     children: [
       { key: 'deviceList', name: '设备档案', icon: 'ep:setting' },
       { key: 'consumable', name: '耗材/易耗品', icon: 'ep:goblet' }
+    ]
+  },
+  {
+    key: 'integration',
+    name: '⑧ ERP 接口集成',
+    icon: 'ep:connection',
+    children: [
+      { key: 'erpInterface', name: 'ERP 接口清单 (48)', icon: 'ep:list' }
     ]
   }
 ]
@@ -363,6 +378,9 @@ const buildMat = (
   productLine: 'GO2 总装线',
   routing: 'GO2-W 标准工艺路线',
   standardHours: 15,
+  actualHours: 10,
+  isKit: '是',
+  batchManaged: '是',
   productionType: '汇报入库-普通生产',
   issueMode: '调拨领料',
   ...extra
@@ -622,22 +640,24 @@ export const customers: CustomerRecord[] = [
 
 // ---------------- 其他基础数据（精简版） ----------------
 
+// 部门：金蝶接口字段 = 编码/名称/生效日期/失效日期（中台→金蝶/中台→MOM）
 export const orgs: SimpleRecord[] = [
-  { id: '1000', code: '1000', name: '宇树科技股份有限公司', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', level: '集团', parent: '-' },
-  { id: '1001', code: '1001', name: '研发中心', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', level: '部门', parent: '宇树科技股份有限公司' },
-  { id: '1002', code: '1002', name: '生产中心', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', level: '部门', parent: '宇树科技股份有限公司' },
-  { id: '1003', code: '1003', name: '供应链中心', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', level: '部门', parent: '宇树科技股份有限公司' },
-  { id: '1004', code: '1004', name: '质量管理部', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', level: '部门', parent: '宇树科技股份有限公司' },
-  { id: '1005', code: '1005', name: '海外事业部', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', level: '部门', parent: '宇树科技股份有限公司' }
+  { id: '1000', code: '1000', name: '宇树科技股份有限公司', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 上级部门: '-', 生效日期: '2016-08-01', 失效日期: '9999-12-31' },
+  { id: '1001', code: '1001', name: '研发中心', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 上级部门: '宇树科技股份有限公司', 生效日期: '2016-08-01', 失效日期: '9999-12-31' },
+  { id: '1002', code: '1002', name: '生产中心', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 上级部门: '宇树科技股份有限公司', 生效日期: '2018-03-01', 失效日期: '9999-12-31' },
+  { id: '1003', code: '1003', name: '供应链中心', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 上级部门: '宇树科技股份有限公司', 生效日期: '2018-03-01', 失效日期: '9999-12-31' },
+  { id: '1004', code: '1004', name: '质量管理部', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 上级部门: '宇树科技股份有限公司', 生效日期: '2019-01-01', 失效日期: '9999-12-31' },
+  { id: '1005', code: '1005', name: '海外事业部', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 上级部门: '宇树科技股份有限公司', 生效日期: '2021-06-01', 失效日期: '9999-12-31' }
 ]
 
+// 员工：金蝶接口字段 = 员工姓名/员工编号（中台→金蝶/中台→MOM）。按全局铁律不显示电话/邮箱
 export const employees: SimpleRecord[] = [
-  { id: 'EMP001', code: 'EMP001', name: '李肖阳', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '研发中心', position: '物料工程师', phone: '138****1234', email: 'lixiaoyang@unitree.cc' },
-  { id: 'EMP002', code: 'EMP002', name: '王建国', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '研发中心', position: '硬件工程师', phone: '139****5678', email: 'wangjianguo@unitree.cc' },
-  { id: 'EMP003', code: 'EMP003', name: '张明', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '供应链中心', position: '采购员', phone: '136****9012', email: 'zhangming@unitree.cc' },
-  { id: 'EMP004', code: 'EMP004', name: '林强', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '生产中心', position: '车间主任', phone: '137****3456', email: 'linqiang@unitree.cc' },
-  { id: 'EMP005', code: 'EMP005', name: '刘芳', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '质量管理部', position: 'QA 工程师', phone: '135****7890', email: 'liufang@unitree.cc' },
-  { id: 'EMP006', code: 'EMP006', name: '韩雪', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '海外事业部', position: '销售经理', phone: '186****2222', email: 'hanxue@unitree.cc' }
+  { id: 'EMP001', code: 'EMP001', name: '李肖阳', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '研发中心', position: '物料工程师' },
+  { id: 'EMP002', code: 'EMP002', name: '王建国', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '研发中心', position: '硬件工程师' },
+  { id: 'EMP003', code: 'EMP003', name: '张明', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '供应链中心', position: '采购员' },
+  { id: 'EMP004', code: 'EMP004', name: '林强', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '生产中心', position: '车间主任' },
+  { id: 'EMP005', code: 'EMP005', name: '刘芳', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '质量管理部', position: 'QA 工程师' },
+  { id: 'EMP006', code: 'EMP006', name: '韩雪', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', dept: '海外事业部', position: '销售经理' }
 ]
 
 export const units: SimpleRecord[] = [
@@ -718,19 +738,21 @@ export const quotas: SimpleRecord[] = [
 
 // ---------------- 仓库相关 ----------------
 
+// 仓库：金蝶接口字段对齐（金蝶→MOM）
 export const warehouses: SimpleRecord[] = [
-  { id: 'WH001', code: 'WH-FG', name: '成品库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', address: '总部基地 1F', area: '500㎡', manager: '林强' },
-  { id: 'WH002', code: 'WH-WIP', name: '半成品库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', address: '总部基地 2F', area: '300㎡', manager: '林强' },
-  { id: 'WH003', code: 'WH-RM', name: '原材料库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', address: '总部基地 -1F', area: '800㎡', manager: '张洪' },
-  { id: 'WH004', code: 'WH-MRO', name: '耗材库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', address: '总部基地 2F-A', area: '100㎡', manager: '马丽' },
-  { id: 'WH005', code: 'WH-NG', name: '不良品库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', address: '总部基地 1F-B', area: '80㎡', manager: '刘芳' }
+  { id: 'WH001', code: 'WH-FG', name: '成品库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓库属性: '存储仓', 仓库负责人: '林强', 分组: '总部仓', 库存状态类型: '合格/不合格/待检', 默认库存状态: '合格', 默认收料状态: '待检', 允许锁库: '是', 启用仓位管理: '是', 参与拣货: '是', 参与预警: '是', 仓位值集编码: 'BIN-FG', 仓位值集名称: '成品库仓位集', 创建人: '林强', 审核人: '张洪', 最后修改人: '林强' },
+  { id: 'WH002', code: 'WH-WIP', name: '半成品库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓库属性: '存储仓', 仓库负责人: '林强', 分组: '总部仓', 库存状态类型: '合格/待检', 默认库存状态: '合格', 默认收料状态: '待检', 允许锁库: '否', 启用仓位管理: '是', 参与拣货: '是', 参与预警: '否', 仓位值集编码: 'BIN-WIP', 仓位值集名称: '半成品库仓位集', 创建人: '林强', 审核人: '张洪', 最后修改人: '林强' },
+  { id: 'WH003', code: 'WH-RM', name: '原材料库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓库属性: '存储仓', 仓库负责人: '张洪', 分组: '总部仓', 库存状态类型: '合格/待检/不合格', 默认库存状态: '待检', 默认收料状态: '待检', 允许锁库: '是', 启用仓位管理: '是', 参与拣货: '是', 参与预警: '是', 仓位值集编码: 'BIN-RM', 仓位值集名称: '原材料库仓位集', 创建人: '张洪', 审核人: '林强', 最后修改人: '张洪' },
+  { id: 'WH004', code: 'WH-MRO', name: '耗材库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓库属性: '存储仓', 仓库负责人: '马丽', 分组: '辅料仓', 库存状态类型: '合格', 默认库存状态: '合格', 默认收料状态: '合格', 允许锁库: '否', 启用仓位管理: '否', 参与拣货: '是', 参与预警: '是', 仓位值集编码: '-', 仓位值集名称: '-', 创建人: '马丽', 审核人: '林强', 最后修改人: '马丽' },
+  { id: 'WH005', code: 'WH-NG', name: '不良品库', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓库属性: '不良仓', 仓库负责人: '刘芳', 分组: '隔离仓', 库存状态类型: '不合格', 默认库存状态: '不合格', 默认收料状态: '不合格', 允许锁库: '是', 启用仓位管理: '否', 参与拣货: '否', 参与预警: '否', 仓位值集编码: '-', 仓位值集名称: '-', 创建人: '刘芳', 审核人: '林强', 最后修改人: '刘芳' }
 ]
 
+// 仓位：金蝶为「仓位值集 + 仓位值」两级（文档标注"不对接"，此处仅作主数据展示）
 export const bins: SimpleRecord[] = [
-  { id: 'BIN001', code: 'A-01-01', name: 'A 区 1 排 1 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', warehouse: '成品库', capacity: '120 台' },
-  { id: 'BIN002', code: 'A-01-02', name: 'A 区 1 排 2 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', warehouse: '成品库', capacity: '120 台' },
-  { id: 'BIN003', code: 'B-02-05', name: 'B 区 2 排 5 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', warehouse: '原材料库', capacity: '5000 件' },
-  { id: 'BIN004', code: 'C-01-01', name: 'C 区 1 排 1 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', warehouse: '半成品库', capacity: '300 套' }
+  { id: 'BIN001', code: 'A-01-01', name: 'A 区 1 排 1 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓位值集编码: 'BIN-FG', 仓位值集名称: '成品库仓位集', 创建人: '林强', 审核人: '张洪', 修改人: '林强', 禁用人: '-', 创建日期: '2024-01-10', 审核日期: '2024-01-10', 修改日期: '2026-03-12', 禁用日期: '-' },
+  { id: 'BIN002', code: 'A-01-02', name: 'A 区 1 排 2 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓位值集编码: 'BIN-FG', 仓位值集名称: '成品库仓位集', 创建人: '林强', 审核人: '张洪', 修改人: '林强', 禁用人: '-', 创建日期: '2024-01-10', 审核日期: '2024-01-10', 修改日期: '2026-03-12', 禁用日期: '-' },
+  { id: 'BIN003', code: 'B-02-05', name: 'B 区 2 排 5 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓位值集编码: 'BIN-RM', 仓位值集名称: '原材料库仓位集', 创建人: '张洪', 审核人: '林强', 修改人: '张洪', 禁用人: '-', 创建日期: '2024-02-01', 审核日期: '2024-02-01', 修改日期: '2026-03-12', 禁用日期: '-' },
+  { id: 'BIN004', code: 'C-01-01', name: 'C 区 1 排 1 号', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 仓位值集编码: 'BIN-WIP', 仓位值集名称: '半成品库仓位集', 创建人: '林强', 审核人: '张洪', 修改人: '林强', 禁用人: '-', 创建日期: '2024-02-15', 审核日期: '2024-02-15', 修改日期: '2026-03-12', 禁用日期: '-' }
 ]
 
 export const batchRules: SimpleRecord[] = [
@@ -784,27 +806,116 @@ export const productCategories: SimpleRecord[] = [
   { id: 'PC005', code: 'H1', name: 'H1 人形机器人', status: '已审核', source: 'PLM', updatedAt: '2026-03-12 10:25', belong: 'B端', desc: '旗舰人形机器人' }
 ]
 
+// ---------------- 项目主数据（金蝶预置基础资料，金蝶→MOM；分研发/在建工程/销售三类） ----------------
+// 字段对齐金蝶「项目」接口：项目编码/项目名称/数据状态/禁用状态/创建日期/创建人/修改日期/修改人
+
+export const rdProjects: SimpleRecord[] = [
+  { id: 'RD41', code: 'RD41', name: 'G1 人形机器人量产研发', status: '已审核', source: 'ERP', updatedAt: '2026-04-12 09:10', 禁用状态: '否', 创建日期: '2025-06-01', 创建人: '李肖阳', 修改日期: '2026-04-12', 修改人: '李肖阳' },
+  { id: 'RD42', code: 'RD42', name: 'GO2-W 轮足升级研发', status: '已审核', source: 'ERP', updatedAt: '2026-03-20 14:30', 禁用状态: '否', 创建日期: '2025-08-15', 创建人: '王建国', 修改日期: '2026-03-20', 修改人: '王建国' },
+  { id: 'RD43', code: 'RD43', name: 'H1 旗舰人形机器人研发', status: '已审核', source: 'ERP', updatedAt: '2026-04-28 16:00', 禁用状态: '否', 创建日期: '2025-09-01', 创建人: '严欢欢', 修改日期: '2026-04-28', 修改人: '严欢欢' },
+  { id: 'RD44', code: 'RD44', name: '灵巧手关节模组研发', status: '未审核', source: 'ERP', updatedAt: '2026-05-06 11:20', 禁用状态: '否', 创建日期: '2026-02-10', 创建人: '王建国', 修改日期: '2026-05-06', 修改人: '王建国' }
+]
+
+export const buildProjects: SimpleRecord[] = [
+  { id: 'JG01', code: 'JG01', name: '二期智能工厂厂房建设', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 禁用状态: '否', 创建日期: '2025-03-01', 创建人: '林强', 修改日期: '2026-03-12', 修改人: '林强' },
+  { id: 'JG02', code: 'JG02', name: '总装产线扩建工程', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 禁用状态: '否', 创建日期: '2025-07-01', 创建人: '林强', 修改日期: '2026-03-12', 修改人: '张洪' },
+  { id: 'JG03', code: 'JG03', name: '老化测试线建设工程', status: '已审核', source: 'ERP', updatedAt: '2026-03-12 10:25', 禁用状态: '是', 创建日期: '2024-10-01', 创建人: '张洪', 修改日期: '2025-12-30', 修改人: '张洪' }
+]
+
+export const saleProjects: SimpleRecord[] = [
+  { id: 'RB11', code: 'RB11', name: 'GO2 机器狗-标准版（C端）', status: '已审核', source: 'ERP', updatedAt: '2026-03-15 10:25', 禁用状态: '否', 创建日期: '2025-11-02', 创建人: '乃永刚', 修改日期: '2026-03-15', 修改人: '乃永刚' },
+  { id: 'RB12', code: 'RB12', name: 'GO2-EDU 教育版', status: '已审核', source: 'ERP', updatedAt: '2026-02-20 10:25', 禁用状态: '否', 创建日期: '2025-12-08', 创建人: '乃永刚', 修改日期: '2026-02-20', 修改人: '王组长' },
+  { id: 'RB21', code: 'RB21', name: 'B2 工业四足', status: '已审核', source: 'ERP', updatedAt: '2026-01-18 10:25', 禁用状态: '否', 创建日期: '2025-09-15', 创建人: '李伟', 修改日期: '2026-01-18', 修改人: '李伟' },
+  { id: 'HM01', code: 'HM01', name: 'G1 人形机器人-量产', status: '已审核', source: 'ERP', updatedAt: '2026-04-12 10:25', 禁用状态: '否', 创建日期: '2026-01-05', 创建人: '严欢欢', 修改日期: '2026-04-12', 修改人: '严欢欢' },
+  { id: 'RB05', code: 'RB05', name: 'Go1 机器狗-停产', status: '已审核', source: 'ERP', updatedAt: '2025-10-30 10:25', 禁用状态: '是', 创建日期: '2024-06-01', 创建人: '乃永刚', 修改日期: '2025-10-30', 修改人: '乃永刚' }
+]
+
+// ---------------- ERP 接口集成清单（金蝶云星空 ⇄ 中台 ⇄ MOM，全 48 个接口） ----------------
+
+const mkIf = (no: number, module: string, biz: string, kingdee: string, upstream: string, direction: string): SimpleRecord => ({
+  id: 'IF' + String(no).padStart(2, '0'),
+  code: String(no),
+  name: biz,
+  status: direction === '不对接' || direction === '不传递' ? '已禁用' : '已审核',
+  source: 'ERP',
+  updatedAt: '2026-05-27 18:00',
+  模块: module,
+  金蝶表单: kingdee,
+  上游关联单据: upstream || '无',
+  传递方向: direction
+})
+
+export const erpInterfaces: SimpleRecord[] = [
+  mkIf(1, '基础资料', '物料', '物料', '无', '金蝶→MOM'),
+  mkIf(2, '基础资料', 'BOM', 'BOM', '无', '金蝶→MOM'),
+  mkIf(3, '基础资料', '仓库', '仓库', '无', '金蝶→MOM'),
+  mkIf(4, '基础资料', '仓位', '仓位', '', '不对接'),
+  mkIf(5, '基础资料', '员工', '员工', '无', '中台→金蝶/中台→MOM'),
+  mkIf(6, '基础资料', '部门', '部门', '无', '中台→金蝶/中台→MOM'),
+  mkIf(7, '基础资料', '研发项目', '预置基础资料（研发项目）', '', '金蝶→MOM'),
+  mkIf(8, '基础资料', '在建工程项目', '预置基础资料（在建工程项目）', '', '金蝶→MOM'),
+  mkIf(9, '基础资料', '销售项目', '预置基础资料（销售项目）', '', '金蝶→MOM'),
+  mkIf(10, '生产管理', '制造任务', '生产订单', '计划订单', '金蝶→MOM'),
+  mkIf(11, '生产管理', '制造任务', '生产订单变更单', '生产订单', '金蝶→MOM'),
+  mkIf(12, '生产管理', '制造任务', '生产用料清单', '生产工单', '金蝶→MOM'),
+  mkIf(13, '生产管理', '制造任务', '生产用料清单变更', '生产用料清单', '金蝶→MOM'),
+  mkIf(14, '生产管理', '投料记录', '生产领料单', '生产用料清单', 'MOM→MOM→金蝶'),
+  mkIf(15, '生产管理', '投料记录', '生产补料单', '生产用料清单', 'MOM→MOM→金蝶'),
+  mkIf(16, '生产管理', '投料记录（负数）', '生产退料单', '生产补料单', 'MOM→MOM→金蝶'),
+  mkIf(17, '生产管理', '生产汇报单', '生产汇报单', '生产工单', 'MOM→金蝶'),
+  mkIf(18, '生产管理', '生产入库单', '完工入库单', '生产汇报单', 'MOM→金蝶'),
+  mkIf(19, '委外管理', '委外订单', '委外订单', '计划订单', '金蝶→MOM'),
+  mkIf(20, '委外管理', '委外订单变更单', '委外订单变更单', '委外订单', '金蝶→MOM'),
+  mkIf(21, '委外管理', '委外用料清单', '委外用料清单', '委外订单', '金蝶→MOM'),
+  mkIf(22, '委外管理', '委外领料单', '委外领料单', '委外用料清单', 'MOM→金蝶'),
+  mkIf(23, '委外管理', '委外退料单', '委外退料单', '委外领料单', 'MOM→金蝶'),
+  mkIf(24, '委外管理', '委外补料单', '委外补料单', '委外用料清单', 'MOM→金蝶'),
+  mkIf(25, '委外管理', '委外收料单', '委外完工入库', '委外订单', 'MOM→金蝶'),
+  mkIf(26, '委外/采购管理', '采购订单', '采购订单', '委外订单', '金蝶→MOM'),
+  mkIf(27, '采购管理', '收料单', '收料通知单', '采购订单', '金蝶→MOM→金蝶'),
+  mkIf(28, '采购管理', '采购入库单', '采购入库单', '收料通知单', 'MOM→金蝶'),
+  mkIf(29, '采购管理', '采购退料单', '采购退料单', '采购入库单/收料通知', 'MOM→金蝶→MOM'),
+  mkIf(30, '采购管理', '退料申请', '退料申请', '采购订单', '金蝶→MOM'),
+  mkIf(31, '采购管理', '采购退料单', '采购退料单', '采购入库单/退料申请', 'MOM→金蝶'),
+  mkIf(32, '仓库管理', '出库申请', '出库申请', '无', '金蝶→MOM'),
+  mkIf(33, '仓库管理', '其他出库单（普通）', '其他出库单（普通）', '出库申请', 'MOM→金蝶'),
+  mkIf(34, '仓库管理', '其他出库单（退货）', '其他出库单（退货）', '其他出库单（普通）', 'MOM→金蝶'),
+  mkIf(35, '仓库管理', '出库申请单', '调拨申请', '', '金蝶→MOM'),
+  mkIf(36, '仓库管理', '其他出库单（普通）', '直接调拨单', '', 'MOM→金蝶'),
+  mkIf(37, '仓库管理', '其他入库单', '其他入库单', '无', 'MOM→金蝶'),
+  mkIf(38, '仓库管理', '调拨申请', '调拨申请', '', '金蝶→MOM'),
+  mkIf(39, '仓库管理', '直接调拨单', '直接调拨单', '调拨申请', 'MOM→金蝶'),
+  mkIf(40, '仓库管理', '其他入库单', '直接调拨单', '调拨申请', '金蝶→MOM'),
+  mkIf(41, '仓库管理', '拆卸单', '拆卸单', '', 'MOM→金蝶'),
+  mkIf(42, '仓库管理', '差异单', '盘盈/盘亏单', '', 'MOM→金蝶'),
+  mkIf(43, '仓库管理', '库存核对表', '-', '', '不传递'),
+  mkIf(44, '销售管理', '发货通知单', '发货通知单', '销售订单', '金蝶→MOM'),
+  mkIf(45, '销售管理', '销售出库单', '销售出库单', '发货通知单', 'MOM→金蝶'),
+  mkIf(46, '销售管理', '退货通知单', '退货通知单', '销售出库单', '金蝶→MOM'),
+  mkIf(47, '销售管理', '销售退货单', '销售退货单', '退货通知单', 'MOM→金蝶'),
+  mkIf(48, '供应商协同', '供应商问题通知书/质量事故告知函', '质量问题通知', '', 'MOM→金蝶')
+]
+
 // ---------------- 统一映射：子分类 key → 列表数据 + 列定义 ----------------
 
 export const dataMap: Record<string, { rows: any[]; columns: Array<{ prop: string; label: string; width?: number }> }> = {
   org: {
     rows: orgs,
     columns: [
-      { prop: 'code', label: '编码', width: 100 },
-      { prop: 'name', label: '名称' },
-      { prop: 'level', label: '层级', width: 80 },
-      { prop: 'parent', label: '上级' }
+      { prop: 'code', label: '部门编码', width: 100 },
+      { prop: 'name', label: '部门名称' },
+      { prop: '上级部门', label: '上级部门' },
+      { prop: '生效日期', label: '生效日期', width: 120 },
+      { prop: '失效日期', label: '失效日期', width: 120 }
     ]
   },
   employee: {
     rows: employees,
     columns: [
-      { prop: 'code', label: '工号', width: 100 },
-      { prop: 'name', label: '姓名', width: 100 },
+      { prop: 'code', label: '员工编号', width: 120 },
+      { prop: 'name', label: '员工姓名', width: 120 },
       { prop: 'dept', label: '部门' },
-      { prop: 'position', label: '岗位' },
-      { prop: 'phone', label: '电话' },
-      { prop: 'email', label: '邮箱' }
+      { prop: 'position', label: '岗位' }
     ]
   },
   unit: {
@@ -838,13 +949,16 @@ export const dataMap: Record<string, { rows: any[]; columns: Array<{ prop: strin
     rows: materials,
     columns: [
       { prop: 'code', label: '物料编码', width: 140 },
-      { prop: 'name', label: '名称' },
-      { prop: 'spec', label: '规格型号' },
-      { prop: 'groupName', label: '物料分组', width: 110 },
+      { prop: 'name', label: '物料名称' },
+      { prop: 'spec', label: '规格型号', width: 130 },
+      { prop: 'groupName', label: '物料分组', width: 100 },
       { prop: 'attribute', label: '物料属性', width: 90 },
-      { prop: 'baseUnit', label: '基本单位', width: 80 },
+      { prop: 'isKit', label: '套件', width: 70 },
+      { prop: 'category', label: '存货类别', width: 90 },
+      { prop: 'projectNo', label: '项目编号', width: 90 },
       { prop: 'productCategory', label: '产品分类', width: 100 },
-      { prop: 'productBelong', label: '产品归属', width: 90 }
+      { prop: 'productBelong', label: '产品归属', width: 90 },
+      { prop: 'owner', label: '负责人', width: 90 }
     ]
   },
   materialGroup: {
@@ -968,20 +1082,25 @@ export const dataMap: Record<string, { rows: any[]; columns: Array<{ prop: strin
   warehouseList: {
     rows: warehouses,
     columns: [
-      { prop: 'code', label: '仓库编码', width: 120 },
-      { prop: 'name', label: '仓库名称' },
-      { prop: 'address', label: '地址' },
-      { prop: 'area', label: '面积' },
-      { prop: 'manager', label: '仓管员' }
+      { prop: 'code', label: '仓库编码', width: 110 },
+      { prop: 'name', label: '仓库名称', width: 120 },
+      { prop: '仓库属性', label: '仓库属性', width: 90 },
+      { prop: '仓库负责人', label: '负责人', width: 90 },
+      { prop: '分组', label: '分组', width: 90 },
+      { prop: '启用仓位管理', label: '仓位管理', width: 90 },
+      { prop: '参与预警', label: '参与预警', width: 90 },
+      { prop: '仓位值集名称', label: '仓位值集' }
     ]
   },
   binList: {
     rows: bins,
     columns: [
-      { prop: 'code', label: '仓位编码', width: 120 },
-      { prop: 'name', label: '仓位名称' },
-      { prop: 'warehouse', label: '所属仓库' },
-      { prop: 'capacity', label: '容量' }
+      { prop: '仓位值集编码', label: '仓位值集编码', width: 120 },
+      { prop: '仓位值集名称', label: '仓位值集名称', width: 150 },
+      { prop: 'code', label: '仓位值编码', width: 110 },
+      { prop: 'name', label: '仓位值名称' },
+      { prop: '创建人', label: '创建人', width: 90 },
+      { prop: '创建日期', label: '创建日期', width: 120 }
     ]
   },
   batchRule: {
@@ -1059,6 +1178,53 @@ export const dataMap: Record<string, { rows: any[]; columns: Array<{ prop: strin
       { prop: 'subCategory', label: '耗材分类', width: 180 },
       { prop: 'baseUnit', label: '单位', width: 80 },
       { prop: 'defaultSupplier', label: '默认供应商' }
+    ]
+  },
+  rdProject: {
+    rows: rdProjects,
+    columns: [
+      { prop: 'code', label: '项目编码', width: 110 },
+      { prop: 'name', label: '项目名称' },
+      { prop: '禁用状态', label: '禁用状态', width: 90 },
+      { prop: '创建人', label: '创建人', width: 90 },
+      { prop: '创建日期', label: '创建日期', width: 120 },
+      { prop: '修改人', label: '修改人', width: 90 },
+      { prop: '修改日期', label: '修改日期', width: 120 }
+    ]
+  },
+  buildProject: {
+    rows: buildProjects,
+    columns: [
+      { prop: 'code', label: '项目编码', width: 110 },
+      { prop: 'name', label: '项目名称' },
+      { prop: '禁用状态', label: '禁用状态', width: 90 },
+      { prop: '创建人', label: '创建人', width: 90 },
+      { prop: '创建日期', label: '创建日期', width: 120 },
+      { prop: '修改人', label: '修改人', width: 90 },
+      { prop: '修改日期', label: '修改日期', width: 120 }
+    ]
+  },
+  saleProject: {
+    rows: saleProjects,
+    columns: [
+      { prop: 'code', label: '项目编码', width: 110 },
+      { prop: 'name', label: '项目名称' },
+      { prop: '禁用状态', label: '禁用状态', width: 90 },
+      { prop: '创建人', label: '创建人', width: 90 },
+      { prop: '创建日期', label: '创建日期', width: 120 },
+      { prop: '修改人', label: '修改人', width: 90 },
+      { prop: '修改日期', label: '修改日期', width: 120 }
+    ]
+  },
+  erpInterface: {
+    rows: erpInterfaces,
+    columns: [
+      { prop: 'code', label: '编号', width: 70 },
+      { prop: '模块', label: '模块', width: 130 },
+      { prop: 'name', label: '业务表单', width: 200 },
+      { prop: '金蝶表单', label: '金蝶表单', width: 190 },
+      { prop: '上游关联单据', label: '上游关联单据', width: 170 },
+      { prop: '传递方向', label: '传递方向', width: 170 }
     ]
   }
 }

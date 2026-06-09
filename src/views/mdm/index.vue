@@ -366,7 +366,7 @@ const treeData = computed(() => {
   })
 })
 
-const defaultExpandedKeys = ['material', 'device', 'supplyChain', 'warehouse', 'basic']
+const defaultExpandedKeys = ['material', 'device', 'supplyChain', 'warehouse', 'basic', 'integration']
 
 // 当前选中子分类 key
 const currentKey = ref('materialList')
