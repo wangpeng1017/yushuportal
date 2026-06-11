@@ -1,0 +1,129 @@
+/* MDM 两个面板（静态主数据 / 业务单据）共用布局样式 */
+.mdm-main {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.mdm-sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 6px;
+  padding: 12px 8px 16px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.mdm-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 6px;
+}
+
+:deep(.el-tree) {
+  background: transparent;
+
+  .el-tree-node__content {
+    height: 32px;
+    border-radius: 4px;
+  }
+
+  .el-tree-node.is-current > .el-tree-node__content {
+    background: #1677ff;
+    color: #fff;
+
+    .mdm-tree-text,
+    .mdm-tree-count {
+      color: #fff;
+    }
+  }
+}
+
+.mdm-tree-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  flex: 1;
+}
+
+.mdm-tree-text {
+  flex: 1;
+  color: #374151;
+}
+
+.mdm-tree-count {
+  font-size: 11px;
+  color: #9ca3af;
+  font-family: Consolas, Monaco, monospace;
+}
+
+.mdm-content {
+  flex: 1;
+  background: #fff;
+  border-radius: 6px;
+  padding: 14px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mdm-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.mdm-table-wrap {
+  flex: 1;
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.mdm-pager {
+  padding-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mdm-drawer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mdm-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #ebeef5;
+  background: #f8fafc;
+}
+
+.mdm-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.mdm-drawer-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.mdm-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+}
