@@ -157,8 +157,6 @@ const stats = reactive({ todo: 2, unread: 456 })
 
 const apps = [
   { name: 'MES生产管理', desc: '生产执行系统', icon: 'ep:cpu', bg: 'linear-gradient(135deg,#4FACFE,#00F2FE)', url: '/mes.html?v=20260508' },
-  { name: '工人操作端', desc: '工控机终端 - 工人报工', icon: 'ep:monitor', bg: 'linear-gradient(135deg,#667EEA,#764BA2)', url: '/terminal/worker.html' },
-  { name: '班组长看板', desc: '工控机终端 - 班组管理', icon: 'ep:data-board', bg: 'linear-gradient(135deg,#F093FB,#F5576C)', url: '/terminal/leader.html' },
   { name: 'WMS仓储管理', desc: '智能仓储物流', icon: 'ep:office-building', bg: 'linear-gradient(135deg,#5F72BD,#9B23EA)', url: 'http://zjx.iampmer.com/wms/' },
   { name: 'QMS质量管理', desc: '全流程质量管控', icon: 'ep:medal', bg: 'linear-gradient(135deg,#43E97B,#38F9D7)', url: 'http://8.130.182.148:3011/qms/index.html' },
   { name: 'EAM设备管理', desc: '设备资产全生命周期', icon: 'ep:tools', bg: 'linear-gradient(135deg,#FA709A,#FEE140)', url: 'http://8.130.182.148:3010/index?v=20260508' },
@@ -167,7 +165,9 @@ const apps = [
   { name: 'MDM主数据管理', desc: '企业主数据治理', icon: 'ep:files', bg: 'linear-gradient(135deg,#667EEA,#764BA2)', url: '/mdm' },
   { name: 'IoT平台', desc: '设备互联互通', icon: 'ep:link', bg: 'linear-gradient(135deg,#FF6A00,#EE0979)', url: 'http://123.235.0.227:11916/login', cred: { user: 'lizhengliang@iiglocal.com', pass: 'lizhengliang' } },
   { name: '数据集成平台', desc: '异构系统数据集成', icon: 'ep:share', bg: 'linear-gradient(135deg,#13547A,#80D0C7)', url: 'https://218.92.236.114:3001/login.html', cred: { user: 'admin', pass: 'Admin123@dtdip!' } },
-  { name: 'AI智能体', desc: '智能决策与对话', icon: 'ep:promotion', bg: 'linear-gradient(135deg,#A18CD1,#FBC2EB)' }
+  { name: 'AI智能体', desc: '智能决策与对话', icon: 'ep:promotion', bg: 'linear-gradient(135deg,#A18CD1,#FBC2EB)' },
+  { name: '工人操作端', desc: '工控机终端 - 工人报工', icon: 'ep:monitor', bg: 'linear-gradient(135deg,#667EEA,#764BA2)', url: '/terminal/worker.html' },
+  { name: '班组长看板', desc: '工控机终端 - 班组管理', icon: 'ep:data-board', bg: 'linear-gradient(135deg,#F093FB,#F5576C)', url: '/terminal/leader.html' }
 ]
 
 const shortcuts = [
