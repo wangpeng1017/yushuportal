@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>班组长</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{width:1920px;height:1080px;overflow:hidden;background:#C8D0DA;display:flex;align-items:center;justify-content:center;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;}
+
+/* PAD外壳 */
+.pad-shell{
+  width:1820px;height:980px;
+  background:linear-gradient(160deg,#3A4550,#252E38);
+  border-radius:28px;
+  box-shadow:0 0 0 2px #4E5C6A, 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.pad-shell::before{content:'';position:absolute;top:8px;left:8px;right:8px;height:1px;background:rgba(255,255,255,0.12);border-radius:20px;}
+.pad-camera{position:absolute;top:16px;right:56px;width:10px;height:10px;border-radius:50%;background:#1A2028;box-shadow:0 0 0 2px #2E3A44,inset 0 0 3px #090E12;}
+.pad-btn1{position:absolute;right:-5px;top:260px;width:8px;height:56px;background:linear-gradient(180deg,#2E3A44,#1E2830);border-radius:4px 0 0 4px;}
+.pad-btn2{position:absolute;right:-5px;top:330px;width:8px;height:56px;background:linear-gradient(180deg,#2E3A44,#1E2830);border-radius:4px 0 0 4px;}
+.pad-usb{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:32px;height:5px;border-radius:3px;background:#1A2028;}
+
+/* 屏幕 */
+.screen{
+  width:1768px;height:928px;
+  background:#F1F4F8;
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* 顶栏 */
+.topbar{
+  height:52px;background:#0F172A;
+  display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;
+}
+.tb-logo{width:32px;height:32px;background:linear-gradient(135deg,#E2683C,#C85010);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:white;}
+.tb-sys{font-size:15px;font-weight:700;color:#F1F5F9;padding-right:14px;border-right:1px solid rgba(255,255,255,0.1);}
+.tb-role{background:#7C3AED;color:white;font-size:12px;font-weight:700;border-radius:4px;padding:2px 8px;}
+.tb-name{font-size:15px;font-weight:600;color:#E2E8F0;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:18px;font-size:14px;color:#94A3B8;}
+.tb-time{font-family:'Courier New',monospace;font-size:16px;color:#E2E8F0;font-weight:600;}
+
+/* 内容 */
+.content{flex:1;display:flex;gap:0;overflow:hidden;}
+
+/* ── 左侧班组概况 ── */
+.col-left{width:320px;background:#FFFFFF;border-right:1px solid #E2E8F0;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+
+.section-head{padding:10px 16px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px;background:#F8FAFC;flex-shrink:0;}
+.sh-bar{width:4px;height:16px;border-radius:2px;}
+.sh-title{font-size:14px;font-weight:700;color:#1E293B;}
+.sh-sub{margin-left:auto;font-size:12px;color:#94A3B8;}
+
+/* 班组成员 */
+.crew-list{padding:10px 12px;border-bottom:1px solid #F1F5F9;flex-shrink:0;}
+.crew-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #F8FAFC;}
+.crew-row:last-child{border-bottom:none;}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:white;flex-shrink:0;}
+.crew-info{flex:1;}
+.crew-name{font-size:15px;font-weight:700;color:#1E293B;}
+.crew-post{font-size:12px;color:#94A3B8;}
+.crew-status{display:flex;align-items:center;gap:4px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.crew-st{font-size:12px;font-weight:600;}
+
+/* 设备总览 */
+.dev-grid{padding:10px 12px;border-bottom:1px solid #F1F5F9;flex-shrink:0;}
+.dev-row-head{display:flex;font-size:12px;font-weight:600;color:#64748B;padding-bottom:6px;border-bottom:1px solid #F1F5F9;margin-bottom:6px;}
+.dev-item{display:flex;align-items:center;gap:0;font-size:13px;padding:4px 0;}
+.dev-id{width:80px;font-family:'Courier New',monospace;font-weight:600;color:#1E293B;}
+.dev-prog{flex:1;}
+.dev-bar{height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden;}
+.dev-fill{height:100%;border-radius:3px;}
+.dev-pct{width:36px;text-align:right;font-family:'Courier New',monospace;font-size:12px;font-weight:700;}
+.dev-state{width:52px;text-align:right;}
+.dstag{font-size:10px;font-weight:700;border-radius:3px;padding:1px 5px;}
+
+/* 异常列表 */
+.alert-list{flex:1;overflow-y:auto;padding:10px 12px;}
+.alert-item{border-radius:6px;padding:8px 10px;margin-bottom:7px;border-left:3px solid;}
+.alert-time{font-size:11px;color:#94A3B8;margin-bottom:3px;font-family:'Courier New',monospace;}
+.alert-text{font-size:13px;font-weight:600;}
+.alert-from{font-size:11px;margin-top:2px;}
+.a-red{background:#FEF2F2;border-color:#EF4444;}
+.a-red .alert-text{color:#991B1B;}
+.a-red .alert-from{color:#DC2626;}
+.a-orange{background:#FFF7ED;border-color:#F97316;}
+.a-orange .alert-text{color:#9A3412;}
+.a-orange .alert-from{color:#EA580C;}
+.a-blue{background:#EFF6FF;border-color:#3B82F6;}
+.a-blue .alert-text{color:#1E40AF;}
+.a-blue .alert-from{color:#2563EB;}
+
+/* ── 中间：计划完成看板 ── */
+.col-mid{flex:1;display:flex;flex-direction:column;border-right:1px solid #E2E8F0;overflow:hidden;}
+
+/* 大数字汇总行 */
+.summary-row{display:flex;height:108px;border-bottom:2px solid #E2E8F0;flex-shrink:0;}
+.sum-card{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #E2E8F0;gap:3px;}
+.sum-card:last-child{border-right:none;}
+.sum-label{font-size:13px;font-weight:600;color:#64748B;}
+.sum-val{font-size:48px;font-weight:800;line-height:1;font-family:'Courier New',monospace;}
+.sum-sub{font-size:12px;color:#94A3B8;font-weight:500;}
+
+/* 工单明细表 */
+.wo-table-wrap{flex:1;overflow-y:auto;}
+.wo-table{width:100%;border-collapse:collapse;font-size:14px;}
+.wo-table thead th{position:sticky;top:0;z-index:1;background:#F1F5F9;color:#475569;font-weight:700;font-size:13px;padding:8px 12px;text-align:left;border-bottom:2px solid #E2E8F0;white-space:nowrap;}
+.wo-table tbody td{padding:9px 12px;border-bottom:1px solid #F1F5F9;vertical-align:middle;}
+.wo-table tr:hover td{background:#F8FAFC;}
+.wo-table tr.late td{background:#FFF9F9;}
+
+/* 进度条 */
+.table-prog{display:flex;align-items:center;gap:8px;}
+.tpbar{flex:1;height:7px;background:#E2E8F0;border-radius:4px;overflow:hidden;}
+.tpfill{height:100%;border-radius:4px;}
+.tppct{font-family:'Courier New',monospace;font-size:12px;font-weight:700;width:34px;text-align:right;}
+
+/* 状态标签 */
+.tag{font-size:11px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;}
+.tag-run{background:#DCFCE7;color:#166534;}
+.tag-wait{background:#F1F5F9;color:#64748B;}
+.tag-late{background:#FEE2E2;color:#991B1B;}
+.tag-done{background:#DBEAFE;color:#1E40AF;}
+.tag-pause{background:#FEF9C3;color:#713F12;}
+
+/* 优先级 */
+.prio{width:6px;height:28px;border-radius:3px;flex-shrink:0;}
+
+/* ── 右侧：Andon + 派工 ── */
+.col-right{width:280px;background:#FFFFFF;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+
+/* Andon告警 */
+.andon-panel{background:#1E293B;padding:12px 14px;flex-shrink:0;}
+.andon-title{font-size:14px;font-weight:800;color:#F1F5F9;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.andon-blink{width:10px;height:10px;border-radius:50%;background:#EF4444;box-shadow:0 0 0 4px rgba(239,68,68,0.3);}
+.andon-card{background:rgba(239,68,68,0.15);border:1.5px solid rgba(239,68,68,0.5);border-radius:8px;padding:10px;margin-bottom:8px;}
+.andon-loc{font-size:13px;font-weight:700;color:#FCA5A5;}
+.andon-desc{font-size:14px;font-weight:700;color:#FFFFFF;margin:3px 0;}
+.andon-time{font-size:11px;color:#94A3B8;font-family:'Courier New',monospace;}
+.andon-ack{background:#991B1B;color:white;border:none;border-radius:4px;padding:4px 10px;font-size:12px;font-weight:700;float:right;cursor:pointer;}
+
+/* 工位派工 */
+.dispatch-panel{flex:1;padding:12px 14px;overflow-y:auto;}
+.dp-title{font-size:14px;font-weight:700;color:#1E293B;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.dp-bar{width:4px;height:14px;border-radius:2px;background:#7C3AED;}
+.dp-card{border:1.5px solid #E2E8F0;border-radius:8px;padding:10px;margin-bottom:8px;background:#FAFBFC;}
+.dp-header{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.dp-station{font-size:15px;font-weight:800;color:#1E293B;}
+.dp-worker{font-size:13px;color:#475569;}
+.dp-wo{font-size:12px;color:#7C3AED;font-family:'Courier New',monospace;font-weight:600;}
+.dp-prog-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.dp-prog-bar{flex:1;height:5px;background:#E2E8F0;border-radius:3px;overflow:hidden;}
+.dp-prog-fill{height:100%;border-radius:3px;}
+.dp-done{font-size:13px;font-weight:700;font-family:'Courier New',monospace;}
+.dp-total{font-size:12px;color:#94A3B8;}
+
+/* 底部快捷操作栏 */
+.action-bar{height:76px;background:#FFFFFF;border-top:2px solid #E2E8F0;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0;}
+.act-btn{flex:1;height:56px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;font-family:inherit;}
+.act-main{font-size:18px;font-weight:800;}
+.act-sub{font-size:11px;opacity:0.85;}
+.btn-plan{background:linear-gradient(135deg,#1D4ED8,#1E40AF);color:white;}
+.btn-dispatch{background:linear-gradient(135deg,#7C3AED,#6D28D9);color:white;}
+.btn-report{background:linear-gradient(135deg,#EA580C,#C2410C);color:white;}
+.btn-andon{background:linear-gradient(135deg,#DC2626,#B91C1C);color:white;}
+.btn-meeting{background:linear-gradient(135deg,#0369A1,#0284C7);color:white;}
+</style>
+</head>
+<body>
+
+<div class="pad-shell">
+  <div class="pad-camera"></div>
+  <div class="pad-btn1"></div>
+  <div class="pad-btn2"></div>
+  <div class="pad-usb"></div>
+
+  <div class="screen">
+
+    <!-- 顶栏 -->
+    <div class="topbar">
+      <div class="tb-logo">M</div>
+      <div class="tb-sys">宇树 MES</div>
+      <div class="tb-role">班组长</div>
+      <div class="tb-name">刘建国 · 机加一班</div>
+      <div class="tb-right">
+        <span>扬州工厂 · 机加车间</span>
+        <span>|</span>
+        <span>早班 08:00–16:00</span>
+        <span>|</span>
+        <div class="tb-time">10:22</div>
+      </div>
+    </div>
+
+    <!-- 内容 -->
+    <div class="content">
+
+      <!-- 左侧：班组成员 + 设备 + 异常 -->
+      <div class="col-left">
+
+        <div class="section-head">
+          <div class="sh-bar" style="background:#7C3AED"></div>
+          <div class="sh-title">班组成员（7人）</div>
+          <div class="sh-sub">在岗 6 / 缺勤 1</div>
+        </div>
+
+        <div class="crew-list">
+          <div class="crew-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#16A34A,#15803D)">张</div>
+            <div class="crew-info">
+              <div class="crew-name">张伟</div>
+              <div class="crew-post">卧镗铣 BH-02</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#22C55E"></div>
+              <span class="crew-st" style="color:#16A34A">运行中</span>
+            </div>
+          </div>
+          <div class="crew-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8)">李</div>
+            <div class="crew-info">
+              <div class="crew-name">李明</div>
+              <div class="crew-post">立加中心 VA-05</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#22C55E"></div>
+              <span class="crew-st" style="color:#16A34A">运行中</span>
+            </div>
+          </div>
+          <div class="crew-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#F97316,#EA580C)">王</div>
+            <div class="crew-info">
+              <div class="crew-name">王芳</div>
+              <div class="crew-post">数控车床 CK-01</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#FBBF24"></div>
+              <span class="crew-st" style="color:#D97706">暂停</span>
+            </div>
+          </div>
+          <div class="crew-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)">陈</div>
+            <div class="crew-info">
+              <div class="crew-name">陈刚</div>
+              <div class="crew-post">卧镗铣 BH-01</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#22C55E"></div>
+              <span class="crew-st" style="color:#16A34A">运行中</span>
+            </div>
+          </div>
+          <div class="crew-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED)">赵</div>
+            <div class="crew-info">
+              <div class="crew-name">赵磊</div>
+              <div class="crew-post">龙门铣床 DM-03</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#22C55E"></div>
+              <span class="crew-st" style="color:#16A34A">运行中</span>
+            </div>
+          </div>
+          <div class="crew-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#EC4899,#BE185D)">孙</div>
+            <div class="crew-info">
+              <div class="crew-name">孙丽</div>
+              <div class="crew-post">三坐标检验</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#22C55E"></div>
+              <span class="crew-st" style="color:#16A34A">检验中</span>
+            </div>
+          </div>
+          <div class="crew-row">
+            <div class="avatar" style="background:#94A3B8">周</div>
+            <div class="crew-info">
+              <div class="crew-name">周斌</div>
+              <div class="crew-post">数控车床 CK-03</div>
+            </div>
+            <div class="crew-status">
+              <div class="dot" style="background:#EF4444"></div>
+              <span class="crew-st" style="color:#DC2626">缺勤</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div class="sh-bar" style="background:#0EA5E9"></div>
+          <div class="sh-title">设备状态</div>
+          <div class="sh-sub">OEE 78%</div>
+        </div>
+
+        <div class="dev-grid">
+          <div style="display:flex;font-size:11px;font-weight:600;color:#94A3B8;padding-bottom:5px;border-bottom:1px solid #F1F5F9;margin-bottom:5px;">
+            <span style="width:72px">设备</span>
+            <span style="flex:1">负荷</span>
+            <span style="width:50px;text-align:right">状态</span>
+          </div>
+          <!-- 设备行 -->
+          <div class="dev-item">
+            <div class="dev-id">BH-01</div>
+            <div class="dev-prog"><div class="dev-bar"><div class="dev-fill" style="width:82%;background:linear-gradient(90deg,#16A34A,#15803D)"></div></div></div>
+            <div class="dev-pct" style="color:#16A34A">82%</div>
+            <div class="dev-state"><span class="dstag" style="background:#DCFCE7;color:#166534">运行</span></div>
+          </div>
+          <div class="dev-item">
+            <div class="dev-id">BH-02</div>
+            <div class="dev-prog"><div class="dev-bar"><div class="dev-fill" style="width:71%;background:linear-gradient(90deg,#16A34A,#15803D)"></div></div></div>
+            <div class="dev-pct" style="color:#16A34A">71%</div>
+            <div class="dev-state"><span class="dstag" style="background:#DCFCE7;color:#166534">运行</span></div>
+          </div>
+          <div class="dev-item">
+            <div class="dev-id">VA-05</div>
+            <div class="dev-prog"><div class="dev-bar"><div class="dev-fill" style="width:90%;background:linear-gradient(90deg,#F97316,#EA580C)"></div></div></div>
+            <div class="dev-pct" style="color:#EA580C">90%</div>
+            <div class="dev-state"><span class="dstag" style="background:#FFF7ED;color:#9A3412">高负荷</span></div>
+          </div>
+          <div class="dev-item">
+            <div class="dev-id">CK-01</div>
+            <div class="dev-prog"><div class="dev-bar"><div class="dev-fill" style="width:0%;background:#E2E8F0"></div></div></div>
+            <div class="dev-pct" style="color:#FBBF24">—</div>
+            <div class="dev-state"><span class="dstag" style="background:#FEF9C3;color:#713F12">暂停</span></div>
+          </div>
+          <div class="dev-item">
+            <div class="dev-id">DM-03</div>
+            <div class="dev-prog"><div class="dev-bar"><div class="dev-fill" style="width:65%;background:linear-gradient(90deg,#22C55E,#16A34A)"></div></div></div>
+            <div class="dev-pct" style="color:#16A34A">65%</div>
+            <div class="dev-state"><span class="dstag" style="background:#DCFCE7;color:#166534">运行</span></div>
+          </div>
+          <div class="dev-item">
+            <div class="dev-id">CK-03</div>
+            <div class="dev-prog"><div class="dev-bar"><div class="dev-fill" style="width:0%"></div></div></div>
+            <div class="dev-pct" style="color:#EF4444">0%</div>
+            <div class="dev-state"><span class="dstag" style="background:#FEE2E2;color:#991B1B">空闲</span></div>
+          </div>
+        </div>
+
+        <div class="section-head">
+          <div class="sh-bar" style="background:#EF4444"></div>
+          <div class="sh-title">当前异常</div>
+          <div class="sh-sub" style="color:#DC2626">2 紧急</div>
+        </div>
+
+        <div class="alert-list">
+          <div class="alert-item a-red">
+            <div class="alert-time">10:18 · 刚刚</div>
+            <div class="alert-text">🔴 Andon 呼叫 — BH-02 刀具磨损超限</div>
+            <div class="alert-from">张伟 · 等待换刀支援</div>
+          </div>
+          <div class="alert-item a-red">
+            <div class="alert-time">10:05</div>
+            <div class="alert-text">🔴 检验不合格 — 位置度超差 φ0.08</div>
+            <div class="alert-from">孙丽 · 工单 WO-0623-001</div>
+          </div>
+          <div class="alert-item a-orange">
+            <div class="alert-time">09:47</div>
+            <div class="alert-text">⚠ CK-01 停机 — 等待物料</div>
+            <div class="alert-from">王芳 · 停机 35min</div>
+          </div>
+          <div class="alert-item a-blue">
+            <div class="alert-time">09:30</div>
+            <div class="alert-text">ℹ 工单 WO-0623-003 进度滞后</div>
+            <div class="alert-from">计划达成率仅 42%，预计延迟 2h</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 中间：计划完成看板 -->
+      <div class="col-mid">
+
+        <!-- 汇总大数字 -->
+        <div class="summary-row">
+          <div class="sum-card">
+            <div class="sum-label">今日计划（件）</div>
+            <div class="sum-val" style="color:#1E293B">38</div>
+            <div class="sum-sub">涵盖 12 工单</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-label">已完成（件）</div>
+            <div class="sum-val" style="color:#16A34A">22</div>
+            <div class="sum-sub">达成率 58%</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-label">进行中（件）</div>
+            <div class="sum-val" style="color:#1D4ED8">10</div>
+            <div class="sum-sub">3 台设备在产</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-label">不良品（件）</div>
+            <div class="sum-val" style="color:#DC2626">2</div>
+            <div class="sum-sub">不良率 9%</div>
+          </div>
+          <div class="sum-card">
+            <div class="sum-label">当前 OEE</div>
+            <div class="sum-val" style="color:#7C3AED">78%</div>
+            <div class="sum-sub">目标 ≥ 85%</div>
+          </div>
+        </div>
+
+        <!-- 工单明细表 -->
+        <div class="wo-table-wrap">
+          <table class="wo-table">
+            <thead>
+              <tr>
+                <th style="width:8px;padding:8px 4px"></th>
+                <th>工单号</th>
+                <th>产品名称</th>
+                <th>工序</th>
+                <th>负责人</th>
+                <th style="width:160px">计划进度</th>
+                <th>计划完工</th>
+                <th>实际进度</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="prio" style="background:#EF4444"></div></td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#1D4ED8">WO-0623-001</td>
+                <td style="font-weight:600">龙门铣镗件</td>
+                <td>03 / 08</td>
+                <td>张伟</td>
+                <td>
+                  <div class="table-prog">
+                    <div class="tpbar"><div class="tpfill" style="width:60%;background:#16A34A"></div></div>
+                    <span class="tppct" style="color:#16A34A">60%</span>
+                  </div>
+                </td>
+                <td style="font-size:13px;color:#475569">06-23 17:30</td>
+                <td style="font-family:'Courier New',monospace;font-weight:700">6 / 10</td>
+                <td><span class="tag tag-run">生产中</span></td>
+                <td><span style="font-size:12px;color:#1D4ED8;cursor:pointer;font-weight:700">详情</span></td>
+              </tr>
+              <tr class="late">
+                <td><div class="prio" style="background:#EF4444"></div></td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#DC2626">WO-0623-003</td>
+                <td style="font-weight:600">泵体外壳</td>
+                <td>01 / 05</td>
+                <td>李明</td>
+                <td>
+                  <div class="table-prog">
+                    <div class="tpbar"><div class="tpfill" style="width:42%;background:#EF4444"></div></div>
+                    <span class="tppct" style="color:#EF4444">42%</span>
+                  </div>
+                </td>
+                <td style="font-size:13px;color:#DC2626;font-weight:700">⚠ 06-23 12:00</td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#DC2626">5 / 12</td>
+                <td><span class="tag tag-late">进度滞后</span></td>
+                <td><span style="font-size:12px;color:#DC2626;cursor:pointer;font-weight:700">催工</span></td>
+              </tr>
+              <tr>
+                <td><div class="prio" style="background:#F97316"></div></td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#1D4ED8">WO-0623-005</td>
+                <td style="font-weight:600">阀体精镗</td>
+                <td>02 / 06</td>
+                <td>陈刚</td>
+                <td>
+                  <div class="table-prog">
+                    <div class="tpbar"><div class="tpfill" style="width:78%;background:#16A34A"></div></div>
+                    <span class="tppct" style="color:#16A34A">78%</span>
+                  </div>
+                </td>
+                <td style="font-size:13px;color:#475569">06-23 15:00</td>
+                <td style="font-family:'Courier New',monospace;font-weight:700">7 / 9</td>
+                <td><span class="tag tag-run">生产中</span></td>
+                <td><span style="font-size:12px;color:#1D4ED8;cursor:pointer;font-weight:700">详情</span></td>
+              </tr>
+              <tr>
+                <td><div class="prio" style="background:#22C55E"></div></td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#1D4ED8">WO-0623-007</td>
+                <td style="font-weight:600">轴承座车削</td>
+                <td>02 / 04</td>
+                <td>赵磊</td>
+                <td>
+                  <div class="table-prog">
+                    <div class="tpbar"><div class="tpfill" style="width:100%;background:#16A34A"></div></div>
+                    <span class="tppct" style="color:#16A34A">100%</span>
+                  </div>
+                </td>
+                <td style="font-size:13px;color:#475569">06-23 10:00</td>
+                <td style="font-family:'Courier New',monospace;font-weight:700">8 / 8</td>
+                <td><span class="tag tag-done">已完成</span></td>
+                <td><span style="font-size:12px;color:#16A34A;cursor:pointer;font-weight:700">归档</span></td>
+              </tr>
+              <tr>
+                <td><div class="prio" style="background:#94A3B8"></div></td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#94A3B8">WO-0623-009</td>
+                <td style="font-weight:600;color:#94A3B8">法兰盘钻孔</td>
+                <td>01 / 03</td>
+                <td style="color:#EF4444">— 缺岗</td>
+                <td>
+                  <div class="table-prog">
+                    <div class="tpbar"><div class="tpfill" style="width:0%;background:#E2E8F0"></div></div>
+                    <span class="tppct" style="color:#94A3B8">0%</span>
+                  </div>
+                </td>
+                <td style="font-size:13px;color:#DC2626;font-weight:700">⚠ 06-23 14:00</td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#DC2626">0 / 6</td>
+                <td><span class="tag tag-wait">待开工</span></td>
+                <td><span style="font-size:12px;color:#7C3AED;cursor:pointer;font-weight:700">派工</span></td>
+              </tr>
+              <tr>
+                <td><div class="prio" style="background:#F97316"></div></td>
+                <td style="font-family:'Courier New',monospace;font-weight:700;color:#1D4ED8">WO-0623-011</td>
+                <td style="font-weight:600">壳体精镗</td>
+                <td>04 / 07</td>
+                <td>王芳</td>
+                <td>
+                  <div class="table-prog">
+                    <div class="tpbar"><div class="tpfill" style="width:33%;background:#FBBF24"></div></div>
+                    <span class="tppct" style="color:#D97706">33%</span>
+                  </div>
+                </td>
+                <td style="font-size:13px;color:#475569">06-23 16:00</td>
+                <td style="font-family:'Courier New',monospace;font-weight:700">2 / 6</td>
+                <td><span class="tag tag-pause">等待物料</span></td>
+                <td><span style="font-size:12px;color:#EA580C;cursor:pointer;font-weight:700">催料</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- 右侧：Andon + 派工 -->
+      <div class="col-right">
+
+        <div class="andon-panel">
+          <div class="andon-title">
+            <div class="andon-blink"></div>
+            Andon 报警板 · 待响应
+          </div>
+          <div class="andon-card">
+            <div style="display:flex;align-items:flex-start;">
+              <div style="flex:1">
+                <div class="andon-loc">BH-02 · 张伟</div>
+                <div class="andon-desc">刀具磨损超限 — 需换刀</div>
+                <div class="andon-time">10:18 · 待处理 4min</div>
+              </div>
+              <button class="andon-ack">响应</button>
+            </div>
+          </div>
+          <div class="andon-card">
+            <div style="display:flex;align-items:flex-start;">
+              <div style="flex:1">
+                <div class="andon-loc">CK-01 · 王芳</div>
+                <div class="andon-desc">等待物料 — 磁材料未到</div>
+                <div class="andon-time">09:47 · 已停机 35min</div>
+              </div>
+              <button class="andon-ack">响应</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dispatch-panel">
+          <div class="dp-title">
+            <div class="dp-bar"></div>
+            工位派工
+          </div>
+
+          <div class="dp-card">
+            <div class="dp-header">
+              <div class="dp-station">龙门铣 DM-03</div>
+              <div class="dp-worker">赵磊</div>
+            </div>
+            <div class="dp-wo">WO-0623-013 · 04/壳体铣面</div>
+            <div class="dp-prog-row">
+              <div class="dp-prog-bar"><div class="dp-prog-fill" style="width:0%;background:#E2E8F0"></div></div>
+              <div class="dp-done" style="color:#94A3B8">待上线</div>
+            </div>
+          </div>
+
+          <div class="dp-card">
+            <div class="dp-header">
+              <div class="dp-station">CK-03</div>
+              <div class="dp-worker" style="color:#DC2626">周斌（缺勤）</div>
+            </div>
+            <div class="dp-wo" style="color:#DC2626">WO-0623-009 · 01/法兰钻孔 — 需重新派工</div>
+            <div class="dp-prog-row">
+              <div class="dp-prog-bar"><div class="dp-prog-fill" style="width:0%;background:#EF4444"></div></div>
+              <div class="dp-done" style="color:#DC2626">空岗!</div>
+            </div>
+          </div>
+
+          <div class="dp-card">
+            <div class="dp-header">
+              <div class="dp-station">检验台 QC-01</div>
+              <div class="dp-worker">孙丽</div>
+            </div>
+            <div class="dp-wo">WO-0623-001 · 首件全检</div>
+            <div class="dp-prog-row">
+              <div class="dp-prog-bar"><div class="dp-prog-fill" style="width:70%;background:linear-gradient(90deg,#7C3AED,#6D28D9)"></div></div>
+              <div class="dp-done" style="color:#7C3AED">进行中</div>
+            </div>
+          </div>
+
+          <!-- 换班交接 -->
+          <div style="margin-top:10px;border:1.5px solid #E2E8F0;border-radius:8px;padding:10px;background:#FFFBEB;">
+            <div style="font-size:13px;font-weight:700;color:#78350F;margin-bottom:6px">⏰ 换班交接提醒</div>
+            <div style="font-size:12px;color:#92400E;line-height:1.7">
+              · 15:45 开始班组交接<br>
+              · WO-0623-003 进度滞后需说明<br>
+              · BH-02 刀具需备齐后交班<br>
+              · 检验单 QC-0623-012 未封单
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="action-bar">
+      <button class="act-btn btn-plan"><div class="act-main">计划看板</div><div class="act-sub">工单排程总览</div></button>
+      <button class="act-btn btn-dispatch"><div class="act-main">派工</div><div class="act-sub">重新分配任务</div></button>
+      <button class="act-btn btn-report"><div class="act-main">提交报工</div><div class="act-sub">班组汇总报工</div></button>
+      <button class="act-btn btn-andon"><div class="act-main">处理 Andon</div><div class="act-sub">确认异常原因</div></button>
+      <button class="act-btn btn-meeting"><div class="act-main">班前点检</div><div class="act-sub">记录班前会议</div></button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ========== 数据模拟 ==========
+let workers = [
+  {id: 1, name: '张三', station: '01号线', status: 'working', taskId: 'WO001', progress: 85},
+  {id: 2, name: '李明', station: '02号线', status: 'working', taskId: 'WO002', progress: 46},
+  {id: 3, name: '王芳', station: '03号线', status: 'paused', taskId: 'WO003', progress: 100},
+  {id: 4, name: '赵强', station: '04号线', status: 'working', taskId: 'WO004', progress: 72}
+];
+
+let tasks = [
+  {id: 'WO001', name: '电机组件总装', spec: 'DX-2026-001', worker: '张三', plan: 100, actual: 85, status: 'working'},
+  {id: 'WO002', name: '减速器组件装配', spec: 'JS-2026-002', worker: '李明', plan: 50, actual: 23, status: 'working'},
+  {id: 'WO003', name: '线束绑扎', spec: 'XZ-2026-003', worker: '王芳', plan: 120, actual: 120, status: 'completed'},
+  {id: 'WO004', name: '外壳组装', spec: 'WK-2026-004', worker: '赵强', plan: 80, actual: 58, status: 'working'}
+];
+
+let exceptions = [
+  {id: 1, type: '设备故障', station: '03号线', desc: '冲压设备异响，已停机检修', time: '10分钟前', resolved: false},
+  {id: 2, type: '物料缺料', station: '06号线', desc: '线束组件库存不足，已通知补货', time: '25分钟前', resolved: false}
+];
+
+// ========== 模态框通用函数 ==========
+function showModal(title, content, buttons) {
+  const existing = document.querySelector('.modal-overlay');
+  if (existing) existing.remove();
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+  `;
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-box';
+  modal.style.cssText = `
+    background: white; border-radius: 12px; padding: 0;
+    min-width: 600px; max-width: 800px; max-height: 85vh;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;
+  `;
+  
+  modal.innerHTML = `
+    <div style="padding: 20px 24px; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+      <h3 style="font-size: 18px; font-weight: 600; color: #1E293B; margin: 0;">${title}</h3>
+    </div>
+    <div style="padding: 24px; max-height: 65vh; overflow-y: auto;">
+      ${content}
+    </div>
+    <div style="padding: 16px 24px; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 10px; background: #F8FAFC;">
+      ${buttons}
+    </div>
+  `;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+}
+
+function closeModal() {
+  const overlay = document.querySelector('.modal-overlay');
+  if (overlay) overlay.remove();
+}
+
+// ========== 任务分配 ==========
+function assignTask() {
+  const workersHtml = workers.map(w => `
+    <div style="padding: 12px; background: ${w.status === 'working' ? '#F0FDF4' : '#FFF7ED'}; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" 
+         onmouseover="this.style.borderColor='#1D4ED8'" 
+         onmouseout="this.style.borderColor='transparent'"
+         onclick="selectWorker('${w.name}', '${w.station}')">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong style="font-size: 15px;">${w.name}</strong>
+          <span style="margin-left: 10px; color: #64748B;">${w.station}</span>
+        </div>
+        <span style="padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; ${w.status === 'working' ? 'background:#BBF7D0;color:#166534' : 'background:#FED7AA;color:#C2410C'}">
+          ${w.status === 'working' ? '工作中' : '暂停'}
+        </span>
+      </div>
+      ${w.status === 'working' ? `<div style="margin-top: 5px; font-size: 13px; color: #64748B;">当前任务：${w.taskId} (${w.progress}%)</div>` : ''}
+    </div>
+  `).join('');
+  
+  showModal(
+    '任务分配 — 选择操作员',
+    `
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1E293B;">选择工单</label>
+        <select id="assignTaskId" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;">
+          <option value="WO005">WO005 - 控制器装配 (DX-2026-005)</option>
+          <option value="WO006">WO006 - 传感器安装 (JS-2026-006)</option>
+          <option value="WO007">WO007 - 电缆布线 (XZ-2026-007)</option>
+        </select>
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1E293B;">选择操作员</label>
+        ${workersHtml}
+      </div>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">取消</button>
+    `
+  );
+}
+
+function selectWorker(name, station) {
+  const taskId = document.getElementById('assignTaskId').value;
+  closeModal();
+  if (confirm(`确认将任务 ${taskId} 分配给 ${name}（${station}）吗？`)) {
+    alert(`✓ 任务已分配
+操作员：${name}
+工位：${station}
+任务：${taskId}`);
+  }
+}
+
+// ========== 查看报表 ==========
+function viewReport() {
+  showModal(
+    '日报表 — 2026年6月24日',
+    `
+      <div style="font-size: 14px;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+          <div style="padding: 15px; background: #EFF6FF; border-radius: 8px; text-align: center;">
+            <div style="font-size: 12px; color: #64748B; margin-bottom: 5px;">计划产量</div>
+            <div style="font-size: 24px; font-weight: 700; color: #1D4ED8;">1850</div>
+          </div>
+          <div style="padding: 15px; background: #F0FDF4; border-radius: 8px; text-align: center;">
+            <div style="font-size: 12px; color: #64748B; margin-bottom: 5px;">实际完成</div>
+            <div style="font-size: 24px; font-weight: 700; color: #166534;">1442</div>
+          </div>
+          <div style="padding: 15px; background: #FFFBEB; border-radius: 8px; text-align: center;">
+            <div style="font-size: 12px; color: #64748B; margin-bottom: 5px;">完成率</div>
+            <div style="font-size: 24px; font-weight: 700; color: #D97706;">78%</div>
+          </div>
+          <div style="padding: 15px; background: #F0FDF4; border-radius: 8px; text-align: center;">
+            <div style="font-size: 12px; color: #64748B; margin-bottom: 5px;">良品率</div>
+            <div style="font-size: 24px; font-weight: 700; color: #166534;">98.5%</div>
+          </div>
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 2px solid #E2E8F0;">
+              <th style="padding: 10px; text-align: left;">工序</th>
+              <th style="padding: 10px; text-align: center;">计划</th>
+              <th style="padding: 10px; text-align: center;">完成</th>
+              <th style="padding: 10px; text-align: center;">完成率</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #E2E8F0;">
+              <td style="padding: 10px;">机加工</td>
+              <td style="padding: 10px; text-align: center;">450</td>
+              <td style="padding: 10px; text-align: center;">445</td>
+              <td style="padding: 10px; text-align: center; color: #166534; font-weight: 600;">98.9%</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E2E8F0;">
+              <td style="padding: 10px;">焊接</td>
+              <td style="padding: 10px; text-align: center;">380</td>
+              <td style="padding: 10px; text-align: center;">352</td>
+              <td style="padding: 10px; text-align: center; color: #D97706; font-weight: 600;">92.6%</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E2E8F0;">
+              <td style="padding: 10px;">涂装</td>
+              <td style="padding: 10px; text-align: center;">420</td>
+              <td style="padding: 10px; text-align: center;">358</td>
+              <td style="padding: 10px; text-align: center; color: #DC2626; font-weight: 600;">85.2%</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px;">装配</td>
+              <td style="padding: 10px; text-align: center;">600</td>
+              <td style="padding: 10px; text-align: center;">287</td>
+              <td style="padding: 10px; text-align: center; color: #DC2626; font-weight: 600;">47.8%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    `
+      <button onclick="exportReport()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">导出Excel</button>
+      <button onclick="closeModal()" style="padding: 10px 24px; border: none; background: #1D4ED8; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">关闭</button>
+    `
+  );
+}
+
+function exportReport() {
+  alert('报表已导出到：/Downloads/日报表_20260624.xlsx');
+}
+
+// ========== 人员管理 ==========
+function manageStaff() {
+  const staffHtml = workers.map(w => `
+    <tr style="border-bottom: 1px solid #E2E8F0;">
+      <td style="padding: 12px;">${w.name}</td>
+      <td style="padding: 12px;">${w.station}</td>
+      <td style="padding: 12px; text-align: center;">
+        <span style="padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; ${w.status === 'working' ? 'background:#BBF7D0;color:#166534' : 'background:#FED7AA;color:#C2410C'}">
+          ${w.status === 'working' ? '工作中' : '暂停'}
+        </span>
+      </td>
+      <td style="padding: 12px; text-align: center;">${w.progress}%</td>
+      <td style="padding: 12px; text-align: center;">
+        <button onclick="viewWorkerDetail('${w.name}')" style="padding: 5px 12px; border: 1px solid #CBD5E1; background: white; border-radius: 4px; cursor: pointer; font-size: 12px;">详情</button>
+      </td>
+    </tr>
+  `).join('');
+  
+  showModal(
+    '人员管理 — 在岗人员',
+    `
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+          <tr style="background: #F8FAFC; border-bottom: 2px solid #E2E8F0;">
+            <th style="padding: 10px; text-align: left;">姓名</th>
+            <th style="padding: 10px; text-align: left;">工位</th>
+            <th style="padding: 10px; text-align: center;">状态</th>
+            <th style="padding: 10px; text-align: center;">进度</th>
+            <th style="padding: 10px; text-align: center;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${staffHtml}
+        </tbody>
+      </table>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 24px; border: none; background: #1D4ED8; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">关闭</button>
+    `
+  );
+}
+
+function viewWorkerDetail(name) {
+  const worker = workers.find(w => w.name === name);
+  alert(`员工详情
+
+姓名：${worker.name}
+工位：${worker.station}
+状态：${worker.status === 'working' ? '工作中' : '暂停'}
+当前任务：${worker.taskId}
+进度：${worker.progress}%`);
+}
+
+// ========== 异常处理 ==========
+function handleException() {
+  const exceptionHtml = exceptions.map(e => `
+    <div style="padding: 15px; background: ${e.resolved ? '#F0FDF4' : '#FEF2F2'}; border-left: 4px solid ${e.resolved ? '#166534' : '#DC2626'}; border-radius: 6px; margin-bottom: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+        <div>
+          <strong style="font-size: 15px; color: #1E293B;">${e.type} - ${e.station}</strong>
+          <div style="font-size: 13px; color: #64748B; margin-top: 4px;">${e.desc}</div>
+          <div style="font-size: 12px; color: #94A3B8; margin-top: 4px;">⏱ ${e.time}</div>
+        </div>
+        ${!e.resolved ? `<button onclick="resolveException(${e.id})" style="padding: 6px 14px; border: none; background: #166534; color: white; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;">标记已解决</button>` : '<span style="color: #166534; font-weight: 600; font-size: 13px;">✓ 已解决</span>'}
+      </div>
+    </div>
+  `).join('');
+  
+  showModal(
+    '异常处理 — 待处理异常',
+    exceptionHtml || '<div style="text-align: center; padding: 40px; color: #94A3B8;">暂无待处理异常</div>',
+    `
+      <button onclick="addException()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">新增异常</button>
+      <button onclick="closeModal()" style="padding: 10px 24px; border: none; background: #1D4ED8; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">关闭</button>
+    `
+  );
+}
+
+function resolveException(id) {
+  const exception = exceptions.find(e => e.id === id);
+  if (confirm(`确认标记「${exception.type} - ${exception.station}」为已解决吗？`)) {
+    exception.resolved = true;
+    alert('✓ 异常已标记为解决');
+    closeModal();
+    handleException();
+  }
+}
+
+function addException() {
+  closeModal();
+  alert('新增异常功能
+
+（此处可弹出表单录入新异常）');
+}
+
+// ========== 排班 ==========
+function scheduleShift() {
+  showModal(
+    '排班管理',
+    `
+      <div style="font-size: 14px;">
+        <div style="margin-bottom: 20px; padding: 15px; background: #EFF6FF; border-radius: 8px;">
+          <strong>当前班次：</strong>一班 (08:00 - 20:00)<br>
+          <strong>下一班次：</strong>二班 (20:00 - 08:00)
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead>
+            <tr style="background: #F8FAFC; border-bottom: 2px solid #E2E8F0;">
+              <th style="padding: 10px; text-align: left;">班次</th>
+              <th style="padding: 10px; text-align: center;">时间</th>
+              <th style="padding: 10px; text-align: center;">人数</th>
+              <th style="padding: 10px; text-align: center;">班组长</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid #E2E8F0; background: #F0FDF4;">
+              <td style="padding: 10px;">一班</td>
+              <td style="padding: 10px; text-align: center;">08:00 - 20:00</td>
+              <td style="padding: 10px; text-align: center;">38人</td>
+              <td style="padding: 10px; text-align: center;">李四</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E2E8F0;">
+              <td style="padding: 10px;">二班</td>
+              <td style="padding: 10px; text-align: center;">20:00 - 08:00</td>
+              <td style="padding: 10px; text-align: center;">35人</td>
+              <td style="padding: 10px; text-align: center;">王五</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `,
+    `
+      <button onclick="editSchedule()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">编辑排班</button>
+      <button onclick="closeModal()" style="padding: 10px 24px; border: none; background: #1D4ED8; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">关闭</button>
+    `
+  );
+}
+
+function editSchedule() {
+  alert('编辑排班功能
+
+（此处可打开排班编辑器）');
+}
+
+// 初始化
+console.log('宇树MES班组长看板已加载');
+</script>
+
+</body>
+</html>

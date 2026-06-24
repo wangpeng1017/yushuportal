@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>宇树 MES — 报工终端</title>
+<style>
+:root {
+  --bg: #F1F4F8;
+  --surface: #FFFFFF;
+  --surface2: #F8FAFC;
+  --border: #E2E8F0;
+  --border2: #CBD5E1;
+  --text1: #1E293B;
+  --text2: #475569;
+  --text3: #94A3B8;
+  --primary: #1D4ED8;
+  --primary-light: #EFF6FF;
+  --success: #166534;
+  --success-bg: #F0FDF4;
+  --success-border: #BBF7D0;
+  --warn: #92400E;
+  --warn-bg: #FFFBEB;
+  --warn-border: #FDE68A;
+  --danger: #991B1B;
+  --danger-bg: #FEF2F2;
+  --danger-border: #FECACA;
+  --orange: #C2410C;
+  --orange-bg: #FFF7ED;
+  --orange-border: #FED7AA;
+  --nav-h: 44px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  min-width: 1280px; width: 100%; height: 100vh;
+  overflow: auto;
+  background: var(--bg);
+  font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 13px;
+  color: var(--text1);
+  line-height: 1.5;
+}
+
+/* ── 顶部导航 ── */
+.nav {
+  height: var(--nav-h);
+  background: #0F172A;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 50;
+  flex-shrink: 0;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 8px;
+  padding-right: 16px;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  margin-right: 4px;
+}
+.nav-logo {
+  width: 28px; height: 28px;
+  background: linear-gradient(135deg, #F97316, #EA580C);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-logo svg { width: 16px; height: 16px; }
+.nav-brand-text { line-height: 1.2; }
+.nav-brand-name { font-size: 13px; font-weight: 700; color: #F1F5F9; letter-spacing: 0.3px; }
+.nav-brand-ver { font-size: 10px; color: #64748B; font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; }
+.nav-tab {
+  height: var(--nav-h);
+  padding: 0 13px;
+  display: flex; align-items: center;
+  color: #94A3B8;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: #CBD5E1; }
+.nav-tab.active { color: #F1F5F9; }
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 10px; right: 10px;
+  height: 2px;
+  background: #F97316;
+  border-radius: 2px 2px 0 0;
+}
+.nav-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 12px;
+}
+.nav-factory {
+  display: flex; align-items: center; gap: 5px;
+  color: #94A3B8; font-size: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px;
+  padding: 3px 10px;
+}
+.nav-factory svg { color: #64748B; }
+.nav-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
+.nav-user {
+  display: flex; align-items: center; gap: 7px;
+  color: #CBD5E1; font-size: 12.5px; cursor: pointer;
+}
+.avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white;
+}
+.nav-bell { position: relative; cursor: pointer; }
+.nav-bell svg { color: #64748B; width: 18px; height: 18px; }
+.badge {
+  position: absolute; top: -5px; right: -5px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: #EF4444; color: white;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid #0F172A;
+}
+.nav-time {
+  font-family: 'SF Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 13px; font-weight: 500;
+  color: #E2E8F0; letter-spacing: 0.5px;
+}
+
+/* ── 主体布局 ── */
+.body { display: flex; height: calc(1080px - var(--nav-h)); }
+
+/* ── 左侧工作区 ── */
+.main {
+  width: 1220px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* 面包屑 */
+.crumb {
+  height: 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 5px;
+  font-size: 12px; color: var(--text2);
+  flex-shrink: 0;
+}
+.crumb svg { width: 14px; height: 14px; color: var(--text3); }
+.crumb-sep { color: var(--border2); }
+.crumb-current { color: var(--text1); font-weight: 600; }
+.crumb-badge {
+  margin-left: 6px;
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+  border-radius: 12px;
+  padding: 0 8px;
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 4px;
+}
+.crumb-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; }
+.crumb-info { margin-left: auto; font-size: 11px; color: var(--text3); }
+
+/* 三列区 */
+.cols { flex: 1; display: flex; gap: 8px; padding: 8px; overflow: hidden; }
+
+/* 卡片基础 */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.card-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  flex-shrink: 0;
+}
+.card-head-icon {
+  width: 20px; height: 20px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.card-head-icon svg { width: 12px; height: 12px; }
+.card-title { font-size: 12px; font-weight: 700; color: var(--text1); }
+.card-title-right { margin-left: auto; font-size: 11px; color: var(--text3); font-weight: 400; }
+
+/* ── 左列 ── */
+.col-left { width: 222px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+/* 工单表 */
+.wo-body { padding: 8px 11px; }
+.wo-row {
+  display: flex; align-items: baseline;
+  padding: 3.5px 0;
+  border-bottom: 1px solid #F8FAFC;
+  gap: 8px;
+}
+.wo-row:last-child { border-bottom: none; }
+.wo-k { font-size: 11px; color: var(--text3); width: 44px; flex-shrink: 0; }
+.wo-v { font-size: 12px; color: var(--text1); font-weight: 500; }
+.wo-v.link { color: var(--primary); font-weight: 700; }
+.wo-v.code { font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; font-size: 11.5px; color: #7C3AED; }
+
+/* 进度卡 */
+.prog-body { padding: 10px 11px 10px; }
+.prog-nums {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  margin-bottom: 8px;
+}
+.prog-done { font-size: 40px; font-weight: 700; color: #166534; font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; line-height: 1; }
+.prog-slash { font-size: 24px; color: var(--border2); }
+.prog-total { font-size: 28px; color: var(--text3); font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; line-height: 1; }
+.prog-sub-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-top: 5px; }
+.prog-bar { height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden; margin-bottom: 2px; }
+.prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #16A34A, #15803D); transition: width 0.3s; }
+
+/* 设备状态 */
+.dev-body { padding: 8px 11px; }
+.dev-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+.dev-dot { width: 9px; height: 9px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); flex-shrink: 0; }
+.dev-status { font-size: 13px; font-weight: 700; color: #15803D; }
+.dev-time { margin-left: auto; font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; font-size: 12px; color: var(--text2); }
+.dev-sub { font-size: 11px; color: var(--text3); padding: 2px 0; }
+
+/* 刀具 */
+.tool-body { padding: 8px 11px; }
+.tool-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.tool-row:last-child { margin-bottom: 0; }
+.tool-label { font-size: 11px; color: var(--text2); width: 44px; flex-shrink: 0; }
+.tool-bar { flex: 1; height: 6px; background: #F1F5F9; border-radius: 3px; overflow: hidden; }
+.tool-fill { height: 100%; border-radius: 3px; }
+.tool-pct { font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; font-size: 11px; font-weight: 700; width: 30px; text-align: right; }
+.tool-warn { font-size: 10.5px; color: #C2410C; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+.tool-warn svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+/* ── 中列 ── */
+.col-mid { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+/* WI 步骤 */
+.wi-body { padding: 10px 11px; flex: 1; }
+.wi-step { display: flex; gap: 9px; padding: 6px 0; border-bottom: 1px solid #F8FAFC; }
+.wi-step:last-child { border-bottom: none; }
+.wi-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.wi-text { font-size: 12.5px; color: var(--text1); line-height: 1.55; }
+.wi-text strong { color: #991B1B; }
+.wi-alert {
+  margin: 4px 11px 8px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-left: 3px solid #F59E0B;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px; color: #78350F;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.wi-alert svg { width: 14px; height: 14px; color: #F59E0B; flex-shrink: 0; margin-top: 1px; }
+.wi-dwg {
+  margin: 0 11px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 7px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px;
+}
+.wi-dwg-link { color: var(--primary); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.wi-dwg-link svg { width: 12px; height: 12px; }
+
+/* 控制计划表 */
+.cp-head {
+  background: #1E293B;
+  color: white;
+  padding: 7px 11px;
+  display: flex; align-items: center; gap: 6px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+.cp-head-title { font-size: 12px; font-weight: 700; }
+.cp-head-sub { margin-left: auto; font-size: 11px; color: #94A3B8; }
+.cp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.cp-table thead th {
+  background: var(--surface2);
+  color: var(--text2);
+  font-weight: 600; font-size: 11px;
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.cp-table tbody td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #F8FAFC;
+  vertical-align: middle;
+}
+.cp-table tr.row-ng { background: #FFF5F5; }
+.cp-table tr.row-ok { background: #F0FDF4; }
+.cp-table tbody tr:last-child td { border-bottom: none; }
+.chip {
+  display: inline-flex; align-items: center;
+  border-radius: 4px; padding: 2px 7px;
+  font-size: 11.5px; font-weight: 600;
+  font-family: 'SF Mono', 'Consolas', 'Courier New', monospace;
+}
+.chip-ok { background: #DCFCE7; color: #166534; border: 1px solid #BBF7D0; }
+.chip-ng { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+.chip-pending { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+.cp-ng-banner {
+  padding: 7px 11px;
+  background: #FEF2F2;
+  border-top: 1px solid #FECACA;
+  font-size: 11.5px; color: #991B1B; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.cp-ng-banner svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── 右列 ── */
+.col-right { width: 388px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+/* 暂停网格 */
+.pause-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 9px 11px;
+}
+.pause-btn {
+  border: 1.5px solid var(--orange-border);
+  background: var(--orange-bg);
+  border-radius: 6px;
+  padding: 10px 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.pause-btn:hover { border-color: #F97316; background: #FFF0E6; }
+.pause-code { font-size: 10px; color: #9A3412; font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; margin-bottom: 3px; font-weight: 600; }
+.pause-name { font-size: 12.5px; font-weight: 700; color: #C2410C; }
+
+.other-btn {
+  margin: 0 11px 6px;
+  border: 1.5px dashed var(--border2);
+  border-radius: 5px;
+  background: var(--surface2);
+  padding: 7px 11px;
+  text-align: center;
+  font-size: 12px; color: var(--text3);
+  cursor: pointer;
+  font-family: 'SF Mono', 'Consolas', 'Courier New', monospace;
+}
+.resume-btn {
+  margin: 0 11px 6px;
+  background: linear-gradient(135deg, #15803D, #166534);
+  border-radius: 6px;
+  padding: 11px;
+  color: white;
+  font-size: 15px; font-weight: 700;
+  text-align: center; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(21,128,61,0.3);
+  letter-spacing: 1px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.15s;
+}
+.resume-btn svg { width: 16px; height: 16px; }
+.checkin {
+  margin: 0 11px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 11px;
+  display: flex; align-items: center; gap: 8px;
+}
+.checkin-info { flex: 1; }
+.checkin-name { font-size: 13px; font-weight: 600; color: var(--text1); }
+.checkin-sub { font-size: 11px; color: var(--text3); }
+.checkin-btn {
+  background: var(--primary);
+  color: white;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.quick-row {
+  display: flex; gap: 6px;
+  margin: 0 11px;
+}
+.quick-btn {
+  flex: 1; padding: 8px;
+  border-radius: 5px;
+  font-size: 12px; font-weight: 600;
+  text-align: center; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.quick-btn-wi { background: var(--primary); color: white; }
+.quick-btn-andon { background: #991B1B; color: white; }
+
+/* ── 底部操作栏 ── */
+.action-bar {
+  height: 86px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 10px;
+  gap: 7px;
+  flex-shrink: 0;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.06);
+}
+.action-btn {
+  flex: 1;
+  height: 62px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+  cursor: pointer;
+  border: none; outline: none;
+  font-family: inherit;
+  transition: filter 0.15s;
+}
+.action-btn:hover { filter: brightness(1.08); }
+.action-main { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+.action-sub { font-size: 10px; opacity: 0.85; font-weight: 400; }
+.btn-start { background: linear-gradient(135deg, #16A34A, #15803D); color: white; flex: 2.2; box-shadow: 0 3px 8px rgba(22,163,74,0.3); }
+.btn-report { background: linear-gradient(135deg, #EA580C, #C2410C); color: white; box-shadow: 0 2px 6px rgba(234,88,12,0.3); }
+.btn-pause { background: linear-gradient(135deg, #78350F, #92400E); color: white; }
+.btn-inspect { background: linear-gradient(135deg, #1D4ED8, #1E40AF); color: white; box-shadow: 0 2px 6px rgba(29,78,216,0.3); }
+.btn-rework { background: linear-gradient(135deg, #6D28D9, #5B21B6); color: white; }
+
+/* ── 右侧区域 ── */
+.side { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg); }
+
+/* 班组看板 */
+.leader { flex: 1; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); overflow: hidden; }
+.leader-head { padding: 8px 14px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.leader-title { font-size: 12.5px; font-weight: 700; color: var(--text1); display: flex; align-items: center; gap: 7px; }
+.leader-title-dot { width: 8px; height: 8px; border-radius: 50%; background: #22C55E; }
+.leader-date { font-size: 11px; color: var(--text3); font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; }
+.leader-body { flex: 1; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+/* 汇总数字 */
+.sum-grid { display: flex; border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+.sum-cell { flex: 1; padding: 8px 6px; text-align: center; border-right: 1px solid var(--border); }
+.sum-cell:last-child { border-right: none; }
+.sum-label { font-size: 10.5px; color: var(--text3); margin-bottom: 4px; }
+.sum-val { font-size: 22px; font-weight: 700; font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; line-height: 1; }
+.sum-val.v-def { color: var(--text1); }
+.sum-val.v-ok { color: #16A34A; }
+.sum-val.v-warn { color: #D97706; }
+.sum-val.v-bad { color: #DC2626; }
+
+/* 工序表 */
+.proc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.proc-table th { font-size: 11px; font-weight: 600; color: var(--text3); padding: 4px 6px; border-bottom: 1px solid var(--border); text-align: left; background: var(--surface2); }
+.proc-table td { padding: 7px 6px; border-bottom: 1px solid #F8FAFC; vertical-align: middle; }
+.proc-table tr:last-child td { border-bottom: none; }
+.proc-name { font-weight: 500; color: var(--text1); font-size: 12.5px; }
+.proc-nums { font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; font-size: 12px; font-weight: 600; }
+.proc-bar-wrap { width: 110px; height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
+.proc-bar { height: 100%; border-radius: 4px; }
+.proc-icon { font-size: 13px; text-align: center; }
+
+.warn-banner {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-left: 3px solid #F59E0B;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 11.5px; color: #78350F;
+  display: flex; align-items: center; gap: 6px;
+}
+.warn-banner svg { width: 13px; height: 13px; color: #D97706; flex-shrink: 0; }
+
+/* KPI 看板 */
+.kpi { flex: 1; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); overflow: hidden; }
+.kpi-head { padding: 8px 14px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.kpi-title { font-size: 12.5px; font-weight: 700; color: var(--text1); display: flex; align-items: center; gap: 7px; }
+.kpi-title-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--primary); }
+.kpi-date { font-size: 11px; color: var(--text3); font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; }
+.kpi-body { flex: 1; padding: 10px 14px; }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; height: 100%; }
+.kpi-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.kpi-label { font-size: 11px; color: var(--text3); }
+.kpi-val { font-size: 30px; font-weight: 700; font-family: 'SF Mono', 'Consolas', 'Courier New', monospace; line-height: 1.1; }
+.kpi-bar-row { display: flex; align-items: center; gap: 5px; }
+.kpi-bar-wrap { flex: 1; height: 4px; background: #E2E8F0; border-radius: 2px; overflow: hidden; }
+.kpi-bar-fill { height: 100%; border-radius: 2px; }
+.kpi-meta { font-size: 11px; display: flex; align-items: center; gap: 5px; }
+.kpi-target { color: var(--text3); }
+.kpi-delta-neg { color: #DC2626; font-weight: 600; }
+.kpi-delta-pos { color: #16A34A; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ======= 导航栏 ======= -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="5" width="5" height="10" rx="1" fill="white" opacity="0.9"/>
+        <rect x="8" y="1" width="7" height="14" rx="1" fill="white" opacity="0.7"/>
+      </svg>
+    </div>
+    <div class="nav-brand-text">
+      <div class="nav-brand-name">宇树 MES</div>
+      <div class="nav-brand-ver">v2.3.1 · Build 20260601</div>
+    </div>
+  </div>
+  <div class="nav-tab active">生产任务</div>
+  <div class="nav-tab">工艺管理</div>
+  <div class="nav-tab">质量管理</div>
+  <div class="nav-tab">物料管理</div>
+  <div class="nav-tab">设备管理</div>
+  <div class="nav-tab">报表中心</div>
+  <div class="nav-right">
+    <div class="nav-factory">
+      <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M8 1.5C5.5 1.5 3.5 3.5 3.5 6c0 3.5 4.5 8 4.5 8s4.5-4.5 4.5-8c0-2.5-2-4.5-4.5-4.5zm0 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill="currentColor"/></svg>
+      扬州工厂 · 精密加工车间
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-user">
+      <div class="avatar">张</div>
+      张伟 · 一线操作员
+      <svg viewBox="0 0 16 16" fill="none" width="11" height="11"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="nav-bell">
+      <svg viewBox="0 0 20 20" fill="none">
+        <path d="M10 2a6 6 0 00-6 6v1.5L2.5 12v1h15v-1L16 9.5V8a6 6 0 00-6-6zm0 16a2 2 0 001.97-1.65H8.03A2 2 0 0010 18z" fill="currentColor"/>
+      </svg>
+      <div class="badge">2</div>
+    </div>
+    <div class="nav-time">2026-06-23&nbsp;&nbsp;08:35:22</div>
+  </div>
+</nav>
+
+<!-- ======= 主体 ======= -->
+<div class="body">
+
+  <!-- 左侧主工作区 -->
+  <div class="main">
+
+    <!-- 面包屑 -->
+    <div class="crumb">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 8.5L8 2l6 6.5M8 2v12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      主页
+      <span class="crumb-sep">›</span> 生产任务
+      <span class="crumb-sep">›</span> 工单列表
+      <span class="crumb-sep">›</span>
+      <span class="crumb-current">WO-0623-001 · 卧镗铣加工</span>
+      <span class="crumb-badge"><span class="crumb-badge-dot"></span>运行中</span>
+      <span class="crumb-info">工序 03/08 &nbsp;·&nbsp; 西门子840D &nbsp;·&nbsp; 程序 O0623-03 &nbsp;·&nbsp; 设备 卧镗铣 #BH-02</span>
+    </div>
+
+    <!-- 三列 -->
+    <div class="cols">
+
+      <!-- 左列 -->
+      <div class="col-left">
+
+        <!-- 工单信息 -->
+        <div class="card" style="flex-shrink:0">
+          <div class="card-head">
+            <div class="card-head-icon" style="background:#EFF6FF">
+              <svg viewBox="0 0 12 12" fill="none"><rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#1D4ED8" stroke-width="1.2"/><line x1="3" y1="4" x2="9" y2="4" stroke="#1D4ED8" stroke-width="1"/><line x1="3" y1="6" x2="9" y2="6" stroke="#1D4ED8" stroke-width="1"/><line x1="3" y1="8" x2="7" y2="8" stroke="#1D4ED8" stroke-width="1"/></svg>
+            </div>
+            <span class="card-title">工单信息</span>
+          </div>
+          <div class="wo-body">
+            <div class="wo-row"><span class="wo-k">工单号</span><span class="wo-v link">WO-0623-001</span></div>
+            <div class="wo-row"><span class="wo-k">产品</span><span class="wo-v">龙门铣镗件</span></div>
+            <div class="wo-row"><span class="wo-k">图号</span><span class="wo-v code">JFY-2026-083</span></div>
+            <div class="wo-row"><span class="wo-k">材料</span><span class="wo-v">45#钢 调质</span></div>
+            <div class="wo-row"><span class="wo-k">工序</span><span class="wo-v">03&nbsp;/&nbsp;08</span></div>
+            <div class="wo-row"><span class="wo-k">数量</span><span class="wo-v">1 台</span></div>
+            <div class="wo-row"><span class="wo-k">程序</span><span class="wo-v code" style="color:#7C3AED">O0623-03</span></div>
+            <div class="wo-row"><span class="wo-k">设备</span><span class="wo-v">卧镗铣 #BH-02</span></div>
+            <div class="wo-row"><span class="wo-k">计划完</span><span class="wo-v">06-23&nbsp;17:30</span></div>
+          </div>
+        </div>
+
+        <!-- 进度卡 -->
+        <div class="card" style="flex-shrink:0">
+          <div class="card-head">
+            <div class="card-head-icon" style="background:#F0FDF4">
+              <svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#16A34A" stroke-width="1.2"/><path d="M3 6l2 2 4-4" stroke="#16A34A" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="card-title">今日进度</span>
+            <span class="card-title-right">60%</span>
+          </div>
+          <div class="prog-body">
+            <div class="prog-nums">
+              <div>
+                <div class="prog-done">6</div>
+                <div style="font-size:10px;color:var(--text3);text-align:center">已完成</div>
+              </div>
+              <div class="prog-slash">/</div>
+              <div>
+                <div class="prog-total">10</div>
+                <div style="font-size:10px;color:var(--text3);text-align:center">计划</div>
+              </div>
+            </div>
+            <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
+            <div class="prog-sub-row"><span>60% 完成</span><span style="color:#DC2626">剩余 4 件</span></div>
+          </div>
+        </div>
+
+        <!-- 设备状态 -->
+        <div class="card" style="flex-shrink:0">
+          <div class="card-head">
+            <div class="card-head-icon" style="background:#F0FDF4">
+              <svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="#16A34A" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8.5 4" stroke="#16A34A" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            <span class="card-title">设备状态</span>
+          </div>
+          <div class="dev-body">
+            <div class="dev-row">
+              <div class="dev-dot"></div>
+              <div class="dev-status">运行中</div>
+              <div class="dev-time">02:15:33</div>
+            </div>
+            <div class="dev-sub">转速 1200 rpm &nbsp;·&nbsp; 进给 800 mm/min</div>
+            <div class="dev-sub">主轴负载 62% &nbsp;·&nbsp; 冷却液 正常</div>
+          </div>
+        </div>
+
+        <!-- 刀具寿命 -->
+        <div class="card" style="flex-shrink:0">
+          <div class="card-head">
+            <div class="card-head-icon" style="background:#FFF7ED">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M2 10l5-5 1-3 2 1-3 1-5 5H2z" stroke="#C2410C" stroke-width="1.1" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="card-title">刀具寿命</span>
+          </div>
+          <div class="tool-body">
+            <div class="tool-row">
+              <div class="tool-label">T01 镗刀</div>
+              <div class="tool-bar"><div class="tool-fill" style="width:78%;background:linear-gradient(90deg,#F97316,#EA580C)"></div></div>
+              <div class="tool-pct" style="color:#C2410C">78%</div>
+            </div>
+            <div class="tool-row">
+              <div class="tool-label">T03 铣刀</div>
+              <div class="tool-bar"><div class="tool-fill" style="width:43%;background:linear-gradient(90deg,#EF4444,#DC2626)"></div></div>
+              <div class="tool-pct" style="color:#DC2626">43%</div>
+            </div>
+            <div class="tool-row">
+              <div class="tool-label">T06 钻头</div>
+              <div class="tool-bar"><div class="tool-fill" style="width:91%;background:linear-gradient(90deg,#22C55E,#16A34A)"></div></div>
+              <div class="tool-pct" style="color:#16A34A">91%</div>
+            </div>
+            <div class="tool-warn">
+              <svg viewBox="0 0 12 12" fill="none"><path d="M6 1L1 10h10L6 1z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><line x1="6" y1="4.5" x2="6" y2="7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="6" cy="8.5" r="0.5" fill="currentColor"/></svg>
+              T03铣刀寿命偏低，建议本工序后更换
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中列 -->
+      <div class="col-mid">
+
+        <!-- WI 作业指导书 -->
+        <div class="card" style="flex:1;min-height:0">
+          <div class="card-head">
+            <div class="card-head-icon" style="background:#EFF6FF">
+              <svg viewBox="0 0 12 12" fill="none"><rect x="1.5" y="1" width="9" height="10" rx="1" stroke="#1D4ED8" stroke-width="1.1"/><line x1="3.5" y1="3.5" x2="8.5" y2="3.5" stroke="#1D4ED8" stroke-width="0.9"/><line x1="3.5" y1="5.5" x2="8.5" y2="5.5" stroke="#1D4ED8" stroke-width="0.9"/><line x1="3.5" y1="7.5" x2="6.5" y2="7.5" stroke="#1D4ED8" stroke-width="0.9"/></svg>
+            </div>
+            <span class="card-title">作业指导书</span>
+            <span style="font-size:11px;color:var(--text3);margin-left:4px">华天 CAPP · O0623-03</span>
+            <span style="margin-left:auto;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:600">版本 R3 · 最新</span>
+          </div>
+          <div class="wi-body">
+            <div class="wi-step">
+              <div class="wi-num">1</div>
+              <div class="wi-text">按图纸 JFY-2026-083 调出加工程序 O0623-03，核对工件坐标系原点，确认 G54 偏置值正确（X: −125.340, Y: 0, Z: 0）</div>
+            </div>
+            <div class="wi-step">
+              <div class="wi-num">2</div>
+              <div class="wi-text">检查工件装夹是否可靠，确认 4 个定位销全部到位，液压夹紧压力 ≥ 8kN，夹紧后轻敲工件不松动</div>
+            </div>
+            <div class="wi-step">
+              <div class="wi-num">3</div>
+              <div class="wi-text">首件加工完成后 <strong>必须停机</strong>，通知质检人员对关键尺寸进行全检，待质检<strong>签字确认</strong>后方可继续批量加工</div>
+            </div>
+            <div class="wi-step">
+              <div class="wi-num">4</div>
+              <div class="wi-text">批量加工阶段每 5 件抽检 1 次粗糙度，每 10 件抽检 1 次关键尺寸，异常立即停机上报</div>
+            </div>
+            <div class="wi-step" style="border-bottom:none">
+              <div class="wi-num">5</div>
+              <div class="wi-text">加工完毕清洁工件，在流转卡上填写加工数量、操作者工号及完工时间，并扫码报工</div>
+            </div>
+          </div>
+          <div class="wi-alert">
+            <svg viewBox="0 0 14 14" fill="none"><path d="M7 1L1.5 11.5h11L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="7" y1="5" x2="7" y2="8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="7" cy="9.8" r="0.5" fill="currentColor"/></svg>
+            <span><strong>关键尺寸：</strong> φ120±0.02 &nbsp;·&nbsp; Ra ≤ 1.6μm &nbsp;·&nbsp; 位置度 φ0.05 — 超出公差立即停机上报</span>
+          </div>
+          <div class="wi-dwg">
+            <span style="font-size:11.5px;color:var(--text2)">📐 图纸 JFY-2026-083（同步自 PLM &nbsp;·&nbsp; ECN-2026-043 已纳入）</span>
+            <div class="wi-dwg-link">
+              查看完整图纸
+              <svg viewBox="0 0 12 12" fill="none"><path d="M4 2h6v6M10 2L2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 控制计划 -->
+        <div class="card" style="flex-shrink:0">
+          <div class="cp-head">
+            <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><circle cx="7" cy="7" r="5.5" stroke="#94A3B8" stroke-width="1.1"/><path d="M4.5 7l2 2 3-3" stroke="#94A3B8" stroke-width="1.1" stroke-linecap="round"/></svg>
+            <span class="cp-head-title">检验控制计划</span>
+            <span class="cp-head-sub">首件 + 过程抽检</span>
+          </div>
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th style="width:22%">检验项目</th>
+                <th style="width:18%">规格要求</th>
+                <th style="width:14%">量具</th>
+                <th style="width:12%">频次</th>
+                <th style="width:18%">实测值</th>
+                <th style="width:8%;text-align:center">判定</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500">镗孔直径 φ120</td>
+                <td style="font-family:'Fira Code',monospace;font-size:11.5px">120.00 ± 0.02</td>
+                <td>内径量表</td>
+                <td>100%</td>
+                <td><span class="chip chip-pending">待输入</span></td>
+                <td style="text-align:center;color:var(--text3)">—</td>
+              </tr>
+              <tr class="row-ok">
+                <td style="font-weight:500">表面粗糙度 Ra</td>
+                <td style="font-family:'Fira Code',monospace;font-size:11.5px">≤ 1.6 μm</td>
+                <td>粗糙度仪</td>
+                <td>首+5件/次</td>
+                <td><span class="chip chip-ok">1.4</span></td>
+                <td style="text-align:center;color:#16A34A;font-size:15px">✓</td>
+              </tr>
+              <tr class="row-ng">
+                <td style="font-weight:500">位置度</td>
+                <td style="font-family:'Fira Code',monospace;font-size:11.5px">φ 0.05</td>
+                <td>三坐标 CMM</td>
+                <td>首+10件/次</td>
+                <td><span class="chip chip-ng">0.08 ↑</span></td>
+                <td style="text-align:center;color:#991B1B;font-size:15px">✗</td>
+              </tr>
+              <tr>
+                <td style="font-weight:500">平行度</td>
+                <td style="font-family:'Fira Code',monospace;font-size:11.5px">0.03</td>
+                <td>百分表</td>
+                <td>首件</td>
+                <td><span class="chip chip-pending">待输入</span></td>
+                <td style="text-align:center;color:var(--text3)">—</td>
+              </tr>
+              <tr class="row-ok">
+                <td style="font-weight:500">铣面平面度</td>
+                <td style="font-family:'Fira Code',monospace;font-size:11.5px">0.04</td>
+                <td>平板+塞尺</td>
+                <td>首件</td>
+                <td><span class="chip chip-ok">0.03</span></td>
+                <td style="text-align:center;color:#16A34A;font-size:15px">✓</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="cp-ng-banner">
+            <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.1"/><line x1="7" y1="4.5" x2="7" y2="7.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="7" cy="9.2" r="0.5" fill="currentColor"/></svg>
+            位置度超差（0.08 > φ0.05）— 工单已冻结，请通知质检人员复核，不得继续加工
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 右列 -->
+      <div class="col-right">
+
+        <!-- 暂停原因 -->
+        <div class="card" style="flex-shrink:0">
+          <div class="card-head" style="background:#FFF7ED;border-bottom-color:#FED7AA">
+            <div class="card-head-icon" style="background:#FFEDD5">
+              <svg viewBox="0 0 12 12" fill="none"><rect x="3" y="2" width="2.5" height="8" rx="1" fill="#C2410C"/><rect x="6.5" y="2" width="2.5" height="8" rx="1" fill="#C2410C"/></svg>
+            </div>
+            <span class="card-title" style="color:#92400E">暂停 — 选择停机代码</span>
+          </div>
+          <div class="pause-grid">
+            <div class="pause-btn"><div class="pause-code">D01 · 设备</div><div class="pause-name">设备故障</div></div>
+            <div class="pause-btn"><div class="pause-code">D02 · 物料</div><div class="pause-name">等待物料</div></div>
+            <div class="pause-btn"><div class="pause-code">D03 · 质量</div><div class="pause-name">等待质检</div></div>
+            <div class="pause-btn"><div class="pause-code">D04 · 刀具</div><div class="pause-name">换模/换刀</div></div>
+            <div class="pause-btn"><div class="pause-code">D05 · 计划</div><div class="pause-name">计划停机</div></div>
+            <div class="pause-btn"><div class="pause-code">D06 · 工艺</div><div class="pause-name">工艺问题</div></div>
+          </div>
+          <div class="other-btn">D07 · 其他（手写说明）</div>
+        </div>
+
+        <!-- 恢复生产 -->
+        <div class="resume-btn">
+          <svg viewBox="0 0 16 16" fill="none" style="width:16px;height:16px"><path d="M4 2.5l9 5.5-9 5.5V2.5z" fill="white"/></svg>
+          恢复生产
+        </div>
+
+        <!-- 换班打卡 -->
+        <div class="checkin">
+          <div class="avatar" style="width:32px;height:32px;font-size:13px">张</div>
+          <div class="checkin-info">
+            <div class="checkin-name">张伟</div>
+            <div class="checkin-sub">一班 · 08:00 上岗 · 今日工时 02h 35m</div>
+          </div>
+          <div class="checkin-btn">扫码换班</div>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="quick-row">
+          <div class="quick-btn quick-btn-wi">查看完整 WI</div>
+          <div class="quick-btn quick-btn-andon">Andon 呼叫</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 底部操作按钮 -->
+    <div class="action-bar">
+      <button class="action-btn btn-start">
+        <div class="action-main">▶ 开工</div>
+        <div class="action-sub">扫码 / 点击开始计时</div>
+      </button>
+      <button class="action-btn btn-report">
+        <div class="action-main">报工</div>
+        <div class="action-sub">填写完成数量</div>
+      </button>
+      <button class="action-btn btn-pause">
+        <div class="action-main">暂停</div>
+        <div class="action-sub">选择停机代码</div>
+      </button>
+      <button class="action-btn btn-inspect">
+        <div class="action-main">检验</div>
+        <div class="action-sub">录入控制计划</div>
+      </button>
+      <button class="action-btn btn-rework">
+        <div class="action-main">返修</div>
+        <div class="action-sub">发起返工申请</div>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- 右侧 -->
+  <div class="side">
+
+    <!-- 班组长看板 -->
+    <div class="leader">
+      <div class="leader-head">
+        <div class="leader-title">
+          <div class="leader-title-dot"></div>
+          班组长日计划看板
+        </div>
+        <div class="leader-date">2026-06-23 · 一班 (08:00–20:00)</div>
+      </div>
+      <div class="leader-body">
+        <div class="sum-grid">
+          <div class="sum-cell"><div class="sum-label">今日计划</div><div class="sum-val v-def">68</div></div>
+          <div class="sum-cell"><div class="sum-label">已完成</div><div class="sum-val v-ok">46</div></div>
+          <div class="sum-cell"><div class="sum-label">完成率</div><div class="sum-val v-warn">67.6%</div></div>
+          <div class="sum-cell"><div class="sum-label">良品率</div><div class="sum-val v-ok">98.5%</div></div>
+        </div>
+        <table class="proc-table">
+          <thead>
+            <tr>
+              <th>工序</th>
+              <th>计划 / 实际</th>
+              <th>进度</th>
+              <th style="text-align:center">状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#F0FDF4">
+              <td class="proc-name">01 · 机加工</td>
+              <td class="proc-nums" style="color:#16A34A">20 / 20</td>
+              <td><div class="proc-bar-wrap"><div class="proc-bar" style="width:100%;background:linear-gradient(90deg,#22C55E,#16A34A)"></div></div></td>
+              <td class="proc-icon" style="color:#16A34A">✓</td>
+            </tr>
+            <tr style="background:#FFFBEB">
+              <td class="proc-name">02 · 焊接</td>
+              <td class="proc-nums" style="color:#D97706">18 / 16</td>
+              <td><div class="proc-bar-wrap"><div class="proc-bar" style="width:89%;background:linear-gradient(90deg,#FBBF24,#F59E0B)"></div></div></td>
+              <td class="proc-icon" style="color:#D97706">⚠</td>
+            </tr>
+            <tr style="background:#FEF2F2">
+              <td class="proc-name">03 · 涂装</td>
+              <td class="proc-nums" style="color:#DC2626">16 / 6</td>
+              <td><div class="proc-bar-wrap"><div class="proc-bar" style="width:37%;background:linear-gradient(90deg,#F87171,#DC2626)"></div></div></td>
+              <td class="proc-icon" style="color:#DC2626">✗</td>
+            </tr>
+            <tr style="background:#FEF2F2">
+              <td class="proc-name">04 · 装配</td>
+              <td class="proc-nums" style="color:#DC2626">14 / 4</td>
+              <td><div class="proc-bar-wrap"><div class="proc-bar" style="width:29%;background:linear-gradient(90deg,#F87171,#DC2626)"></div></div></td>
+              <td class="proc-icon" style="color:#DC2626">✗</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="warn-banner">
+          <svg viewBox="0 0 13 13" fill="none"><path d="M6.5 1L1 11h11L6.5 1z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><line x1="6.5" y1="4.5" x2="6.5" y2="7.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="6.5" cy="9.2" r="0.5" fill="currentColor"/></svg>
+          <span><strong>涂装/装配工序滞后</strong>，按当前进度预计完成 ~54件（79.4%），建议追加班次或协调资源</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 工厂 KPI -->
+    <div class="kpi">
+      <div class="kpi-head">
+        <div class="kpi-title">
+          <div class="kpi-title-dot"></div>
+          工厂 KPI 实时总览
+        </div>
+        <div class="kpi-date">2026-06-23 · 截止 08:35</div>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">综合设备效率 OEE</div>
+            <div class="kpi-val" style="color:#D97706">72.3%</div>
+            <div class="kpi-bar-row">
+              <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:72.3%;background:#F59E0B"></div></div>
+              <span style="font-size:10px;color:var(--text3);font-family:'Fira Code',monospace">72/85</span>
+            </div>
+            <div class="kpi-meta"><span class="kpi-target">目标 85%</span><span class="kpi-delta-neg">▼ -12.7%</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">产量完成率</div>
+            <div class="kpi-val" style="color:#DC2626">67.6%</div>
+            <div class="kpi-bar-row">
+              <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:67.6%;background:#EF4444"></div></div>
+              <span style="font-size:10px;color:var(--text3);font-family:'Fira Code',monospace">46/68</span>
+            </div>
+            <div class="kpi-meta"><span class="kpi-target">目标 95%</span><span class="kpi-delta-neg">▼ -27.4%</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">质量合格率</div>
+            <div class="kpi-val" style="color:#16A34A">98.5%</div>
+            <div class="kpi-bar-row">
+              <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:98.5%;background:#22C55E"></div></div>
+              <span style="font-size:10px;color:var(--text3);font-family:'Fira Code',monospace">199/202</span>
+            </div>
+            <div class="kpi-meta"><span class="kpi-target">目标 99%</span><span class="kpi-delta-neg">▼ -0.5%</span></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">设备稼动率</div>
+            <div class="kpi-val" style="color:#1D4ED8">81.2%</div>
+            <div class="kpi-bar-row">
+              <div class="kpi-bar-wrap"><div class="kpi-bar-fill" style="width:81.2%;background:#3B82F6"></div></div>
+              <span style="font-size:10px;color:var(--text3);font-family:'Fira Code',monospace">9.7/12h</span>
+            </div>
+            <div class="kpi-meta"><span class="kpi-target">目标 90%</span><span class="kpi-delta-neg">▼ -8.8%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ========== 数据模拟 ==========
+let currentTask = {
+  id: 'WO20260624-001',
+  name: '电机组件总装',
+  spec: 'DX-2026-001',
+  planQty: 100,
+  completedQty: 46,
+  qualifiedQty: 45,
+  defectQty: 1
+};
+
+let workStatus = 'idle'; // idle | working | paused
+let workStartTime = null;
+let pauseReason = null;
+
+// ========== 模态框通用函数 ==========
+function showModal(title, content, buttons) {
+  const existing = document.querySelector('.modal-overlay');
+  if (existing) existing.remove();
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+  `;
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-box';
+  modal.style.cssText = `
+    background: white; border-radius: 12px; padding: 0;
+    min-width: 500px; max-width: 600px; max-height: 80vh;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;
+  `;
+  
+  modal.innerHTML = `
+    <div style="padding: 20px 24px; border-bottom: 1px solid #E2E8F0; background: #F8FAFC;">
+      <h3 style="font-size: 18px; font-weight: 600; color: #1E293B; margin: 0;">${title}</h3>
+    </div>
+    <div style="padding: 24px; max-height: 60vh; overflow-y: auto;">
+      ${content}
+    </div>
+    <div style="padding: 16px 24px; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 10px; background: #F8FAFC;">
+      ${buttons}
+    </div>
+  `;
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+}
+
+function closeModal() {
+  const overlay = document.querySelector('.modal-overlay');
+  if (overlay) overlay.remove();
+}
+
+// ========== 开工 ==========
+document.querySelector('.btn-start').addEventListener('click', () => {
+  if (workStatus === 'working') {
+    alert('任务已在进行中');
+    return;
+  }
+  
+  showModal(
+    '开工确认',
+    `
+      <div style="font-size: 15px; line-height: 1.8;">
+        <p style="margin-bottom: 12px;"><strong>工单号：</strong>${currentTask.id}</p>
+        <p style="margin-bottom: 12px;"><strong>物料名称：</strong>${currentTask.name}</p>
+        <p style="margin-bottom: 12px;"><strong>规格型号：</strong>${currentTask.spec}</p>
+        <p style="margin-bottom: 12px;"><strong>计划数量：</strong>${currentTask.planQty} 件</p>
+        <div style="margin-top: 20px; padding: 15px; background: #EFF6FF; border-left: 4px solid #1D4ED8; border-radius: 6px;">
+          <strong style="color: #1E40AF;">提示：</strong>点击确认后开始计时，请准备好物料和工具
+        </div>
+      </div>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">取消</button>
+      <button onclick="confirmStart()" style="padding: 10px 24px; border: none; background: #166534; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">确认开工</button>
+    `
+  );
+});
+
+function confirmStart() {
+  workStatus = 'working';
+  workStartTime = new Date();
+  closeModal();
+  alert('✓ 已开工，开始计时');
+  updateUI();
+}
+
+// ========== 报工 ==========
+document.querySelector('.btn-report').addEventListener('click', () => {
+  if (workStatus !== 'working') {
+    alert('请先开工');
+    return;
+  }
+  
+  showModal(
+    '报工 — 填写完成数量',
+    `
+      <div style="font-size: 14px;">
+        <p style="margin-bottom: 16px; color: #64748B;">当前进度：${currentTask.completedQty} / ${currentTask.planQty} 件</p>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">本次完成数量 *</label>
+          <input id="reportQty" type="number" min="1" value="10" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;" />
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">合格数量 *</label>
+          <input id="qualifiedQty" type="number" min="0" value="10" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;" />
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">不良数量</label>
+          <input id="defectQty" type="number" min="0" value="0" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;" />
+        </div>
+        
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">备注</label>
+          <textarea id="reportRemark" rows="3" placeholder="选填：加工过程中的注意事项" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
+        </div>
+      </div>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">取消</button>
+      <button onclick="submitReport()" style="padding: 10px 24px; border: none; background: #1D4ED8; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">提交报工</button>
+    `
+  );
+});
+
+function submitReport() {
+  const qty = parseInt(document.getElementById('reportQty').value);
+  const qualified = parseInt(document.getElementById('qualifiedQty').value);
+  const defect = parseInt(document.getElementById('defectQty').value);
+  
+  if (qty <= 0 || qualified < 0 || defect < 0) {
+    alert('请输入有效数量');
+    return;
+  }
+  
+  if (qualified + defect !== qty) {
+    alert('合格数 + 不良数 必须等于完成数');
+    return;
+  }
+  
+  currentTask.completedQty += qty;
+  currentTask.qualifiedQty += qualified;
+  currentTask.defectQty += defect;
+  
+  closeModal();
+  alert(`✓ 报工成功！
+本次：${qty}件
+合格：${qualified}件
+不良：${defect}件
+当前进度：${currentTask.completedQty}/${currentTask.planQty}`);
+  updateUI();
+}
+
+// ========== 暂停 ==========
+document.querySelector('.btn-pause').addEventListener('click', () => {
+  if (workStatus !== 'working') {
+    alert('当前未在工作状态');
+    return;
+  }
+  
+  showModal(
+    '暂停 — 选择停机代码',
+    `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <button onclick="pauseWithReason('D01 · 设备故障')" class="pause-option">D01 · 设备故障</button>
+        <button onclick="pauseWithReason('D02 · 等待物料')" class="pause-option">D02 · 等待物料</button>
+        <button onclick="pauseWithReason('D03 · 等待质检')" class="pause-option">D03 · 等待质检</button>
+        <button onclick="pauseWithReason('D04 · 换模换刀')" class="pause-option">D04 · 换模换刀</button>
+        <button onclick="pauseWithReason('D05 · 计划停机')" class="pause-option">D05 · 计划停机</button>
+        <button onclick="pauseWithReason('D06 · 工艺问题')" class="pause-option">D06 · 工艺问题</button>
+      </div>
+      <style>
+        .pause-option {
+          padding: 16px 12px; background: #FFF7ED; border: 2px solid #FED7AA;
+          border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;
+          color: #C2410C; transition: all 0.2s;
+        }
+        .pause-option:hover {
+          background: #FFEDD5; border-color: #FDBA74; transform: translateY(-2px);
+        }
+      </style>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">取消</button>
+    `
+  );
+});
+
+function pauseWithReason(reason) {
+  workStatus = 'paused';
+  pauseReason = reason;
+  closeModal();
+  alert(`✓ 已暂停
+原因：${reason}`);
+  updateUI();
+}
+
+// ========== 恢复生产 ==========
+document.querySelector('.resume-btn').addEventListener('click', () => {
+  if (workStatus !== 'paused') {
+    alert('当前未处于暂停状态');
+    return;
+  }
+  
+  if (confirm('确认恢复生产吗？')) {
+    workStatus = 'working';
+    pauseReason = null;
+    alert('✓ 已恢复生产');
+    updateUI();
+  }
+});
+
+// ========== 检验 ==========
+document.querySelector('.btn-inspect').addEventListener('click', () => {
+  showModal(
+    '质量检验 — 录入控制计划',
+    `
+      <div style="font-size: 14px;">
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">检验项目 *</label>
+          <select id="inspectItem" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;">
+            <option>尺寸检验（长×宽×高）</option>
+            <option>外观检验</option>
+            <option>功能检验</option>
+            <option>位置度检验</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">检验结果 *</label>
+          <select id="inspectResult" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;">
+            <option value="pass">✓ 合格</option>
+            <option value="fail">✗ 不合格</option>
+          </select>
+        </div>
+        
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">检验说明</label>
+          <textarea id="inspectRemark" rows="3" placeholder="填写检验详情或不合格原因" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
+        </div>
+      </div>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">取消</button>
+      <button onclick="submitInspect()" style="padding: 10px 24px; border: none; background: #166534; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">提交检验</button>
+    `
+  );
+});
+
+function submitInspect() {
+  const item = document.getElementById('inspectItem').value;
+  const result = document.getElementById('inspectResult').value;
+  const remark = document.getElementById('inspectRemark').value;
+  
+  closeModal();
+  alert(`✓ 检验已提交
+项目：${item}
+结果：${result === 'pass' ? '合格' : '不合格'}${remark ? '
+说明：' + remark : ''}`);
+}
+
+// ========== 返修 ==========
+document.querySelector('.btn-rework').addEventListener('click', () => {
+  showModal(
+    '返修申请',
+    `
+      <div style="font-size: 14px;">
+        <div style="margin-bottom: 16px; padding: 15px; background: #FFF7ED; border-left: 4px solid #F97316; border-radius: 6px;">
+          <strong style="color: #C2410C;">提示：</strong>返修需要班组长审批
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">返修数量 *</label>
+          <input id="reworkQty" type="number" min="1" value="1" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;" />
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">不良原因 *</label>
+          <select id="reworkReason" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px;">
+            <option>尺寸超差</option>
+            <option>表面划伤</option>
+            <option>焊接不良</option>
+            <option>装配错误</option>
+            <option>其他</option>
+          </select>
+        </div>
+        
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #1E293B;">详细说明 *</label>
+          <textarea id="reworkDesc" rows="4" placeholder="详细描述不良现象和建议的返修方案" style="width: 100%; padding: 10px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
+        </div>
+      </div>
+    `,
+    `
+      <button onclick="closeModal()" style="padding: 10px 20px; border: 1px solid #CBD5E1; background: white; border-radius: 6px; cursor: pointer; font-size: 14px;">取消</button>
+      <button onclick="submitRework()" style="padding: 10px 24px; border: none; background: #991B1B; color: white; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">提交申请</button>
+    `
+  );
+});
+
+function submitRework() {
+  const qty = document.getElementById('reworkQty').value;
+  const reason = document.getElementById('reworkReason').value;
+  const desc = document.getElementById('reworkDesc').value;
+  
+  if (!desc.trim()) {
+    alert('请填写详细说明');
+    return;
+  }
+  
+  closeModal();
+  alert(`✓ 返修申请已提交
+数量：${qty}件
+原因：${reason}
+
+等待班组长审批...`);
+}
+
+// ========== Andon呼叫 ==========
+document.querySelector('.quick-btn-andon').addEventListener('click', () => {
+  if (confirm('确认触发 Andon 紧急呼叫吗？
+
+班组长和维护人员将立即收到通知')) {
+    alert('✓ Andon 呼叫已发送
+
+班组长正在赶来...');
+  }
+});
+
+// ========== 查看WI ==========
+document.querySelector('.quick-btn-wi').addEventListener('click', () => {
+  alert('查看完整作业指导书
+
+（此处可嵌入 PDF 或图片查看器）');
+});
+
+// ========== 更新UI状态 ==========
+function updateUI() {
+  // 更新进度等（如需动态更新页面内容）
+  console.log('UI已更新', {workStatus, currentTask});
+}
+
+// 初始化
+updateUI();
+console.log('宇树MES工人操作端已加载');
+</script>
+
+</body>
+</html>
