@@ -32,9 +32,13 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
-  min-width: 1280px; width: 100%; height: 100vh;
-  overflow: auto;
-  background: var(--bg);
+  margin: 0; padding: 0;
+  width: 100%; height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', Arial, sans-serif;
   font-size: 13px;
   color: var(--text1);
@@ -42,7 +46,7 @@ html, body {
 }
 
 /* ── 顶部导航 ── */
-.nav {
+.nav { display: none !important;
   height: var(--nav-h);
   background: #0F172A;
   display: flex;
@@ -137,10 +141,11 @@ html, body {
 
 /* ── 左侧工作区 ── */
 .main {
-  width: 1220px;
-  display: flex; flex-direction: column;
-  border-right: 1px solid var(--border);
-  flex-shrink: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  width: 100%;
 }
 
 /* 面包屑 */
@@ -444,7 +449,7 @@ html, body {
 .btn-rework { background: linear-gradient(135deg, #6D28D9, #5B21B6); color: white; }
 
 /* ── 右侧区域 ── */
-.side { flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg); }
+.side { display: none !important; flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg); }
 
 /* 班组看板 */
 .leader { flex: 1; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); overflow: hidden; }
@@ -511,9 +516,287 @@ html, body {
 .kpi-target { color: var(--text3); }
 .kpi-delta-neg { color: #DC2626; font-weight: 600; }
 .kpi-delta-pos { color: #16A34A; font-weight: 600; }
+
+/* === Pad 平板容器 === */
+.pad-wrapper {
+  width: 1194px;
+  height: 746px;
+  background: #000;
+  border-radius: 24px;
+  padding: 12px;
+  box-shadow: 
+    0 20px 60px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.1),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  position: relative;
+}
+
+.pad-camera {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+  z-index: 100;
+}
+
+.pad-screen {
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  border-radius: 16px;
+  overflow: auto;
+  position: relative;
+}
+
+
+/* === 底部抽屉 === */
+.bottom-drawer {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.2);
+  transition: bottom 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom-drawer.show {
+  bottom: 0;
+}
+
+.drawer-handle {
+  width: 40px;
+  height: 4px;
+  background: #CBD5E1;
+  border-radius: 2px;
+  margin: 12px auto;
+  flex-shrink: 0;
+}
+
+.drawer-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.drawer-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E293B;
+}
+
+.drawer-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #F1F5F9;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #64748B;
+}
+
+.drawer-close:hover {
+  background: #E2E8F0;
+}
+
+.drawer-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  display: none;
+}
+
+.drawer-overlay.show {
+  display: block;
+}
+/* === 右侧SOP面板 === */
+.sop-panel {
+  position: fixed;
+  top: 0;
+  right: -70%;
+  width: 70%;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sop-panel.show {
+  right: 0;
+}
+
+.sop-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sop-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.sop-close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(255,255,255,0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 20px;
+  color: white;
+}
+
+.sop-close:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.sop-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.sop-section {
+  margin-bottom: 32px;
+}
+
+.sop-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #E2E8F0;
+}
+
+.sop-drawing {
+  background: #F8FAFC;
+  border: 2px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.sop-drawing-icon {
+  font-size: 48px;
+  color: #64748B;
+  margin-bottom: 12px;
+}
+
+.sop-drawing-text {
+  font-size: 14px;
+  color: #64748B;
+}
+
+.sop-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sop-step {
+  background: white;
+  border: 2px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+
+.sop-step:hover {
+  border-color: #3B82F6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.sop-step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sop-step-num {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.sop-step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.sop-step-content {
+  margin-left: 44px;
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.8;
+}
+
+.sop-step-detail {
+  margin-top: 8px;
+  padding: 12px;
+  background: #F8FAFC;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #64748B;
+}
+
+.sop-step-warning {
+  margin-top: 8px;
+  padding: 12px;
+  background: #FFF7ED;
+  border-left: 4px solid #F97316;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #C2410C;
+}
+
+
 </style>
 </head>
 <body>
+<div class="pad-wrapper">
+  <div class="pad-camera"></div>
+  <div class="pad-screen">
 
 <!-- ======= 导航栏 ======= -->
 <nav class="nav">
@@ -1342,6 +1625,179 @@ function updateUI() {
 // 初始化
 updateUI();
 console.log('宇树MES工人操作端已加载');
+</script>
+
+
+<!-- 底部抽屉：检验控制计划 -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="bottom-drawer" id="inspectDrawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-header">
+    <div class="drawer-title">检验控制计划</div>
+    <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+  </div>
+  <div class="drawer-body" id="drawerContent">
+    <!-- 检验表格会动态插入这里 -->
+  </div>
+</div>
+
+<script>
+// 打开抽屉
+function openDrawer() {
+  const drawer = document.getElementById('inspectDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  const content = document.getElementById('drawerContent');
+  
+  // 复制检验表格内容到抽屉
+  const inspectPanel = document.getElementById('inspectPanel');
+  if (inspectPanel) {
+    content.innerHTML = inspectPanel.innerHTML;
+  }
+  
+  drawer.classList.add('show');
+  overlay.classList.add('show');
+}
+
+// 关闭抽屉
+function closeDrawer() {
+  document.getElementById('inspectDrawer').classList.remove('show');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+// 给检验按钮添加点击事件
+document.addEventListener('DOMContentLoaded', function() {
+  // 找到检验按钮并绑定事件
+  const inspectBtn = document.querySelector('.action-btn-inspect');
+  if (inspectBtn) {
+    inspectBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openDrawer();
+    });
+  }
+});
+</script>
+
+  </div>
+</div>
+
+<!-- 右侧SOP面板 -->
+<div class="sop-panel" id="sopPanel">
+  <div class="sop-header">
+    <div class="sop-title">作业指导书 · O0623-03</div>
+    <button class="sop-close" onclick="closeSOP()">&times;</button>
+  </div>
+  <div class="sop-body">
+    <!-- 图纸区域 -->
+    <div class="sop-section">
+      <div class="sop-section-title">📐 工程图纸</div>
+      <div class="sop-drawing">
+        <div class="sop-drawing-icon">🖼</div>
+        <div class="sop-drawing-text">图纸编号：JFY-2026-083</div>
+        <div class="sop-drawing-text" style="margin-top: 8px; color: #3B82F6; cursor: pointer;" onclick="alert('打开图纸大图')">点击查看大图 →</div>
+      </div>
+    </div>
+
+    <!-- 操作步骤 -->
+    <div class="sop-section">
+      <div class="sop-section-title">📋 操作步骤</div>
+      <div class="sop-steps">
+        <div class="sop-step">
+          <div class="sop-step-header">
+            <div class="sop-step-num">1</div>
+            <div class="sop-step-title">按图纸 JFY-2026-083 调出加工程序 O0623-03</div>
+          </div>
+          <div class="sop-step-content">
+            核对工件坐标系原点 (X: -125.340, Y: 0, Z: 0)
+          </div>
+          <div class="sop-step-detail">
+            ⏱ 预计用时：5分钟
+          </div>
+        </div>
+
+        <div class="sop-step">
+          <div class="sop-step-header">
+            <div class="sop-step-num">2</div>
+            <div class="sop-step-title">检查工件装夹是否牢固</div>
+          </div>
+          <div class="sop-step-content">
+            确认 4 个定位销全部到位，液压夹紧力 ≥ 8kN，夹紧后敲击工件不松动
+          </div>
+          <div class="sop-step-warning">
+            ⚠️ 必须敲击确认，否则加工时工件飞出有危险
+          </div>
+        </div>
+
+        <div class="sop-step">
+          <div class="sop-step-header">
+            <div class="sop-step-num">3</div>
+            <div class="sop-step-title">首件加工完成后必须送检</div>
+          </div>
+          <div class="sop-step-content">
+            通知质检员使用 G54 偏置值，确认关键尺寸符合公差要求，待质检签字确认后方可继续批量加工
+          </div>
+          <div class="sop-step-detail">
+            检验项目：位置度 φ0.05、表面粗糙度 Ra ≤ 1.6μm、位置度 φ0.05
+          </div>
+        </div>
+
+        <div class="sop-step">
+          <div class="sop-step-header">
+            <div class="sop-step-num">4</div>
+            <div class="sop-step-title">批量加工时每隔 5 件抽检 1 次</div>
+          </div>
+          <div class="sop-step-content">
+            每 10 件抽检 1 次关键尺寸，异常立即即时停机上报
+          </div>
+        </div>
+
+        <div class="sop-step">
+          <div class="sop-step-header">
+            <div class="sop-step-num">5</div>
+            <div class="sop-step-title">加工完毕清洁工件</div>
+          </div>
+          <div class="sop-step-content">
+            在清洗槽卡上擦写加工数量，操作者工号及完成时间，并扣除报损工时
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 关键参数 -->
+    <div class="sop-section">
+      <div class="sop-section-title">⚙️ 关键参数</div>
+      <div style="background: #F8FAFC; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 1.8;">
+        <div><strong>主轴转速：</strong>1200 rpm</div>
+        <div><strong>进给速度：</strong>800 mm/min</div>
+        <div><strong>主轴负载：</strong>62%</div>
+        <div><strong>冷却液温度：</strong>正常</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 打开SOP面板
+function openSOP() {
+  document.getElementById('sopPanel').classList.add('show');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+
+// 关闭SOP面板
+function closeSOP() {
+  document.getElementById('sopPanel').classList.remove('show');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+// 给"查看完整WI"按钮绑定事件
+document.addEventListener('DOMContentLoaded', function() {
+  const wiBtn = document.querySelector('.quick-btn-wi');
+  if (wiBtn) {
+    wiBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openSOP();
+    });
+  }
+});
 </script>
 
 </body>
